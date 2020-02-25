@@ -152,14 +152,14 @@ PlotsData.1<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\
 PlotsData<-spTransform(PlotsData.1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") )
  
 
-plot(PlotsData, lwd=2, border="RED", add=T)
+plot(PlotsData, lwd=2, border="CYAN", add=T)
 
 
-#################                         Plant population estimates              ######################
+#################                         Plant population estimates  based on the 0 ,1 ,2 survey system              ######################
 
 #########################            Plants_0 2013                          ###########################
 
-########### Read infor mation about the shape files ###########
+########### Read information about the shape files ###########
 
 #readClipboard()
 ogrInfo("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\Plants_0.shp")  ; 
@@ -186,7 +186,7 @@ plot(Plants_0_2013, pch=20, col="RED", add=T) ;
 
 #########################            Plants_1 2013                        ###########################
 
-########### Read infor mation about the shape files ###########
+########### Readinfor mation about the shape files ###########
 
 #readClipboard()
 ogrInfo("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\Plants_1.shp")  ; 
@@ -215,7 +215,7 @@ plot(Plants_2_2013, pch=20, col="BLUE", add=T) ;
 #########################            Plants_2 2013                        ###########################
 
 
-########### Read infor mation about the shape files ###########
+########### Read information about the shape files ###########
 
 #readClipboard()
 ogrInfo("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\Plants_2.shp")  ;
@@ -227,7 +227,7 @@ ogrInfo("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\Plants_part2_
 Plants_2.1<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\Plants_2.shp")  ;
 Plants_2.2<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\Plants_part2_2.shp")  ;
 
-#### Aggreate the sape files into one
+#### Aggreate the shape files into one
 
 Plants_2_all<-rbind(Plants_2.1,Plants_2.2) ;
 
@@ -240,14 +240,118 @@ plot(Plants_2_2013, pch=20, col="DARKGREEN", add=T) ;
 
 
 
+#########################            Plants_0 2014                        ###########################
+
+########### Read information about the shape files ###########
+
+#readClipboard()
+ogrInfo("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\Final.data_2014-04-09.10.11-plants0.shp")  ;
+ogrInfo("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\Final.data_2014-04-10_plants0.shp")  ;
+
+
+#### read the shape file 
+
+Plants_0.1.2014<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\Final.data_2014-04-09.10.11-plants0.shp")  ;
+Plants_0.2.2014<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\Final.data_2014-04-10_plants0.shp")  ;
+
+
+#### Aggreate the shape files into one
+
+Plants_0_all.2014<-rbind(Plants_0.1.2014,Plants_0.2.2014) ;
+
+#### Change the projection to EPSG:5070 - NAD83 / Conus Albers - Projected  
+
+Plants_0_all.2014<-spTransform(Plants_0_all.2014, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
+
+
+plot(Plants_0_all.2014, pch=20, col="RED", add=T) ;
+
+
+#########################            Plants_1 2014                        ###########################
+
+########### Read information about the shape files ###########
+
+#readClipboard()
+ogrInfo("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\Final.data_2014-04-09.10.11-plants1.shp")  ;
+ogrInfo("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\Final.data_2014-04-10_plants1.shp")  ;
+
+
+#### read the shape file 
+
+Plants_1.1.2014<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\Final.data_2014-04-09.10.11-plants1.shp")  ;
+Plants_1.2.2014<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\Final.data_2014-04-10_plants1.shp")  ;
+
+
+#### Aggreate the shape files into one
+
+Plants_1_all.2014<-rbind(Plants_1.1.2014,Plants_1.2.2014) ;
+
+#### Change the projection to EPSG:5070 - NAD83 / Conus Albers - Projected  
+
+Plants_1_all.2014<-spTransform(Plants_1_all.2014, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
+
+
+plot(Plants_1_all.2014, pch=20, col="BLUE", add=T) ;
+
+
+#########################            Plants_2 2014                        ###########################
+
+########### Read information about the shape files ###########
+
+#readClipboard()
+ogrInfo("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\Final.data_2014-04-09.10.11-plants2.shp")  ;
+ogrInfo("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\Final.data_2014-04-10_plants2.shp")  ;
+
+
+#### read the shape file 
+
+Plants_2.1.2014<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\Final.data_2014-04-09.10.11-plants2.shp")  ;
+Plants_2.2.2014<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\Final.data_2014-04-10_plants2.shp")  ;
+
+
+#### Aggreate the shape files into one
+
+Plants_2_all.2014<-rbind(Plants_2.1.2014,Plants_2.2.2014) ;
+
+#### Change the projection to EPSG:5070 - NAD83 / Conus Albers - Projected  
+
+Plants_2_all.2014<-spTransform(Plants_2_all.2014, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
+
+
+plot(Plants_2_all.2014, pch=20, col="DARKGREEN", add=T) ;
 
 
 
 
 
+#################   Conversion of the Plant population estimates  based on the 0 ,1 ,2 survey system to plants/m2             ######################
+#
+#
+# Based on the diagram of the planting C:\Felipe\Willow_Project\Drawings and Pictures\Final Drawings\Cutting Spacing Rockview20120502.tif 
+#
+#
+##################                            #################                                   #################
+
+#### Two plants per row
+
+Row.width.ft<-3.0 + 2.5 + 3.0
+Row.length.PerTwoplants.ft<-2.0 
+
+Plant.Density.2.ft2<-Row.width.ft*Row.length.PerTwoplants.ft /2    #ft2/plant
+
+Plant.Density.1.ft2<-Row.width.ft*Row.length.PerTwoplants.ft /1   #ft2/plant
+
+
+Plant.Density.2.m2<-Plant.Density.2.ft2 / 10.76391   # m2/plant
+
+Plant.Density.1.m2<-Plant.Density.1.ft2 / 10.76391   # m2/plant
+
+Plant.Density.2.ha<-10000 / Plant.Density.2.m2  # plants/ha 
+
+Plant.Density.1.ha<-10000 / Plant.Density.1.m2 # plants/ha 
+
+##############  Addint the information about plant density to the plaqnt population estimates shape files
 
 
 
-llgridlines(PlotsData, ndiscr = 20, lty = 2, offset=0.5, side="WS",
-            llcrs = "+proj=longlat +datum=WGS84", plotLines = TRUE, plotLabels =
-              TRUE)
+
