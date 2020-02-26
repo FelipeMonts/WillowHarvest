@@ -44,7 +44,7 @@ setwd("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowHa
 
 # Install the packages that are needed #
 
-
+#install.packages('fields', dep=T)
 
 
 
@@ -62,6 +62,8 @@ library(sp) ;
 
 
 library(openxlsx);
+
+library(fields);
 
 
 ###############################################################################################################
@@ -205,10 +207,10 @@ Plants_1_all<-rbind(Plants_1.1,Plants_1.2) ;
 
 #### Change the projection to EPSG:5070 - NAD83 / Conus Albers - Projected  
 
-Plants_2_2013<-spTransform(Plants_1_all, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
+Plants_1_2013<-spTransform(Plants_1_all, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
 
 
-plot(Plants_2_2013, pch=20, col="BLUE", add=T) ;
+plot(Plants_1_2013, pch=20, col="BLUE", add=T) ;
 
 
 
@@ -336,22 +338,79 @@ plot(Plants_2_all.2014, pch=20, col="DARKGREEN", add=T) ;
 
 Row.width.ft<-3.0 + 2.5 + 3.0
 Row.length.PerTwoplants.ft<-2.0 
+Row.length.Zeroplants.ft<-7.0
+
 
 Plant.Density.2.ft2<-Row.width.ft*Row.length.PerTwoplants.ft /2    #ft2/plant
 
 Plant.Density.1.ft2<-Row.width.ft*Row.length.PerTwoplants.ft /1   #ft2/plant
 
+############################################### Think about the lower bound for 0 plants ###################################
+
+#Plant.Density.0.ft2<-Row.width.ft*Row.length.Zeroplants.ft/1   #ft2/plant Ma  
+
+############################################### Think about the lower bound for 0 plants ###################################
 
 Plant.Density.2.m2<-Plant.Density.2.ft2 / 10.76391   # m2/plant
 
 Plant.Density.1.m2<-Plant.Density.1.ft2 / 10.76391   # m2/plant
 
+
+############################################### Think about the lower bound for 0 plants ###################################
+
+# Plant.Density.0.m2<-Plant.Density.0.ft2 / 10.76391   # m2/plant
+
+############################################### Think about the lower bound for 0 plants ###################################
+
 Plant.Density.2.ha<-10000 / Plant.Density.2.m2  # plants/ha 
 
 Plant.Density.1.ha<-10000 / Plant.Density.1.m2 # plants/ha 
 
-##############  Addint the information about plant density to the plaqnt population estimates shape files
+
+############################################### Think about the lower bound for 0 plants ###################################
+
+#  Plant.Density.0.ha<-10000 / Plant.Density.0.m2 # plants/ha 
+
+############################################### Think about the lower bound for 0 plants ###################################
+
+##############  Addin the information about plant density to the plaqnt population estimates shape files
+
+str(Plants_0_2013@data)
+View(Plants_0_2013@data)
+
+Plants_0_2013@data$PlantDensity<-Plant.Density.0.ha  ;
+
+Plants_1_2013@data$PlantDensity<-Plant.Density.1.ha   ;
+
+Plants_2_2013@data$PlantDensity<-Plant.Density.2.ha   ;
+
+
+#### Aggreate the 2013 shape files into one
+
+Plants.2013<-rbind(Plants_0_2013,Plants_1_2013,Plants_2_2013) ;
+View(Plants.2013)
 
 
 
 
+
+Plants_0_all.2014@data$PlantDensity<-Plant.Density.0.ha  ;
+
+Plants_1_all.2014@data$PlantDensity<-Plant.Density.1.ha  ;
+
+Plants_2_all.2014@data$PlantDensity<-Plant.Density.2.ha   ;
+
+
+
+#### Aggreate the 2014 shape files into one
+
+Plants.2014<-rbind(Plants_0_all.2014,Plants_1_all.2014,Plants_2_all.2014) ;
+View(Plants.2014)
+
+
+
+####### Using the fields package to do krigging on the plant data
+
+Plants.2013@coords
+
+quilt.plot(Plants.2013@coords,Plants.2013@data$PlantDensity )
