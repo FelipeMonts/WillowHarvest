@@ -416,7 +416,11 @@ Plants.2013@coords
 
 quilt.plot(Plants.2013@coords,Plants.2013@data$PlantDensity ) ;
 
+str(Plants.2013@data$cmt)
 
+hist(as.numeric(Plants.2013@data$cmt))
+
+quilt.plot(Plants.2013@coords,Plants.2013@data$cmt ) ;
 
 #### Plants.2013.sp<-spatialProcess(Plants.2013@coords,Plants.2013@data$PlantDensity); ### spatialProcess doeas not converge in pc time
 #### Another methods needs to be tested
@@ -425,8 +429,12 @@ quilt.plot(Plants.2013@coords,Plants.2013@data$PlantDensity ) ;
 
 
 
-Plants.2013.Tps<-Tps(Plants.2013@coords,Plants.2013@data$PlantDensity)
+Plants.2013.Tps.V1<-Tps(Plants.2013@coords,Plants.2013@data$PlantDensity);
 
+Plants.2013.Tps.V2<-Tps(Plants.2013@coords,as.numeric(Plants.2013@data$cmt));
+
+
+str(as.numeric(Plants.2013@data$cmt))
 
 str(Plants.2013@coords)
 max(Plants.2013@data$PlantDensity)
@@ -445,16 +453,30 @@ y.coords<-seq(min(Plants.2013@coords[,2]),max(Plants.2013@coords[,2]),1) ;
 Rock.View.grid<-list(x.coords,y.coords) ;
 names(Rock.View.grid)<-c('x', 'y') ;
 
-Plants.2013.Tps.image<-predictSurface(Plants.2013.Tps,grid.list=Rock.View.grid, extrap = T )
+Plants.2013.Tps.image.V1<-predictSurface(Plants.2013.Tps.V1,grid.list=Rock.View.grid, extrap = T )
 
-plot(raster(Plants.2013.Tps.image))
+Plants.2013.Tps.image.V2<-predictSurface(Plants.2013.Tps.V2,grid.list=Rock.View.grid, extrap = T )
+
+
+
+Plants.2013.Tps.sp.V1<-as(raster(Plants.2013.Tps.image.V1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")), 'SpatialGridDataFrame');
+newr2 <-
+
+plot(Plants.2013.Tps.sp.V1)
+
+plot(TractorGPS,add=T)
+
+getData(raster(Plants.2013.Tps.image.V1))
+
+plot(raster(Plants.2013.Tps.image.V2))
+
 
 
 image.plot(Plants.2013.Tps.image,col=rev(terrain.colors(10))))
 
 str(surface(Plants.2013.Tps, type="C", nx=100, ny=100,levels=c(seq(0,13000, 500)), col=rev(terrain.colors(10))  ))
 
-as.image()
+
 
 
 
