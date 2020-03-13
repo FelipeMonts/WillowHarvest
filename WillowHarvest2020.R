@@ -115,6 +115,9 @@ Harvest2019$Cultivar<-as.factor(Harvest2019$Variety) ;
 #levels(Harvest2019$Cultivar)
 
 
+
+
+
 ###############################################################################################################
 #                           load Willow field GIS Maps
 ###############################################################################################################
@@ -137,6 +140,85 @@ TractorGPS<-spTransform(TractorGPS.1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +la
 
 
  plot(TractorGPS)
+ 
+ 
+ 
+ #################   Extract rows based on the tractor gps files and boundary files recorded with the GPS ###################### 
+ 
+ Boundary.Polygon.1<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\Boundary_Track_2014-04-11 09_00_54_Polygon.shp") ;
+
+ Boundary.Polygon<-spTransform(Boundary.Polygon.1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") )
+   
+ plot(Boundary.Polygon, add=T,col="RED") 
+   
+   
+ Tractor.Inside.Boundary.1<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\TractorCoverageinsideBoudaryTrack.shp") ;
+ 
+ Tractor.Inside.Boundary<-spTransform(Tractor.Inside.Boundary.1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") )  ;
+ 
+ plot(Tractor.Inside.Boundary, add=T,col="BLUE");
+ 
+ 
+FirstlineTractor.1<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\FirstLineTractorCoverage.shp") ;
+ 
+FirstlineTractor<-spTransform(FirstlineTractor.1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") )  ;
+ 
+ 
+ plot(FirstlineTractor);
+ 
+ 
+FirstlineCentroid.1<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\FirstLineCentroid.shp") ;
+ 
+FirstlineCentroid<-spTransform(FirstlineCentroid.1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") )  ;
+ 
+ 
+ 
+ plot(FirstlineCentroid, add=T,col="RED");
+ 
+plot(FirstlineTractor[!is.na(over(FirstlineTractor,geometry(FirstlineCentroid))),])
+ 
+dim(FirstlineCentroid@lines[[1]]@Lines[[1]]@coords)
+
+(FirstlineCentroid@lines[[1]]@Lines[[1]]@coords[21,1]-FirstlineCentroid@lines[[1]]@Lines[[1]]@coords[1,1])/(FirstlineCentroid@lines[[1]]@Lines[[1]]@coords[21,2]-FirstlineCentroid@lines[[1]]@Lines[[1]]@coords[1,2])
+
+
+ 
+ 
+FirstLineSlope<-(FirstlineCentroid@lines[[1]]@Lines[[1]]@coords[21,1]-FirstlineCentroid@lines[[1]]@Lines[[1]]@coords[1,1])/(FirstlineCentroid@lines[[1]]@Lines[[1]]@coords[21,2]-FirstlineCentroid@lines[[1]]@Lines[[1]]@coords[1,2])
+
+FirstlineCentroid.xmin<-min(FirstlineCentroid@lines[[1]]@Lines[[1]]@coords[,1])
+FirstlineCentroid.xmax<-max(FirstlineCentroid@lines[[1]]@Lines[[1]]@coords[,1])
+
+FirstlineCentroid.ymin<-min(FirstlineCentroid@lines[[1]]@Lines[[1]]@coords[,2])
+FirstlineCentroid.ymax<-max(FirstlineCentroid@lines[[1]]@Lines[[1]]@coords[,2])
+
+
+
+FirstlineCentroid.tips.1<-data.frame(c(FirstlineCentroid.xmax,FirstlineCentroid.xmin), c(FirstlineCentroid.ymin,FirstlineCentroid.ymax)) ;
+ 
+FirstlineCentroid.tips<-SpatialPointsDataFrame(FirstlineCentroid.tips.1, data=FirstlineCentroid.tips.1, proj4string= CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"))
+ 
+
+
+
+####### Extend the FirstlineCentroid by 100 m up and down ######
+
+
+plot(FirstlineCentroid.tips, col=c("RED","BLUE"), add=T)  
+
+
+#### extend the line on the y axis  100 m
+
+FirstlineCentroid.extended.tips.1<-data.frame(c(1512491 + (FirstLineSlope*100), 1512674 - (FirstLineSlope*100)),c(2128633 + 100, 2128271- 100))
+
+FirstlineCentroid.extended.tips<-SpatialPointsDataFrame(FirstlineCentroid.extended.tips.1, data=FirstlineCentroid.extended.tips.1, proj4string= CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")) ;
+
+
+plot(FirstlineCentroid.extended.tips, col="MAGENTA", add=T)    
+  
+ 
+
+ 
 
 #################    Plots  and varieties  ######################
 
@@ -158,7 +240,7 @@ PlotsData<-spTransform(PlotsData.1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_
 plot(PlotsData, lwd=2, border="CYAN", add=T)
 
 
-#################                         Plant population estimates  based on the 0 ,1 ,2 survey system              ######################
+#################          Plant population estimates  based on the 0 ,1 ,2 survey system              ######################
 
 #########################            Plants_0 2013                          ###########################
 
@@ -465,43 +547,26 @@ Plants.2013.Tps.image.V2<-predictSurface(Plants.2013.Tps.V2,grid.list=Rock.View.
 ### Convert to a raster and a spatial object
 
 Plants.2013.Tps.sp.V1<-as(raster(Plants.2013.Tps.image.V1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")), 'SpatialGridDataFrame');
-newr2 <-
 
 
+Plants.2013.Tps.sp.V2<-as(raster(Plants.2013.Tps.image.V2, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")), 'SpatialGridDataFrame');
   
   
 #### plot  spatial rasted of interpolated values and the tractor files
   
   
   
-  plot(Plants.2013.Tps.sp.V1)
-
-plot(TractorGPS,add=T)
-
-getData(raster(Plants.2013.Tps.image.V1))
-
-plot(raster(Plants.2013.Tps.image.V2))
-
-
-
-
-
-image.plot(Plants.2013.Tps.image,col=rev(terrain.colors(10))))
-
-str(surface(Plants.2013.Tps, type="C", nx=100, ny=100,levels=c(seq(0,13000, 500)), col=rev(terrain.colors(10))  ))
-
-
-
-
-
-
-Plants.2014.Tps<-Tps(Plants.2014@coords,Plants.2014@data$PlantDensity)
-surface(Plants.2014.Tps,nx=800, ny=800,levels=c(seq(0,20000, 1000)), col=rev(terrain.colors(10))  )
+plot(Plants.2013.Tps.sp.V1)
+plot(Plants.2013.Tps.sp.V2)
 
 plot(TractorGPS,add=T)
 
 
-plot(PlotsData, lwd=2, border="CYAN", add=T)
 
 
-str(Plants.2013.Tp.Surface)
+
+#################          Plant population estimates based on counts of plants 2016             ######################
+
+#########################            Plants by row 2016                     ###########################
+
+
