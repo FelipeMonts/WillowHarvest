@@ -141,8 +141,6 @@ TractorGPS<-spTransform(TractorGPS.1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +la
 
  plot(TractorGPS)
  
- 
- 
  #################   Extract rows based on the tractor gps files and boundary files recorded with the GPS ###################### 
  
  Boundary.Polygon.1<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\Boundary_Track_2014-04-11 09_00_54_Polygon.shp") ;
@@ -151,27 +149,31 @@ TractorGPS<-spTransform(TractorGPS.1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +la
    
  plot(Boundary.Polygon, add=T,col="RED") 
    
-   
+
+##### read the tractor lines that are inside the boundary 
+ 
  Tractor.Inside.Boundary.1<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\TractorCoverageinsideBoudaryTrack.shp") ;
  
  Tractor.Inside.Boundary<-spTransform(Tractor.Inside.Boundary.1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") )  ;
  
  plot(Tractor.Inside.Boundary, add=T,col="BLUE");
  
- 
+
+##### Select the first line and the middle of the line by using the centroids of the tractor polygons
+  
 FirstlineTractor.1<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\FirstLineTractorCoverage.shp") ;
  
 FirstlineTractor<-spTransform(FirstlineTractor.1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") )  ;
  
  
- plot(FirstlineTractor);
+plot(FirstlineTractor,add=T);
  
  
 FirstlineCentroid.1<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\FirstLineCentroid.shp") ;
  
 FirstlineCentroid<-spTransform(FirstlineCentroid.1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") )  ;
  
- 
+ str(FirstlineCentroid)
  
  plot(FirstlineCentroid, add=T,col="RED");
  
@@ -179,10 +181,11 @@ plot(FirstlineTractor[!is.na(over(FirstlineTractor,geometry(FirstlineCentroid)))
  
 dim(FirstlineCentroid@lines[[1]]@Lines[[1]]@coords)
 
+
 (FirstlineCentroid@lines[[1]]@Lines[[1]]@coords[21,1]-FirstlineCentroid@lines[[1]]@Lines[[1]]@coords[1,1])/(FirstlineCentroid@lines[[1]]@Lines[[1]]@coords[21,2]-FirstlineCentroid@lines[[1]]@Lines[[1]]@coords[1,2])
 
 
- 
+##### find the slope of the line so new lines can be drawn with the width off the tractor swaths polygons
  
 FirstLineSlope<-(FirstlineCentroid@lines[[1]]@Lines[[1]]@coords[21,1]-FirstlineCentroid@lines[[1]]@Lines[[1]]@coords[1,1])/(FirstlineCentroid@lines[[1]]@Lines[[1]]@coords[21,2]-FirstlineCentroid@lines[[1]]@Lines[[1]]@coords[1,2])
 
@@ -216,9 +219,116 @@ FirstlineCentroid.extended.tips<-SpatialPointsDataFrame(FirstlineCentroid.extend
 
 plot(FirstlineCentroid.extended.tips, col="MAGENTA", add=T)    
   
- 
+# create the extended line
 
+ExtendedLine.1<-FirstlineCentroid.extended.tips@coords  ;
+ExtendedLine.2<-Line(ExtendedLine.1);
+ExtendedLine.3<-Lines(list(ExtendedLine.2), ID="1") ;
+ExtendedLine.4<-SpatialLines(list(ExtendedLine.3),proj4string= CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
+ExtendedLine.5<-SpatialLinesDataFrame(ExtendedLine.4, data=data.frame(ID=c("1"),c(1)))
+
+summary(ExtendedLine.4)
+str(ExtendedLine.4)
+
+plot(ExtendedLine.4, col="DARKGREEN")
+
+writeOGR(ExtendedLine.5,"C:\\Users\\frm10\\Downloads\\Line1.shp",layer="Line1", driver="ESRI Shapefile")
+
+
+####### move the line in paralell the distance onf one tractor 
+
+#### Calculate the with of the tractor swaths 
+# i=8
+# j=3
+# k=4
+# 
+# plot(TractorGPS@polygons[[i]]@Polygons[[1]]@coords)
+# dim(TractorGPS@polygons[[i]]@Polygons[[1]]@coords)
+# text(TractorGPS@polygons[[i]]@Polygons[[1]]@coords,labels=seq(1,dim(TractorGPS@polygons[[i]]@Polygons[[1]]@coords)[1]))
+# 
+# sqrt((TractorGPS@polygons[[i]]@Polygons[[1]]@coords[j,1]-TractorGPS@polygons[[i]]@Polygons[[1]]@coords[k,1])^2+(TractorGPS@polygons[[i]]@Polygons[[1]]@coords[j,2]-TractorGPS@polygons[[i]]@Polygons[[1]]@coords[k,2])^2)
+
+
+# ######################################################
+# 
+#           average distance between tractor swaths 
+# 
+#                         d.m=2.5723
+# 
+# 
+# #####################################################
+
+N.ROWS=140  ;
+
+
+#N.ROW=20  ;
+
+d.m<-2.5723 ;
+
+atan(1/FirstLineSlope)
+
+#### Calculate the translation matrix based on the distance  https://en.wikipedia.org/wiki/Translation_(geometry) https://www.mathworks.com/discovery/affine-transformation.html
+
+Transl.matx<-matrix(c(1,0,d.m*N.ROW*sin(-atan(1/FirstLineSlope)),0,1,(d.m*N.ROW*cos(atan(1/FirstLineSlope))),0,0,1), ncol=3,byrow=T) ;
+
+ExtendedLine.4@lines[[1]]@Lines[[1]]@coords
+
+New.line.1<-Transl.matx %*% t(cbind(ExtendedLine.4@lines[[1]]@Lines[[1]]@coords,c(1,1)))
+
+
+### Create a new line 
+
+
+New.line.2<-Line(t(New.line.1[1:2,]));
+New.line.3<-Lines(list(New.line.2), ID="1") ;
+New.line.4<-SpatialLines(list(New.line.3),proj4string= CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
+New.line.5<-SpatialLinesDataFrame(New.line.4, data=data.frame(ID=c("1"),c(1))) ;
+
+
+
+summary(New.line.5)
+
+plot(New.line.5, col="RED", add=T)
+
+
+writeOGR(New.line.5,"C:\\Users\\frm10\\Downloads\\Line4.shp",layer="Line4", driver="ESRI Shapefile")
+
+
+
+
+##### Create all the lines
+
+#initiallize the SpatialLines object
+
+Tractor.Swath.lines.1<-Lines(ExtendedLine.4@lines[[1]]@Lines[[1]], ID=c(1)) ;
+
+
+for (N.ROW in seq(2,N.ROWS ) ){
  
+  #N.ROW=20  ;
+  
+  Transl.matx<-matrix(c(1,0,d.m*N.ROW*sin(-atan(1/FirstLineSlope)),0,1,(d.m*N.ROW*cos(atan(1/FirstLineSlope))),0,0,1), ncol=3,byrow=T) ;
+  
+  New.line.1<-Transl.matx %*% t(cbind(ExtendedLine.4@lines[[1]]@Lines[[1]]@coords,c(1,1)))
+  
+  New.line.2<-Line(t(New.line.1[1:2,]));
+  
+  Tractor.Swath.lines.1<-append(Tractor.Swath.lines.1, Lines(list(New.line.2), ID=N.ROW)) ;
+  
+
+  
+}
+
+
+
+
+Tractor.Swath.lines.2<-SpatialLines(Tractor.Swath.lines.1,proj4string= CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
+Tractor.Swath.lines.3<-SpatialLinesDataFrame(Tractor.Swath.lines.2, data=data.frame(ID=sapply(slot(Tractor.Swath.lines.2,"lines"),function (x) slot(x,"ID")),row.names=sapply(slot(Tractor.Swath.lines.2,"lines"),function (x) as.numeric(slot(x,"ID"))))) ;
+
+plot(Tractor.Swath.lines.3, col="BLACK", add=T)
+
+
+writeOGR(Tractor.Swath.lines.3,"C:\\Users\\frm10\\Downloads\\Line5.shp",layer="Line5", driver="ESRI Shapefile")
 
 #################    Plots  and varieties  ######################
 
