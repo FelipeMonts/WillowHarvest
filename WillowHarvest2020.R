@@ -303,7 +303,7 @@ writeOGR(New.line.5,"C:\\Users\\frm10\\Downloads\\Line4.shp",layer="Line4", driv
 Tractor.Swath.lines.1<-Lines(ExtendedLine.4@lines[[1]]@Lines[[1]], ID=c(1)) ;
 
 
-for (N.ROW in seq(2,N.ROWS ) ){
+for (N.ROW in seq(1,N.ROWS ) ){
  
   #N.ROW=20  ;
   
@@ -313,7 +313,7 @@ for (N.ROW in seq(2,N.ROWS ) ){
   
   New.line.2<-Line(t(New.line.1[1:2,]));
   
-  Tractor.Swath.lines.1<-append(Tractor.Swath.lines.1, Lines(list(New.line.2), ID=N.ROW)) ;
+  Tractor.Swath.lines.1<-append(Tractor.Swath.lines.1, Lines(list(New.line.2), ID=N.ROW+1)) ;
   
 
   
@@ -586,22 +586,6 @@ View(Plants.2013@data)
 
 
 
-
-Plants_0_all.2014@data$PlantDensity<-Plant.Density.0.ha  ;
-
-Plants_1_all.2014@data$PlantDensity<-Plant.Density.1.ha  ;
-
-Plants_2_all.2014@data$PlantDensity<-Plant.Density.2.ha   ;
-
-
-
-#### Aggreate the 2014 shape files into one
-
-Plants.2014<-rbind(Plants_0_all.2014,Plants_1_all.2014,Plants_2_all.2014) ;
-View(Plants.2014)
-
-
-
 ####### Using the fields package to do krigging on the plant data
 
 Plants.2013@coords
@@ -610,9 +594,13 @@ quilt.plot(Plants.2013@coords,Plants.2013@data$PlantDensity ) ;
 
 str(Plants.2013@data$cmt)
 
-hist(as.numeric(Plants.2013@data$cmt))
+hist(as.numeric(Plants.2013@data$cmt)-1)
 
-quilt.plot(Plants.2013@coords,Plants.2013@data$cmt ) ;
+Plants.2013@data$S.Density<-as.numeric(Plants.2013@data$cmt)-1
+
+hist(Plants.2013@data$S.Density)
+
+quilt.plot(Plants.2013@coords,Plants.2013@data$S.Density) ;
 
 #### Plants.2013.sp<-spatialProcess(Plants.2013@coords,Plants.2013@data$PlantDensity); ### spatialProcess doeas not converge in pc time
 #### Another methods needs to be tested
@@ -623,10 +611,10 @@ quilt.plot(Plants.2013@coords,Plants.2013@data$cmt ) ;
 
 Plants.2013.Tps.V1<-Tps(Plants.2013@coords,Plants.2013@data$PlantDensity);
 
-Plants.2013.Tps.V2<-Tps(Plants.2013@coords,as.numeric(Plants.2013@data$cmt));
+Plants.2013.Tps.V2<-Tps(Plants.2013@coords,Plants.2013@data$S.Density);
 
 
-str(as.numeric(Plants.2013@data$cmt))
+
 
 str(Plants.2013@coords)
 max(Plants.2013@data$PlantDensity)
@@ -634,25 +622,25 @@ max(Plants.2013@data$PlantDensity)
 ###### Coordinates grid to prepare image and raster
 
 
-Range.in.x<-max(Plants.2013@coords[,1]) - min(Plants.2013@coords[,1]) ;
-Range.in.y<-max(Plants.2013@coords[,2]) - min(Plants.2013@coords[,2]) ;
+Range.in.x.2013<-max(Plants.2013@coords[,1]) - min(Plants.2013@coords[,1]) ;
+Range.in.y.2013<-max(Plants.2013@coords[,2]) - min(Plants.2013@coords[,2]) ;
 
 
 
-x.coords<-seq(min(Plants.2013@coords[,1]),max(Plants.2013@coords[,1]),1) ;
-y.coords<-seq(min(Plants.2013@coords[,2]),max(Plants.2013@coords[,2]),1) ;
+x.coords.2013<-seq(min(Plants.2013@coords[,1]),max(Plants.2013@coords[,1]),1) ;
+y.coords.2013<-seq(min(Plants.2013@coords[,2]),max(Plants.2013@coords[,2]),1) ;
 
-Rock.View.grid<-list(x.coords,y.coords) ;
-names(Rock.View.grid)<-c('x', 'y') ;
+Rock.View.grid.2013<-list(x.coords.2013,y.coords.2013) ;
+names(Rock.View.grid.2013)<-c('x', 'y') ;
 
 
 ###### Convert the Thin plate smoothing interpolation into a raster file that then can be sampled with the polygons of the tractor file
 
 ### predict interpotated values
 
-Plants.2013.Tps.image.V1<-predictSurface(Plants.2013.Tps.V1,grid.list=Rock.View.grid, extrap = T )
+Plants.2013.Tps.image.V1<-predictSurface(Plants.2013.Tps.V1,grid.list=Rock.View.grid.2013, extrap = T ) # Plant Density Data
 
-Plants.2013.Tps.image.V2<-predictSurface(Plants.2013.Tps.V2,grid.list=Rock.View.grid, extrap = T )
+Plants.2013.Tps.image.V2<-predictSurface(Plants.2013.Tps.V2,grid.list=Rock.View.grid.2013, extrap = T )  # Survey counts 0,1,2
 
 ### Convert to a raster and a spatial object
 
@@ -670,6 +658,82 @@ plot(Plants.2013.Tps.sp.V1)
 plot(Plants.2013.Tps.sp.V2)
 
 plot(TractorGPS,add=T)
+
+writeRaster(raster(Plants.2013.Tps.image.V2, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")), filename="C:\\Users\\frm10\\Downloads\\2013SurveyDensity.tiff", format='GTiff')
+
+
+########## Repeat the method  above for the plant sensus in 2014 #########################
+
+
+##  Addin the information about plant density to the plaqnt population estimates shape files
+
+
+Plants_0_all.2014@data$PlantDensity<-Plant.Density.0.ha  ;
+
+Plants_1_all.2014@data$PlantDensity<-Plant.Density.1.ha  ;
+
+Plants_2_all.2014@data$PlantDensity<-Plant.Density.2.ha   ;
+
+#### Aggreate the 2014 shape files into one
+
+Plants.2014<-rbind(Plants_0_all.2014,Plants_1_all.2014,Plants_2_all.2014) ;
+View(as.numeric(Plants.2014@data$comment))
+
+Plants.2014@data$S.Density<-as.numeric(Plants.2014@data$comment)-1
+
+
+####### Using the fields package to do krigging on the plant data
+
+### The Thin plate smoothing Tps works, therefore that is what will be used
+
+Plants.2014.Tps.V1<-Tps(Plants.2014@coords[,c(1,2)],Plants.2014@data$PlantDensity);
+
+Plants.2014.Tps.V2<-Tps(Plants.2014@coords[,c(1,2)],Plants.2014@data$S.Density);
+
+
+###### Convert the Thin plate smoothing interpolation into a raster file that then can be sampled with the polygons of the tractor file
+
+
+###### Coordinates grid to prepare image and raster
+
+
+Range.in.x.2014<-max(Plants.2014@coords[,1]) - min(Plants.2014@coords[,1]) ;
+Range.in.y.2014<-max(Plants.2014@coords[,2]) - min(Plants.2014@coords[,2]) ;
+
+
+
+x.coords.2014<-seq(min(Plants.2014@coords[,1]),max(Plants.2014@coords[,1]),1) ;
+y.coords.2014<-seq(min(Plants.2014@coords[,2]),max(Plants.2014@coords[,2]),1) ;
+
+Rock.View.grid.2014<-list(x.coords.2014,y.coords.2014) ;
+names(Rock.View.grid.2014)<-c('x', 'y') ;
+
+str(Rock.View.grid.2014)
+
+### predict interpotated values
+
+Plants.2014.Tps.image.V1<-predictSurface(Plants.2014.Tps.V1, grid.list=Rock.View.grid.2014, extrap = T ) # Plant Density Data
+
+Plants.2014.Tps.image.V2<-predictSurface(Plants.2014.Tps.V2, grid.list=Rock.View.grid.2014, extrap = T )  # Survey counts 0,1,2
+
+
+### Convert to a raster and a spatial object
+
+Plants.2014.Tps.sp.V1<-as(raster(Plants.2014.Tps.image.V1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")), 'SpatialGridDataFrame');
+
+
+Plants.2014.Tps.sp.V2<-as(raster(Plants.2014.Tps.image.V2, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")), 'SpatialGridDataFrame');
+
+
+#### plot  spatial rasted of interpolated values and the tractor files
+
+
+
+plot(Plants.2014.Tps.sp.V1)
+plot(Plants.2014.Tps.sp.V2)
+
+
+writeRaster(raster(Plants.2014.Tps.image.V2, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")), filename="C:\\Users\\frm10\\Downloads\\2014SurveyDensity.tiff", format='GTiff')
 
 
 
