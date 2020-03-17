@@ -48,6 +48,8 @@ setwd("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowHa
 
 #install.packages('LatticeKrig', dep=T)
 
+#install.packages('rgeos', dep=T)
+
 
 ###############################################################################################################
 #                           load the libraries that are neded   
@@ -68,6 +70,8 @@ library(openxlsx);
 library(fields);
 
 library(LatticeKrig)
+
+library(rgeos)
 
 
 ###############################################################################################################
@@ -230,7 +234,7 @@ ExtendedLine.5<-SpatialLinesDataFrame(ExtendedLine.4, data=data.frame(ID=c("1"),
 summary(ExtendedLine.4)
 str(ExtendedLine.4)
 
-plot(ExtendedLine.4, col="DARKGREEN")
+plot(ExtendedLine.5, col="DARKGREEN", add=T)
 
 writeOGR(ExtendedLine.5,"C:\\Users\\frm10\\Downloads\\Line1.shp",layer="Line1", driver="ESRI Shapefile")
 
@@ -258,7 +262,7 @@ writeOGR(ExtendedLine.5,"C:\\Users\\frm10\\Downloads\\Line1.shp",layer="Line1", 
 # 
 # #####################################################
 
-N.ROWS=140  ;
+N.ROWS=132  ;
 
 
 #N.ROW=20  ;
@@ -291,7 +295,7 @@ summary(New.line.5)
 plot(New.line.5, col="RED", add=T)
 
 
-writeOGR(New.line.5,"C:\\Users\\frm10\\Downloads\\Line4.shp",layer="Line4", driver="ESRI Shapefile")
+writeOGR(New.line.5,"C:\\Users\\frm10\\Downloads\\Line1.shp",layer="Line1", driver="ESRI Shapefile")
 
 
 
@@ -325,10 +329,27 @@ for (N.ROW in seq(1,N.ROWS ) ){
 Tractor.Swath.lines.2<-SpatialLines(Tractor.Swath.lines.1,proj4string= CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
 Tractor.Swath.lines.3<-SpatialLinesDataFrame(Tractor.Swath.lines.2, data=data.frame(ID=sapply(slot(Tractor.Swath.lines.2,"lines"),function (x) slot(x,"ID")),row.names=sapply(slot(Tractor.Swath.lines.2,"lines"),function (x) as.numeric(slot(x,"ID"))))) ;
 
-plot(Tractor.Swath.lines.3, col="BLACK", add=T)
+plot(Tractor.Swath.lines.3, col="CYAN", add=T)
 
 
-writeOGR(Tractor.Swath.lines.3,"C:\\Users\\frm10\\Downloads\\Line5.shp",layer="Line5", driver="ESRI Shapefile")
+writeOGR(Tractor.Swath.lines.3,"C:\\Users\\frm10\\Downloads\\Line5.shp",layer="Line5", driver="ESRI Shapefile") ;
+
+
+############### Clip the extended tractor swath lines and obtain the length of each one ###
+
+Tractor.Swath.lines.4<-crop(Tractor.Swath.lines.3,Boundary.Polygon )  ;
+
+plot(Tractor.Swath.lines.4, col="YELLOW", add=T) ;
+
+
+SpatialLinesLengths(Tractor.Swath.lines.4)
+
+
+Tractor.Swath.lines.4@data$Row.Length.m<-SpatialLinesLengths(Tractor.Swath.lines.4) ;
+
+
+
+
 
 #################    Plots  and varieties  ######################
 
@@ -736,7 +757,56 @@ plot(Plants.2014.Tps.sp.V2)
 writeRaster(raster(Plants.2014.Tps.image.V2, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")), filename="C:\\Users\\frm10\\Downloads\\2014SurveyDensity.tiff", format='GTiff')
 
 
+# ################################################################################################################################
+# 
+# 
+# After obtaining the raster interpolated data of density it will be used to estimate the mode of each tractor swath density and from that to estimate the density in each planted row, based on the tractor swaths GIS data. After obtaining the zonal statistics survey density mode for each tractor swath polygon it will be gouped by planting row and together with the area of each tractor swath polygon (proxy for length) it will be used to estimate the plant number in each row, as a function of length in the row 
+# 
+# 
+#################################################################################################################################
 
+
+#### Reading the Tractor swaths again with the updated infomration with the mode of the plant density estimates fro 2013 and 2014
+
+##### read the tractor lines that are inside the boundary 
+
+Tractor.Swaths.1<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\TractorCoverageinsideBoudaryTrack.shp") ;
+
+Tractor.Swaths<-spTransform(Tractor.Swaths.1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") )  ;
+
+
+plot(Tractor.Swaths,col="BLUE");
+
+####   Get the area of each tractor swath polygon
+
+
+Tractor.Swaths@data$P.area.m<-sapply(slot(Tractor.Swaths,"polygons"),slot,"area")  ;
+
+
+
+#### Separate the data from each planted row 
+
+# Initiallize the list of with a spatialPoligonsDataFrame object for each planted row
+Planted.Rows<-list()
+
+for (N.ROW in seq(1,N.ROWS ) ){
+  Planted.Rows[[N.ROW]]<-raster::intersect(Tractor.Swaths,Tractor.Swath.lines.4[N.ROW,])
+}
+
+Planted.Rows[[2]]@data
+
+
+
+plot(Planted.Rows[[100]], col="BLACK", add=T)
+
+
+Tractor.Swaths[!is.na(over(Tractor.Swaths,Tractor.Swath.lines.4)),]
+
+gIntersects(Tractor.Swath.lines.4@lines[[1]]@Lines, Tractor.Swath.lines.4@proj4string, Tractor.Swaths )
+
+str(Tractor.Swaths@data)
+
+str(Tractor.Swath.lines.4@data)
 
 
 #################          Plant population estimates based on counts of plants 2016             ######################
