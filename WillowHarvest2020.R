@@ -777,14 +777,17 @@ Tractor.Swaths<-spTransform(Tractor.Swaths.1, CRS("+proj=aea +lat_1=29.5 +lat_2=
 
 plot(Tractor.Swaths,col="BLUE");
 
-####   Get the area of each tractor swath polygon
+####   Get the area and the length of each tractor swath polygon
 
 
 Tractor.Swaths@data$P.area.m<-sapply(slot(Tractor.Swaths,"polygons"),slot,"area")  ;
 
+Tractor.Swaths@data$P.length<-Tractor.Swaths@data$P.area.m/d.m ;
 
+#Tractor.Swaths@data$P.length.along<-cumsum(Tractor.Swaths@data$P.length) ;
+Tractor.Swaths@data
 
-#### Separate the data from each planted row 
+#### Separate the data from each planted row  and collected into a list Planted.Rows
 
 # Initiallize the list of with a spatialPoligonsDataFrame object for each planted row
 Planted.Rows<-list()
@@ -793,24 +796,31 @@ for (N.ROW in seq(1,N.ROWS ) ){
   Planted.Rows[[N.ROW]]<-raster::intersect(Tractor.Swaths,Tractor.Swath.lines.4[N.ROW,])
 }
 
-Planted.Rows[[2]]@data
+plot(Planted.Rows[[2]][seq(1,10),])
+Tractor.Swath.lines.4[2,]
+
+cumsum(Planted.Rows[[1]]@data$P.length)
+
+#####  estimate plant density as a functions a row distance along the line
+
+for (N.ROW in seq(1,N.ROWS ) ){
+  Planted.Rows[[N.ROW]]@data$P.length.along<-cumsum(Planted.Rows[[N.ROW]]@data$P.length)
+  
+  
+}
 
 
 
-plot(Planted.Rows[[100]], col="BLACK", add=T)
+
+plot(Planted.Rows[[50]]@data$P.length.along, Planted.Rows[[50]]@data$X2013_Densi, type="o", ylim=c(0,2))
+points(Planted.Rows[[50]]@data$P.length.along, Planted.Rows[[50]]@data$X2014_Densi, type="o", col="RED")
 
 
-Tractor.Swaths[!is.na(over(Tractor.Swaths,Tractor.Swath.lines.4)),]
-
-gIntersects(Tractor.Swath.lines.4@lines[[1]]@Lines, Tractor.Swath.lines.4@proj4string, Tractor.Swaths )
-
-str(Tractor.Swaths@data)
-
-str(Tractor.Swath.lines.4@data)
-
+str(Planted.Rows[c(1,2,3)], max.level=2)
 
 #################          Plant population estimates based on counts of plants 2016             ######################
 
 #########################            Plants by row 2016                     ###########################
 
+Planted.Rows[[1]]@data
 
