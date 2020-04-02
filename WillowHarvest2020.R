@@ -483,6 +483,8 @@ Plants_0_all.2014<-spTransform(Plants_0_all.2014, CRS("+proj=aea +lat_1=29.5 +la
 
 plot(Plants_0_all.2014, pch=20, col="RED", add=T) ;
 
+# View(Plants_0_all.2014@data  )
+
 
 #########################            Plants_1 2014                        ###########################
 
@@ -588,7 +590,7 @@ Plant.Density.1.ha<-10000 / Plant.Density.1.m2 # plants/ha
 
 ############################################### Think about the lower bound for 0 plants ###################################
 
-##############  Addin the information about plant density to the plaqnt population estimates shape files
+##############  Adding the information about plant density to the plant population estimates shape files
 
 str(Plants_0_2013@data)
 View(Plants_0_2013@data)
