@@ -379,81 +379,27 @@ plot(PlotsData, lwd=2, border="CYAN", add=T)
 ########### Read information about the shape files ###########
 
 #readClipboard()
-ogrInfo("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\Plants_0.shp")  ; 
-ogrInfo("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\Plants_part2_0.shp")  ; 
+ogrInfo("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\Willow Census R\\PlantData2013.shp")  ;
+ogrInfo("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\Willow Census R\\PlantDatapart22013.shp")  ;
 
 
-#### read the shape files 
+#### read the shape files
 
-Plants_0.1<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\Plants_0.shp")  ;
-Plants_0.2<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\Plants_part2_0.shp")  ;
-
-
-#### Aggreate the sape files into one
-
-Plants_0_all<-rbind(Plants_0.1,Plants_0.2) ;
-
-#### Change the projection to EPSG:5070 - NAD83 / Conus Albers - Projected  
-
-Plants_0_2013<-spTransform(Plants_0_all, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
-
-
-plot(Plants_0_2013, pch=20, col="RED", add=T) ;
-
-
-#########################            Plants_1 2013                        ###########################
-
-########### Readinfor mation about the shape files ###########
-
-#readClipboard()
-ogrInfo("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\Plants_1.shp")  ; 
-ogrInfo("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\Plants_part2_1.shp")  ; 
-
-
-#### read the shape file 
-
-Plants_1.1<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\Plants_1.shp")  ;
-Plants_1.2<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\Plants_part2_1.shp")  ;
+PlantData2013<-readOGR("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\Willow Census R\\PlantData2013.shp")  ;
+PlantDatapart22013<-readOGR("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\Willow Census R\\PlantDatapart22013.shp")  ;
 
 
 #### Aggreate the sape files into one
 
-Plants_1_all<-rbind(Plants_1.1,Plants_1.2) ;
+PlantData2013.all<-union(PlantData2013,PlantDatapart22013) ;
 
-#### Change the projection to EPSG:5070 - NAD83 / Conus Albers - Projected  
+#### Change the projection to EPSG:5070 - NAD83 / Conus Albers - Projected
 
-Plants_1_2013<-spTransform(Plants_1_all, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
-
-
-plot(Plants_1_2013, pch=20, col="BLUE", add=T) ;
+PlantData2013.all<-spTransform(PlantData2013.all, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
 
 
+plot(PlantData2013.all, pch=20, col="RED", add=T) ;
 
-#########################            Plants_2 2013                        ###########################
-
-
-########### Read information about the shape files ###########
-
-#readClipboard()
-ogrInfo("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\Plants_2.shp")  ;
-ogrInfo("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\Plants_part2_2.shp")  ;
-
-
-#### read the shape file 
-
-Plants_2.1<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\Plants_2.shp")  ;
-Plants_2.2<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\Plants_part2_2.shp")  ;
-
-#### Aggreate the shape files into one
-
-Plants_2_all<-rbind(Plants_2.1,Plants_2.2) ;
-
-#### Change the projection to EPSG:5070 - NAD83 / Conus Albers - Projected  
-
-Plants_2_2013<-spTransform(Plants_2_all, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
-
-
-plot(Plants_2_2013, pch=20, col="DARKGREEN", add=T) ;
 
 
 
@@ -481,7 +427,7 @@ Plants_0_all.2014<-rbind(Plants_0.1.2014,Plants_0.2.2014) ;
 Plants_0_all.2014<-spTransform(Plants_0_all.2014, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
 
 
-plot(Plants_0_all.2014, pch=20, col="RED", add=T) ;
+plot(Plants_0_all.2014, pch=20, col="PINK", add=T) ;
 
 # View(Plants_0_all.2014@data  )
 
@@ -541,90 +487,88 @@ plot(Plants_2_all.2014, pch=20, col="DARKGREEN", add=T) ;
 
 
 
+# 
+# 
+# #################   Conversion of the Plant population estimates  based on the 0 ,1 ,2 survey system to plants/m2             ######################
+# #
+# #
+# # Based on the diagram of the planting C:\Felipe\Willow_Project\Drawings and Pictures\Final Drawings\Cutting Spacing Rockview20120502.tif 
+# #
+# #
+# ##################                            #################                                   #################
+# 
+# #### Two plants per row
+# 
+# Row.width.ft<-3.0 + 2.5 + 3.0
+# Row.length.PerTwoplants.ft<-2.0 
+# Row.length.Zeroplants.ft<-7.0
+# 
+# 
+# Plant.Density.2.ft2<-Row.width.ft*Row.length.PerTwoplants.ft /2    #ft2/plant
+# 
+# Plant.Density.1.ft2<-Row.width.ft*Row.length.PerTwoplants.ft /1   #ft2/plant
+# 
+# ############################################### Think about the lower bound for 0 plants ###################################
+# 
+# Plant.Density.0.ft2<-Row.width.ft*Row.length.Zeroplants.ft/1   #ft2/plant Ma  
+# 
+# ############################################### Think about the lower bound for 0 plants ###################################
+# 
+# Plant.Density.2.m2<-Plant.Density.2.ft2 / 10.76391   # m2/plant
+# 
+# Plant.Density.1.m2<-Plant.Density.1.ft2 / 10.76391   # m2/plant
+# 
+# 
+# ############################################### Think about the lower bound for 0 plants ###################################
+# 
+#  Plant.Density.0.m2<-Plant.Density.0.ft2 / 10.76391   # m2/plant
+# 
+# ############################################### Think about the lower bound for 0 plants ###################################
+# 
+# Plant.Density.2.ha<-10000 / Plant.Density.2.m2  # plants/ha 
+# 
+# Plant.Density.1.ha<-10000 / Plant.Density.1.m2 # plants/ha 
+# 
+# 
+# ############################################### Think about the lower bound for 0 plants ###################################
+# 
+#   Plant.Density.0.ha<-10000 / Plant.Density.0.m2 # plants/ha 
+# 
+# ############################################### Think about the lower bound for 0 plants ###################################
 
-
-#################   Conversion of the Plant population estimates  based on the 0 ,1 ,2 survey system to plants/m2             ######################
-#
-#
-# Based on the diagram of the planting C:\Felipe\Willow_Project\Drawings and Pictures\Final Drawings\Cutting Spacing Rockview20120502.tif 
-#
-#
-##################                            #################                                   #################
-
-#### Two plants per row
-
-Row.width.ft<-3.0 + 2.5 + 3.0
-Row.length.PerTwoplants.ft<-2.0 
-Row.length.Zeroplants.ft<-7.0
-
-
-Plant.Density.2.ft2<-Row.width.ft*Row.length.PerTwoplants.ft /2    #ft2/plant
-
-Plant.Density.1.ft2<-Row.width.ft*Row.length.PerTwoplants.ft /1   #ft2/plant
-
-############################################### Think about the lower bound for 0 plants ###################################
-
-Plant.Density.0.ft2<-Row.width.ft*Row.length.Zeroplants.ft/1   #ft2/plant Ma  
-
-############################################### Think about the lower bound for 0 plants ###################################
-
-Plant.Density.2.m2<-Plant.Density.2.ft2 / 10.76391   # m2/plant
-
-Plant.Density.1.m2<-Plant.Density.1.ft2 / 10.76391   # m2/plant
-
-
-############################################### Think about the lower bound for 0 plants ###################################
-
- Plant.Density.0.m2<-Plant.Density.0.ft2 / 10.76391   # m2/plant
-
-############################################### Think about the lower bound for 0 plants ###################################
-
-Plant.Density.2.ha<-10000 / Plant.Density.2.m2  # plants/ha 
-
-Plant.Density.1.ha<-10000 / Plant.Density.1.m2 # plants/ha 
-
-
-############################################### Think about the lower bound for 0 plants ###################################
-
-  Plant.Density.0.ha<-10000 / Plant.Density.0.m2 # plants/ha 
-
-############################################### Think about the lower bound for 0 plants ###################################
-
-##############  Adding the information about plant density to the plant population estimates shape files
-
-str(Plants_0_2013@data)
-View(Plants_0_2013@data)
-
-Plants_0_2013@data$PlantDensity<-Plant.Density.0.ha  ;
-
-Plants_1_2013@data$PlantDensity<-Plant.Density.1.ha   ;
-
-Plants_2_2013@data$PlantDensity<-Plant.Density.2.ha   ;
-
-
-#### Aggreate the 2013 shape files into one
-
-Plants.2013<-rbind(Plants_0_2013,Plants_1_2013,Plants_2_2013) ;
-View(Plants.2013@data)
-
+# ##############  Adding the information about plant density to the plant population estimates shape files
+# 
+# str(Plants_0_2013@data)
+# View(Plants_0_2013@data)
+# 
+# Plants_0_2013@data$PlantDensity<-Plant.Density.0.ha  ;
+# 
+# Plants_1_2013@data$PlantDensity<-Plant.Density.1.ha   ;
+# 
+# Plants_2_2013@data$PlantDensity<-Plant.Density.2.ha   ;
+# 
 
 
 
 ####### Using the fields package to do krigging on the plant data
 
-Plants.2013@coords
+PlantData2013.all@coords
 
-quilt.plot(Plants.2013@coords,Plants.2013@data$PlantDensity ) ;
+# View(PlantData2013.all@data)  str(PlantData2013.all@data)
 
-str(Plants.2013@data$cmt)
 
-hist(as.numeric(Plants.2013@data$cmt)-1)
+#quilt.plot(Plants.2013@coords,Plants.2013@data$PlantDensity ) ;
 
-Plants.2013@data$S.Density<-as.numeric(Plants.2013@data$cmt)-1
+#  Reamove data that was missing and marked with the  9999 value 
 
-hist(Plants.2013@data$S.Density)
 
-quilt.plot(Plants.2013@coords,Plants.2013@data$S.Density) ;
+Plants.2013<-PlantData2013.all[!PlantData2013.all@data$Plants==9999,]
+
+str(Plants.2013)
+
+hist(Plants.2013@data$Plants)
+
+
 
 #### Plants.2013.sp<-spatialProcess(Plants.2013@coords,Plants.2013@data$PlantDensity); ### spatialProcess doeas not converge in pc time
 #### Another methods needs to be tested
@@ -633,15 +577,7 @@ quilt.plot(Plants.2013@coords,Plants.2013@data$S.Density) ;
 
 
 
-Plants.2013.Tps.V1<-Tps(Plants.2013@coords,Plants.2013@data$PlantDensity);
-
-Plants.2013.Tps.V2<-Tps(Plants.2013@coords,Plants.2013@data$S.Density);
-
-
-
-
-str(Plants.2013@coords)
-max(Plants.2013@data$PlantDensity)
+Plants.2013.Tps.V1<-Tps(Plants.2013@coords,Plants.2013@data$Plants);
 
 ###### Coordinates grid to prepare image and raster
 
@@ -658,32 +594,38 @@ Rock.View.grid.2013<-list(x.coords.2013,y.coords.2013) ;
 names(Rock.View.grid.2013)<-c('x', 'y') ;
 
 
+
+
+
+
+str(Plants.2013@coords)
+
+
+
 ###### Convert the Thin plate smoothing interpolation into a raster file that then can be sampled with the polygons of the tractor file
 
 ### predict interpotated values
 
-Plants.2013.Tps.image.V1<-predictSurface(Plants.2013.Tps.V1,grid.list=Rock.View.grid.2013, extrap = T ) # Plant Density Data
+Plants.2013.Tps.image.V1<-predictSurface(Plants.2013.Tps.V1,grid.list=Rock.View.grid.2013, extrap = T ) # Survey counts 0,1,2
 
-Plants.2013.Tps.image.V2<-predictSurface(Plants.2013.Tps.V2,grid.list=Rock.View.grid.2013, extrap = T )  # Survey counts 0,1,2
 
 ### Convert to a raster and a spatial object
 
 Plants.2013.Tps.sp.V1<-as(raster(Plants.2013.Tps.image.V1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")), 'SpatialGridDataFrame');
 
 
-Plants.2013.Tps.sp.V2<-as(raster(Plants.2013.Tps.image.V2, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")), 'SpatialGridDataFrame');
+
   
-  
-#### plot  spatial rasted of interpolated values and the tractor files
+#### plot  spatial raster of interpolated values and the tractor files
   
   
   
 plot(Plants.2013.Tps.sp.V1)
-plot(Plants.2013.Tps.sp.V2)
+
 
 plot(TractorGPS,add=T)
 
-writeRaster(raster(Plants.2013.Tps.image.V2, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")), filename="C:\\Users\\frm10\\Downloads\\2013SurveyDensity.tiff", format='GTiff')
+writeRaster(raster(Plants.2013.Tps.image.V1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")), filename="C:\\Users\\frm10\\Downloads\\2013SurveyDensity.tiff", format='GTiff')
 
 
 ########## Repeat the method  above for the plant sensus in 2014 #########################
