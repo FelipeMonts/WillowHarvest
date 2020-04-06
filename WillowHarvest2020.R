@@ -628,33 +628,34 @@ plot(TractorGPS,add=T)
 writeRaster(raster(Plants.2013.Tps.image.V1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")), filename="C:\\Users\\frm10\\Downloads\\2013SurveyDensity.tiff", format='GTiff')
 
 
-########## Repeat the method  above for the plant sensus in 2014 #########################
+########## Repeat the method  above for the plant census in 2014 #########################
 
 
-##  Addin the information about plant density to the plaqnt population estimates shape files
-
-
-Plants_0_all.2014@data$PlantDensity<-Plant.Density.0.ha  ;
-
-Plants_1_all.2014@data$PlantDensity<-Plant.Density.1.ha  ;
-
-Plants_2_all.2014@data$PlantDensity<-Plant.Density.2.ha   ;
+# ##  Addin the information about plant density to the plaqnt population estimates shape files
+# 
+# 
+# Plants_0_all.2014@data$PlantDensity<-Plant.Density.0.ha  ;
+# 
+# Plants_1_all.2014@data$PlantDensity<-Plant.Density.1.ha  ;
+# 
+# Plants_2_all.2014@data$PlantDensity<-Plant.Density.2.ha   ;
 
 #### Aggreate the 2014 shape files into one
 
 Plants.2014<-rbind(Plants_0_all.2014,Plants_1_all.2014,Plants_2_all.2014) ;
-View(as.numeric(Plants.2014@data$comment))
+#  View(as.numeric(Plants.2014@data$comment)) str(Plants.2014@data) 
 
 Plants.2014@data$S.Density<-as.numeric(Plants.2014@data$comment)-1
+
+#  View(Plants.2014@data$S.Density) ; str(Plants.2014@data) 
 
 
 ####### Using the fields package to do krigging on the plant data
 
 ### The Thin plate smoothing Tps works, therefore that is what will be used
 
-Plants.2014.Tps.V1<-Tps(Plants.2014@coords[,c(1,2)],Plants.2014@data$PlantDensity);
 
-Plants.2014.Tps.V2<-Tps(Plants.2014@coords[,c(1,2)],Plants.2014@data$S.Density);
+Plants.2014.Tps.V1<-Tps(Plants.2014@coords[,c(1,2)],Plants.2014@data$S.Density);
 
 
 ###### Convert the Thin plate smoothing interpolation into a raster file that then can be sampled with the polygons of the tractor file
@@ -678,9 +679,8 @@ str(Rock.View.grid.2014)
 
 ### predict interpotated values
 
-Plants.2014.Tps.image.V1<-predictSurface(Plants.2014.Tps.V1, grid.list=Rock.View.grid.2014, extrap = T ) # Plant Density Data
+Plants.2014.Tps.image.V1<-predictSurface(Plants.2014.Tps.V1, grid.list=Rock.View.grid.2014, extrap = T ) # Survey counts 0,1,2
 
-Plants.2014.Tps.image.V2<-predictSurface(Plants.2014.Tps.V2, grid.list=Rock.View.grid.2014, extrap = T )  # Survey counts 0,1,2
 
 
 ### Convert to a raster and a spatial object
@@ -688,18 +688,16 @@ Plants.2014.Tps.image.V2<-predictSurface(Plants.2014.Tps.V2, grid.list=Rock.View
 Plants.2014.Tps.sp.V1<-as(raster(Plants.2014.Tps.image.V1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")), 'SpatialGridDataFrame');
 
 
-Plants.2014.Tps.sp.V2<-as(raster(Plants.2014.Tps.image.V2, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")), 'SpatialGridDataFrame');
-
 
 #### plot  spatial rasted of interpolated values and the tractor files
 
 
 
 plot(Plants.2014.Tps.sp.V1)
-plot(Plants.2014.Tps.sp.V2)
 
 
-writeRaster(raster(Plants.2014.Tps.image.V2, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")), filename="C:\\Users\\frm10\\Downloads\\2014SurveyDensity.tiff", format='GTiff')
+
+writeRaster(raster(Plants.2014.Tps.image.V1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")), filename="C:\\Users\\frm10\\Downloads\\2014SurveyDensity.tiff", format='GTiff')
 
 
 # ################################################################################################################################
@@ -755,10 +753,10 @@ for (N.ROW in seq(1,N.ROWS ) ){
 }
 
 
+# RN=1
 
-
-plot(Planted.Rows[[50]]@data$P.length.along, Planted.Rows[[50]]@data$X2013_Densi, type="o", ylim=c(0,2))
-points(Planted.Rows[[50]]@data$P.length.along, Planted.Rows[[50]]@data$X2014_Densi, type="o", col="RED")
+plot(Planted.Rows[[RN]]@data$P.length.along, Planted.Rows[[RN]]@data$X2013_Densi, type="o", ylim=c(0,2))
+points(Planted.Rows[[RN]]@data$P.length.along, Planted.Rows[[RN]]@data$X2014_Densi, type="o", col="RED")
 
 
 str(Planted.Rows[c(1,2,3)], max.level=2)
@@ -767,5 +765,25 @@ str(Planted.Rows[c(1,2,3)], max.level=2)
 
 #########################            Plants by row 2016                     ###########################
 
-Planted.Rows[[1]]@data
+###### Read the data from the excell spreadsheet
+
+#  readClipboard()
+
+Plants.2016<-read.xlsx("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowRockViewData\\Plant Data\\RockViewCensus20160308.xlsx", sheet= "HarvestRecords",startRow = 2, colNames=T, rows=seq(1,133), cols= c(1,2)) ;
+
+#  View(Plants.2016)  str(Plants.2016)
+
+# ################################################################################################################################
+# 
+# Counting tests performed during the census gave the following counting errors:
+# Test 1: Average = 1210, Variance = 4825, Standard deviation = 69, CV% = 0.057 , n=6
+# Test 2: Average = 899, Variance = 471, Standard deviation = 22, CV% = 0.024 , n=3
+# Test 3: Average = 646, Variance = 1684, Standard deviation = 41, CV% = 0.064 , n=8
+# 
+# Weighted average of the variance = (((1210-1)*4825)+((899-1)*471)+((646-1)*1684)) / ((1210-1)+(899-1)+(646-1)) = 2668.082
+# Standard deviation = 51.65348 ~ 52
+#
+#################################################################################################################################
+
+ 
 
