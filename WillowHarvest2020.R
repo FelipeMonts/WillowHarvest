@@ -103,8 +103,7 @@ Harvest2015$Cultivar<-as.factor(Harvest2015$Variety) ;
 #readClipboard()
 Harvest2019<-read.xlsx("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowRockViewData\\Wilow Harvest 2019\\RockviewWillowHarvest2019V2.xlsx", sheet= "Yield", startRow = 2 ,colNames = T , cols= c(seq(1,10)), rows=c(seq(1,134)) );
 
-#View(Harvest2019)
-#str(Harvest2015)
+#  View(Harvest2019)  ; str(Harvest2015)
 
 names(Harvest2019)
 
@@ -703,13 +702,13 @@ writeRaster(raster(Plants.2014.Tps.image.V1, CRS("+proj=aea +lat_1=29.5 +lat_2=4
 # ################################################################################################################################
 # 
 # 
-# After obtaining the raster interpolated data of density it will be used to estimate the mode of each tractor swath density and from that to estimate the density in each planted row, based on the tractor swaths GIS data. After obtaining the zonal statistics survey density mode for each tractor swath polygon it will be gouped by planting row and together with the area of each tractor swath polygon (proxy for length) it will be used to estimate the plant number in each row, as a function of length in the row 
+# After obtaining the raster interpolated data of density it will be used to estimate the mode of each tractor swath density and from that to estimate the density in each planted row, based on the tractor swaths GIS data. After obtaining the zonal statistics survey density mode for each tractor swath polygon it will be grouped by planting row and together with the area of each tractor swath polygon (proxy for length) it will be used to estimate the plant number in each row, as a function of length in the row 
 # 
 # 
 #################################################################################################################################
 
 
-#### Reading the Tractor swaths again with the updated infomration with the mode of the plant density estimates fro 2013 and 2014
+#### Reading the Tractor swaths again with the updated information with the mode of the plant density estimates for 2013 and 2014
 
 ##### read the tractor lines that are inside the boundary 
 
@@ -758,6 +757,15 @@ for (N.ROW in seq(1,N.ROWS ) ){
 plot(Planted.Rows[[RN]]@data$P.length.along, Planted.Rows[[RN]]@data$X2013_Densi, type="o", ylim=c(0,2))
 points(Planted.Rows[[RN]]@data$P.length.along, Planted.Rows[[RN]]@data$X2014_Densi, type="o", col="RED")
 
+min(Planted.Rows[[RN]]@data$X2013_Densi)
+
+R2013a<-cut(Planted.Rows[[RN]]@data$X2013_Densi,c(min(Planted.Rows[[RN]]@data$X2013_Densi),0.5,1.499,max(Planted.Rows[[RN]]@data$X2013_Densi)), labels=c(0,1,2),include.lowest=T)
+
+points(Planted.Rows[[RN]]@data$P.length.along, as.numeric(R2013a)-1 , type="o", col="GRAY")
+
+R2014a<-cut(Planted.Rows[[RN]]@data$X2014_Densi,c(min(Planted.Rows[[RN]]@data$X2014_Densi),0.5,1.499,max(Planted.Rows[[RN]]@data$X2014_Densi)), labels=c(0,1,2),include.lowest=T)
+
+points(Planted.Rows[[RN]]@data$P.length.along, as.numeric(R2014a)-1 , type="o", col="RED2")
 
 str(Planted.Rows[c(1,2,3)], max.level=2)
 
@@ -785,5 +793,16 @@ Plants.2016<-read.xlsx("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_R
 #
 #################################################################################################################################
 
- 
+
+# ###############################################################################################################
+# 
+# 
+#                           Gather all data together for analysis
+# 
+# 
+# 
+# 
+###############################################################################################################
+
+
 
