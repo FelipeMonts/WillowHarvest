@@ -486,68 +486,6 @@ plot(Plants_2_all.2014, pch=20, col="DARKGREEN", add=T) ;
 
 
 
-# 
-# 
-# #################   Conversion of the Plant population estimates  based on the 0 ,1 ,2 survey system to plants/m2             ######################
-# #
-# #
-# # Based on the diagram of the planting C:\Felipe\Willow_Project\Drawings and Pictures\Final Drawings\Cutting Spacing Rockview20120502.tif 
-# #
-# #
-# ##################                            #################                                   #################
-# 
-# #### Two plants per row
-# 
-# Row.width.ft<-3.0 + 2.5 + 3.0
-# Row.length.PerTwoplants.ft<-2.0 
-# Row.length.Zeroplants.ft<-7.0
-# 
-# 
-# Plant.Density.2.ft2<-Row.width.ft*Row.length.PerTwoplants.ft /2    #ft2/plant
-# 
-# Plant.Density.1.ft2<-Row.width.ft*Row.length.PerTwoplants.ft /1   #ft2/plant
-# 
-# ############################################### Think about the lower bound for 0 plants ###################################
-# 
-# Plant.Density.0.ft2<-Row.width.ft*Row.length.Zeroplants.ft/1   #ft2/plant Ma  
-# 
-# ############################################### Think about the lower bound for 0 plants ###################################
-# 
-# Plant.Density.2.m2<-Plant.Density.2.ft2 / 10.76391   # m2/plant
-# 
-# Plant.Density.1.m2<-Plant.Density.1.ft2 / 10.76391   # m2/plant
-# 
-# 
-# ############################################### Think about the lower bound for 0 plants ###################################
-# 
-#  Plant.Density.0.m2<-Plant.Density.0.ft2 / 10.76391   # m2/plant
-# 
-# ############################################### Think about the lower bound for 0 plants ###################################
-# 
-# Plant.Density.2.ha<-10000 / Plant.Density.2.m2  # plants/ha 
-# 
-# Plant.Density.1.ha<-10000 / Plant.Density.1.m2 # plants/ha 
-# 
-# 
-# ############################################### Think about the lower bound for 0 plants ###################################
-# 
-#   Plant.Density.0.ha<-10000 / Plant.Density.0.m2 # plants/ha 
-# 
-# ############################################### Think about the lower bound for 0 plants ###################################
-
-# ##############  Adding the information about plant density to the plant population estimates shape files
-# 
-# str(Plants_0_2013@data)
-# View(Plants_0_2013@data)
-# 
-# Plants_0_2013@data$PlantDensity<-Plant.Density.0.ha  ;
-# 
-# Plants_1_2013@data$PlantDensity<-Plant.Density.1.ha   ;
-# 
-# Plants_2_2013@data$PlantDensity<-Plant.Density.2.ha   ;
-# 
-
-
 
 ####### Using the fields package to do krigging on the plant data
 
@@ -752,22 +690,134 @@ for (N.ROW in seq(1,N.ROWS ) ){
 }
 
 
-# RN=1
+# RN=94
 
 plot(Planted.Rows[[RN]]@data$P.length.along, Planted.Rows[[RN]]@data$X2013_Densi, type="o", ylim=c(0,2))
 points(Planted.Rows[[RN]]@data$P.length.along, Planted.Rows[[RN]]@data$X2014_Densi, type="o", col="RED")
 
-min(Planted.Rows[[RN]]@data$X2013_Densi)
 
-R2013a<-cut(Planted.Rows[[RN]]@data$X2013_Densi,c(min(Planted.Rows[[RN]]@data$X2013_Densi),0.5,1.499,max(Planted.Rows[[RN]]@data$X2013_Densi)), labels=c(0,1,2),include.lowest=T)
+str(Planted.Rows[c(1,2,3)], max.level=2)
+
+
+# ##############################################################################################################################
+# 
+# 
+# 
+#                               Discretize back to (0,1,2) the values of population dnesity obtained using cut ()
+# 
+#  ##############################################################################################################################
+
+#  View(Planted.Rows[[25]]@data);   str(Planted.Rows[[N.ROW]]@data)
+
+#  Discretize the interpolated values in each row
+
+for (N.ROW in seq(1,N.ROWS ) ){
+  
+  Planted.Rows[[N.ROW]]@data$Survey2013<-as.numeric(cut(Planted.Rows[[N.ROW]]@data$X2013_Densi,c(-Inf,0.5,1.499,Inf),include.lowest=T,labels=c(0,1,2)))-1
+  
+  
+  Planted.Rows[[N.ROW]]@data$Survey2014<-as.numeric(cut(Planted.Rows[[N.ROW]]@data$X2014_Densi,c(-Inf,0.5,1.499,Inf),include.lowest=T,labels=c(0,1,2)))-1
+}
+
+
+# #################   Conversion of the Plant population estimates  based on the 0 ,1 ,2 survey system to plants/m2             ######################
+# #
+# #
+# # Based on the diagram of the planting C:\Felipe\Willow_Project\Drawings and Pictures\Final Drawings\Cutting Spacing Rockview20120502.tif 
+# #
+# #
+# ##################                            #################                                   #################
+
+# #### Two plants per row
+
+Row.width.ft<-3.0 + 2.5 + 3.0
+Row.length.PerTwoplants.ft<-2.0 
+
+
+Plant.Density.2.ft2<-Row.width.ft*Row.length.PerTwoplants.ft /2    #ft2/plant
+ 
+Plant.Density.1.ft2<-Row.width.ft*Row.length.PerTwoplants.ft /1   #ft2/plant
+ 
+ 
+Plant.Density.2.m2<-Plant.Density.2.ft2 / 10.76391   # m2/plant
+ 
+Plant.Density.1.m2<-Plant.Density.1.ft2 / 10.76391   # m2/plant
+ 
+Plant.Density.2.ha<-10000 / Plant.Density.2.m2  # plants/ha 
+
+Plant.Density.1.ha<-10000 / Plant.Density.1.m2 # plants/ha 
+
+
+# Adding the plant density data to the  data list
+
+# N.ROW=94
+
+#  View(Planted.Rows[[N.ROW]]@data);   str(Planted.Rows[[N.ROW]]@data)
+
+
+# RWos with NA will not work and need to be corrected
+
+for (N.ROW in seq(1,N.ROWS ) ){
+  
+ print(which(is.na(Planted.Rows[[N.ROW]]@data$X2014_Densi), arr.ind=T))
+  
+  
+}
+  
+# There is only one point with NA in the Planted.Rows[[N.ROW]]@data$X2014_Densi: the first point of row 94. It will be changed to the value closet to it.
+
+#  Planted.Rows[[94]]@data$X2014_Densi
+
+Planted.Rows[[94]]@data$X2014_Densi[1]<-Planted.Rows[[94]]@data$X2014_Densi[2]
+
+# and the Survey data corresponding to it as well 
+
+Planted.Rows[[94]]@data$Survey2014[1]<-Planted.Rows[[94]]@data$Survey2014[2]
+
+
+for (N.ROW in seq(1,N.ROWS ) ){
+
+  #   2013  #
+  
+  Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==0,"Plants2013"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==0,"Survey2013"]*Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==0,"P.area.m"]
+  
+  Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==1,"Plants2013"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==1,"Survey2013"]*Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==1,"P.area.m"]
+  
+  Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==2,"Plants2013"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==2,"Survey2013"]*Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==2,"P.area.m"]
+  
+  #   2014  #
+  
+  Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==0,"Plants2014"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==0,"Survey2014"]*Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==0,"P.area.m"]
+  
+  Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==1,"Plants2014"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==1,"Survey2014"]*Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==1,"P.area.m"]
+  
+  Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==2,"Plants2014"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==2,"Survey2014"]*Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==2,"P.area.m"]
+  
+}
+
+# N.ROW=94
+
+
+#  View(Planted.Rows[[N.ROW]]@data);   str(Planted.Rows[[N.ROW]]@data)
+
+R2013a<-cut(Planted.Rows[[RN]]@data$X2013_Densi,c(-Inf,0.5,1.499,Inf),include.lowest=T,labels=c(0,1,2))
+
 
 points(Planted.Rows[[RN]]@data$P.length.along, as.numeric(R2013a)-1 , type="o", col="GRAY")
 
-R2014a<-cut(Planted.Rows[[RN]]@data$X2014_Densi,c(min(Planted.Rows[[RN]]@data$X2014_Densi),0.5,1.499,max(Planted.Rows[[RN]]@data$X2014_Densi)), labels=c(0,1,2),include.lowest=T)
+R2014a<-cut(Planted.Rows[[RN]]@data$X2014_Densi,c(c(-Inf,0.5,1.499,Inf)), labels=c(0,1,2),include.lowest=T)
 
-points(Planted.Rows[[RN]]@data$P.length.along, as.numeric(R2014a)-1 , type="o", col="RED2")
+points(Planted.Rows[[RN]]@data$P.length.along, as.numeric(R2014a)-1 , type="o", col="RED4")
 
-str(Planted.Rows[c(1,2,3)], max.level=2)
+
+
+
+
+
+
+
+
+
 
 #################          Plant population estimates based on counts of plants 2016             ######################
 
