@@ -785,6 +785,7 @@ for (N.ROW in seq(1,N.ROWS ) ){
   
   Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==2,"Plants2013"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==2,"Survey2013"]*Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==2,"P.area.m"]
   
+  
   #   2014  #
   
   Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==0,"Plants2014"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==0,"Survey2014"]*Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==0,"P.area.m"]
@@ -799,21 +800,6 @@ for (N.ROW in seq(1,N.ROWS ) ){
 
 
 #  View(Planted.Rows[[N.ROW]]@data);   str(Planted.Rows[[N.ROW]]@data)
-
-R2013a<-cut(Planted.Rows[[RN]]@data$X2013_Densi,c(-Inf,0.5,1.499,Inf),include.lowest=T,labels=c(0,1,2))
-
-
-points(Planted.Rows[[RN]]@data$P.length.along, as.numeric(R2013a)-1 , type="o", col="GRAY")
-
-R2014a<-cut(Planted.Rows[[RN]]@data$X2014_Densi,c(c(-Inf,0.5,1.499,Inf)), labels=c(0,1,2),include.lowest=T)
-
-points(Planted.Rows[[RN]]@data$P.length.along, as.numeric(R2014a)-1 , type="o", col="RED4")
-
-
-
-
-
-
 
 
 
@@ -853,6 +839,13 @@ Plants.2016<-read.xlsx("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_R
 # 
 # 
 ###############################################################################################################
+
+#  View(Planted.Rows[[N.ROW]]@data);   str(Planted.Rows[[N.ROW]]@data)
+
+
+# save.image("DataCleaning.RData")
+
+Paper.data<-data.frame(row = numeric(0), area = double(0) , length = double(0), Plants2013= double(), Plants2014 = double(), Plants2016 = double() , ChipsWeight.2015.lb = double(), ChipsWeight.2019.lb =double() )
 
 
 
