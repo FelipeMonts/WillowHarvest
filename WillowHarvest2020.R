@@ -118,7 +118,7 @@ Harvest2019$Cultivar<-as.factor(Harvest2019$Variety) ;
 #levels(Harvest2019$Cultivar)
 
 
-
+# View(Harvest2019)
 
 
 ###############################################################################################################
@@ -732,6 +732,7 @@ for (N.ROW in seq(1,N.ROWS ) ){
 
 Row.width.ft<-3.0 + 2.5 + 3.0
 Row.length.PerTwoplants.ft<-2.0 
+Plants.per.Row.lenght<-2/Row.length.PerTwoplants.ft ;
 
 
 Plant.Density.2.ft2<-Row.width.ft*Row.length.PerTwoplants.ft /2    #ft2/plant
@@ -747,6 +748,20 @@ Plant.Density.2.ha<-10000 / Plant.Density.2.m2  # plants/ha
 
 Plant.Density.1.ha<-10000 / Plant.Density.1.m2 # plants/ha 
 
+
+# ##### Density of plants per length of row in m
+
+
+Plants.per.Row.lenght.2.ft<-2/Row.length.PerTwoplants.ft;
+
+Plants.per.Row.lenght.1.ft<-1/Row.length.PerTwoplants.ft;
+
+Plants.per.Row.lenght.2.m<-Plants.per.Row.lenght.2.ft*3.28084;
+
+Plants.per.Row.lenght.1.m<-Plants.per.Row.lenght.1.ft*3.28084 ;
+
+
+####
 
 # Adding the plant density data to the  data list
 
@@ -779,24 +794,24 @@ for (N.ROW in seq(1,N.ROWS ) ){
 
   #   2013  #
   
-  Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==0,"Plants2013"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==0,"Survey2013"]*Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==0,"P.area.m"]
+  Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==0,"Plants2013"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==0,"P.length"]*0
   
-  Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==1,"Plants2013"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==1,"Survey2013"]*Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==1,"P.area.m"]
+  Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==1,"Plants2013"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==1,"P.length"]*Plants.per.Row.lenght.1.m
   
-  Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==2,"Plants2013"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==2,"Survey2013"]*Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==2,"P.area.m"]
+  Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==2,"Plants2013"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==2,"P.length"]*Plants.per.Row.lenght.2.m
   
   
   #   2014  #
   
-  Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==0,"Plants2014"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==0,"Survey2014"]*Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==0,"P.area.m"]
+  Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==0,"Plants2014"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==0,"P.length"]*0
   
-  Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==1,"Plants2014"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==1,"Survey2014"]*Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==1,"P.area.m"]
+  Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==1,"Plants2014"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==1,"P.length"]*Plants.per.Row.lenght.1.m
   
-  Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==2,"Plants2014"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==2,"Survey2014"]*Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==2,"P.area.m"]
+  Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==2,"Plants2014"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==2,"P.length"]*Plants.per.Row.lenght.2.m
   
 }
 
-# N.ROW=94
+# N.ROW=50
 
 
 #  View(Planted.Rows[[N.ROW]]@data);   str(Planted.Rows[[N.ROW]]@data)
@@ -845,7 +860,53 @@ Plants.2016<-read.xlsx("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_R
 
 # save.image("DataCleaning.RData")
 
-Paper.data<-data.frame(row = numeric(0), area = double(0) , length = double(0), Plants2013= double(), Plants2014 = double(), Plants2016 = double() , ChipsWeight.2015.lb = double(), ChipsWeight.2019.lb =double() )
+#  load("DataCleaning.RData")
+
+# str(Harvest2015) ; str(Harvest2019)
 
 
+Paper.data.1<-merge(Harvest2015[, c('Actual.Row.#', 'Variety', 'Chips.Weight,.lb')], Harvest2019[,c('Row', 'Variety', 'Fresh.Chips.weight.lb')], by.x= 'Actual.Row.#', by.y='Row') ;
+
+
+Paper.data<-merge(Paper.data.1,Plants.2016, by.x='Actual.Row.#',by.y="ROW" ,all.x=T) ;
+
+names(Paper.data)[6]<-c('Plants2016')
+
+# View(Paper.data) str(Paper.data)
+
+#  Calculate summary plant population data for each row
+
+#  View(Planted.Rows[[N.ROW]]@data);   str(Planted.Rows[[N.ROW]]@data)
+
+#Paper.data<-data.frame(row = numeric(0), area = double(0) , length = double(0), Plants2013= double(), Plants2014 = double(), Plants2016 = double() , ChipsWeight.2015.lb = double(), ChipsWeight.2019.lb =double() )
+
+# N.ROW=4
+
+
+for (N.ROW in seq(1,N.ROWS ) ){
+  
+  Paper.data$Area.m2[N.ROW]<-sum(Planted.Rows[[N.ROW]]@data$P.area.m)
+  
+  Paper.data$Length.m[N.ROW]<-sum(Planted.Rows[[N.ROW]]@data$P.length)
+  
+  Paper.data$Plants2013[N.ROW]<-sum(Planted.Rows[[N.ROW]]@data$Plants2013)
+  
+  Paper.data$Plants2014[N.ROW]<-sum(Planted.Rows[[N.ROW]]@data$Plants2014)
+  
+  
+}
+
+Paper.data$Plant.Density.pl.ha.2013<-Paper.data$Plants2013/(Paper.data$Length.m * Row.width.ft/3.28084)*10000
+Paper.data$Plant.Density.pl.ha.2014<-Paper.data$Plants2014/(Paper.data$Length.m * Row.width.ft/3.28084)*10000
+Paper.data$Plant.Density.pl.ha.2016<-Paper.data$Plants2016/(Paper.data$Length.m * Row.width.ft/3.28084)*10000
+
+# View(Paper.data) ; str(Paper.data)
+
+# save.image("DataCleaning.RData")
+
+#  load("DataCleaning.RData")
+
+matplot(Paper.data$`Actual.Row.#`, Paper.data$Plant.Density.pl.ha.2013 , type='o' , col="RED", ylim=c(0,12000))
+matpoints(Paper.data$`Actual.Row.#`, Paper.data$Plant.Density.pl.ha.2014, type='o' , col="BLUE", ylim=c(0,12000))
+matpoints(Paper.data$`Actual.Row.#`, Paper.data$Plant.Density.pl.ha.2016, type='o' , col="GREEN", ylim=c(0,12000))
 
