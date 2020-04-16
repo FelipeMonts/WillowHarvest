@@ -1,7 +1,7 @@
 ##############################################################################################################
 # 
 # 
-# Program to manage and analyze willow harvest research data
+# Program to manage, cleand and prepare willow harvest research data for analysis
 # 
 #    
 # 
@@ -77,8 +77,11 @@ library(rgeos)
 ###############################################################################################################
 #                           load willow harvest data from 2015
 ###############################################################################################################
-#readClipboard()
-Harvest2015<-read.xlsx("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowRockViewData\\Yield Data\\RockviewWillowHarvest_chips20160222 (1).xlsx", sheet= "PivotTable", startRow = 1 ,colNames = T , cols= c(seq(1,9)), rows=c(seq(1,133)) );
+#  readClipboard()
+
+#Harvest2015<-read.xlsx("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowRockViewData\\Yield Data\\RockviewWillowHarvest_chips20160222 (1).xlsx", sheet= "PivotTable", startRow = 1 ,colNames = T , cols= c(seq(1,9)), rows=c(seq(1,133)) );
+
+Harvest2015<-read.xlsx("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowHarvestPaper\\RockviewWillowHarvest2016.xlsx", sheet= "PivotTable", startRow = 1 ,colNames = T , cols= c(seq(1,9)), rows=c(seq(1,133)) );
 
 #View(Harvest2015)
 #str(Harvest2015)
@@ -856,11 +859,6 @@ Plants.2016<-read.xlsx("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_R
 ###############################################################################################################
 
 #  View(Planted.Rows[[N.ROW]]@data);   str(Planted.Rows[[N.ROW]]@data)
-
-
-# save.image("DataCleaning.RData")
-
-#  load("DataCleaning.RData")
 
 # str(Harvest2015) ; str(Harvest2019)
 
