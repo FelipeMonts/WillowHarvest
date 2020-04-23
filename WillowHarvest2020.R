@@ -43,13 +43,27 @@ setwd("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowHa
 
 
 # Install the packages that are needed #
+# Install the packages that are needed #
 
-#install.packages('fields', dep=T)
+# install.packages('fields', dep=T)
 
-#install.packages('LatticeKrig', dep=T)
+# install.packages('LatticeKrig', dep=T)
 
-#install.packages('rgeos', dep=T)
+# install.packages('rgeos', dep=T)
 
+# install.packages('RColorBrewer', dep=T)
+
+# install.packages('rgdal', dep=T)
+
+# install.packages('sp', dep=T)
+
+# install.packages('raster', dep=T)
+
+# install.packages('openxlsx', dep=T)
+
+# install.packages(c("Rcpp", "devtools"), dependencies = TRUE)
+
+# install.packages("zip", dependencies = TRUE)
 
 ###############################################################################################################
 #                           load the libraries that are neded   
@@ -81,10 +95,16 @@ library(rgeos)
 
 #Harvest2015<-read.xlsx("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowRockViewData\\Yield Data\\RockviewWillowHarvest_chips20160222 (1).xlsx", sheet= "PivotTable", startRow = 1 ,colNames = T , cols= c(seq(1,9)), rows=c(seq(1,133)) );
 
-Harvest2015<-read.xlsx("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowHarvestPaper\\RockviewWillowHarvest2016.xlsx", sheet= "PivotTable", startRow = 1 ,colNames = T , cols= c(seq(1,9)), rows=c(seq(1,133)) );
+Harvest2015.1<-read.xlsx("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowHarvestPaper\\RockviewWillowHarvest2016.xlsx", sheet= "PivotTable", startRow = 1 ,colNames = T , cols= c(seq(1,9)), rows=c(seq(1,133)) );
 
-#View(Harvest2015)
-#str(Harvest2015)
+Harvest2015.moisture<-read.xlsx("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowHarvestPaper\\RockviewWillowHarvest2016.xlsx", sheet= "HarvestRecords", startRow = 11, colNames = T , cols= c(seq(1,20)), rows=c(seq(11,151)) ) ;
+
+Harvest2015<-merge(Harvest2015.1, Harvest2015.moisture[!is.na(Harvest2015.moisture$`Actual.Row.#`),names(Harvest2015.moisture)[c(1,17)]], by.x= names(Harvest2015.1)[1], by.y=names(Harvest2015.moisture)[1] ,all.x=T)
+
+# View(Harvest2015)
+# View(Harvest2015.moisture)
+
+# str(Harvest2015.moisture)
 
 names(Harvest2015)
 
@@ -99,14 +119,21 @@ Harvest2015$Cultivar<-as.factor(Harvest2015$Variety) ;
 #levels(Harvest2015$Cultivar)
 
 
+#### convert the fesh weight to kd dry mater per hectare
+
+Harvest2015$DryM.kg<-Harvest2015$`Chips.Weight,.lb`* 0.453592 * (1-Harvest2015$`Moisture.%`) ; # 0.453592 kg/lb
+
+# Harvest2015$DryM.kg.ha.2<-Harvest2015$DryM.kg /(Harvest2015$`Row.Length,.m` * ((2.5+6)* 0.3048 )) * 10000 ; # 0.3048 m/ft  10000 m2/ha
+
+
 
 ###############################################################################################################
 #                           load willow harvest data from 2019
 ###############################################################################################################
 #readClipboard()
-Harvest2019<-read.xlsx("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowRockViewData\\Wilow Harvest 2019\\RockviewWillowHarvest2019V2.xlsx", sheet= "Yield", startRow = 2 ,colNames = T , cols= c(seq(1,10)), rows=c(seq(1,134)) );
+Harvest2019<-read.xlsx("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowHarvestPaper\\RockviewWillowHarvest2019 V2.xlsx", sheet= "Corrected Yield", startRow = 2 , colNames = T , cols= c(seq(1,11)), rows=c(seq(2,134)) );
 
-#  View(Harvest2019)  ; str(Harvest2015)
+#  View(Harvest2019)  ; str(Harvest2019)
 
 names(Harvest2019)
 
@@ -121,8 +148,15 @@ Harvest2019$Cultivar<-as.factor(Harvest2019$Variety) ;
 #levels(Harvest2019$Cultivar)
 
 
-# View(Harvest2019)
 
+#### convert the fesh weight to kd dry mater per hectare
+
+Harvest2019$DryM.kg<-Harvest2019$`Fresh.Chips.weight.(lb)` * 0.453592 * (1-Harvest2019$`Moisture.(%)`) ; # 0.453592 kg/lb
+
+# Harvest2019$DryM.kg.ha.2<-Harvest2015$DryM.kg /(Harvest2015$`Row.Length,.m` * ((2.5+6)* 0.3048 )) * 10000 ; # 0.3048 m/ft  10000 m2/ha
+
+
+# View(Harvest2019)
 
 ###############################################################################################################
 #                           load Willow field GIS Maps
@@ -141,9 +175,13 @@ ogrInfo("C:\\Felipe\\Willow_Project\\FelipeQGIS\\BrianGISFile Tractor\\Coverage.
 TractorGPS.1<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\BrianGISFile Tractor\\Coverage.shp")  ;
 
 
-#### Change the projection to EPSG:5070 - NAD83 / Conus Albers - Projected  
+#### Change the projection to NAD83/Pennsylvania North EPSG:32128 NAD83 / Pennsylvania North
+# Extent
+# -80.53, 40.60, -74.70, 42.53
+# Proj4
+# +proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs
 
-TractorGPS<-spTransform(TractorGPS.1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") )
+TractorGPS<-spTransform(TractorGPS.1,  CRS("+proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") )
 
 
  plot(TractorGPS)
@@ -152,7 +190,9 @@ TractorGPS<-spTransform(TractorGPS.1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +la
  
  Boundary.Polygon.1<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\Boundary_Track_2014-04-11 09_00_54_Polygon.shp") ;
 
- Boundary.Polygon<-spTransform(Boundary.Polygon.1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") )
+# summary(Boundary.Polygon.1)
+
+ Boundary.Polygon<-spTransform(Boundary.Polygon.1, CRS("+proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") )
    
  plot(Boundary.Polygon, add=T,col="RED") 
    
@@ -161,7 +201,9 @@ TractorGPS<-spTransform(TractorGPS.1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +la
  
  Tractor.Inside.Boundary.1<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\TractorCoverageinsideBoudaryTrack.shp") ;
  
- Tractor.Inside.Boundary<-spTransform(Tractor.Inside.Boundary.1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") )  ;
+# summary(Tractor.Inside.Boundary.1) 
+ 
+ Tractor.Inside.Boundary<-spTransform(Tractor.Inside.Boundary.1,  CRS("+proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") )  ;
  
  plot(Tractor.Inside.Boundary, add=T,col="BLUE");
  
@@ -170,21 +212,25 @@ TractorGPS<-spTransform(TractorGPS.1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +la
   
 FirstlineTractor.1<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\FirstLineTractorCoverage.shp") ;
  
-FirstlineTractor<-spTransform(FirstlineTractor.1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") )  ;
+# summary(FirstlineTractor.1) 
+ 
+FirstlineTractor<-spTransform(FirstlineTractor.1, CRS("+proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") )  ;
  
  
-plot(FirstlineTractor,add=T);
+plot(FirstlineTractor,add=T, col="RED1");
  
  
 FirstlineCentroid.1<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\FirstLineCentroid.shp") ;
  
-FirstlineCentroid<-spTransform(FirstlineCentroid.1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") )  ;
+# summary(FirstlineCentroid.1)  
+ 
+FirstlineCentroid<-spTransform(FirstlineCentroid.1,  CRS("+proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") )  ;
  
  str(FirstlineCentroid)
  
- plot(FirstlineCentroid, add=T,col="RED");
+ plot(FirstlineCentroid, add=T,col="YELLOW");
  
-plot(FirstlineTractor[!is.na(over(FirstlineTractor,geometry(FirstlineCentroid))),])
+plot(FirstlineTractor[!is.na(over(FirstlineTractor,geometry(FirstlineCentroid))),], add=T, col="CYAN")
  
 dim(FirstlineCentroid@lines[[1]]@Lines[[1]]@coords)
 
@@ -206,7 +252,7 @@ FirstlineCentroid.ymax<-max(FirstlineCentroid@lines[[1]]@Lines[[1]]@coords[,2])
 
 FirstlineCentroid.tips.1<-data.frame(c(FirstlineCentroid.xmax,FirstlineCentroid.xmin), c(FirstlineCentroid.ymin,FirstlineCentroid.ymax)) ;
  
-FirstlineCentroid.tips<-SpatialPointsDataFrame(FirstlineCentroid.tips.1, data=FirstlineCentroid.tips.1, proj4string= CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"))
+FirstlineCentroid.tips<-SpatialPointsDataFrame(FirstlineCentroid.tips.1, data=FirstlineCentroid.tips.1, proj4string=CRS("+proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"))
  
 
 
@@ -219,19 +265,22 @@ plot(FirstlineCentroid.tips, col=c("RED","BLUE"), add=T)
 
 #### extend the line on the y axis  100 m
 
-FirstlineCentroid.extended.tips.1<-data.frame(c(1512491 + (FirstLineSlope*100), 1512674 - (FirstLineSlope*100)),c(2128633 + 100, 2128271- 100))
+coordinates(FirstlineCentroid.tips)
 
-FirstlineCentroid.extended.tips<-SpatialPointsDataFrame(FirstlineCentroid.extended.tips.1, data=FirstlineCentroid.extended.tips.1, proj4string= CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")) ;
+FirstlineCentroid.extended.tips.1<-data.frame(c(595887.4 + (FirstLineSlope*100), 595999.0  - (FirstLineSlope*100)),c(77033.80 + 100, 76646.34 - 100))
 
+FirstlineCentroid.extended.tips<-SpatialPointsDataFrame(FirstlineCentroid.extended.tips.1, data=FirstlineCentroid.extended.tips.1, proj4string= CRS("+proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")) ;
 
-plot(FirstlineCentroid.extended.tips, col="MAGENTA", add=T)    
+coordinates(FirstlineCentroid.extended.tips)
+
+plot(FirstlineCentroid.extended.tips, col="GREEN", add=T)    
   
 # create the extended line
 
 ExtendedLine.1<-FirstlineCentroid.extended.tips@coords  ;
 ExtendedLine.2<-Line(ExtendedLine.1);
 ExtendedLine.3<-Lines(list(ExtendedLine.2), ID="1") ;
-ExtendedLine.4<-SpatialLines(list(ExtendedLine.3),proj4string= CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
+ExtendedLine.4<-SpatialLines(list(ExtendedLine.3),proj4string= CRS("+proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
 ExtendedLine.5<-SpatialLinesDataFrame(ExtendedLine.4, data=data.frame(ID=c("1"),c(1)))
 
 summary(ExtendedLine.4)
@@ -268,7 +317,7 @@ writeOGR(ExtendedLine.5,"C:\\Users\\frm10\\Downloads\\Line1.shp",layer="Line1", 
 N.ROWS=132  ;
 
 
-#N.ROW=20  ;
+#N.ROW=25  ;
 
 d.m<-2.5723 ;
 
@@ -288,14 +337,14 @@ New.line.1<-Transl.matx %*% t(cbind(ExtendedLine.4@lines[[1]]@Lines[[1]]@coords,
 
 New.line.2<-Line(t(New.line.1[1:2,]));
 New.line.3<-Lines(list(New.line.2), ID="1") ;
-New.line.4<-SpatialLines(list(New.line.3),proj4string= CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
+New.line.4<-SpatialLines(list(New.line.3),proj4string=CRS("+proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
 New.line.5<-SpatialLinesDataFrame(New.line.4, data=data.frame(ID=c("1"),c(1))) ;
 
 
 
 summary(New.line.5)
 
-plot(New.line.5, col="RED", add=T)
+plot(New.line.5, col="PINK", add=T)
 
 
 writeOGR(New.line.5,"C:\\Users\\frm10\\Downloads\\Line1.shp",layer="Line1", driver="ESRI Shapefile")
@@ -329,10 +378,10 @@ for (N.ROW in seq(1,N.ROWS ) ){
 
 
 
-Tractor.Swath.lines.2<-SpatialLines(Tractor.Swath.lines.1,proj4string= CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
+Tractor.Swath.lines.2<-SpatialLines(Tractor.Swath.lines.1, proj4string= CRS("+proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")) ;
 Tractor.Swath.lines.3<-SpatialLinesDataFrame(Tractor.Swath.lines.2, data=data.frame(ID=sapply(slot(Tractor.Swath.lines.2,"lines"),function (x) slot(x,"ID")),row.names=sapply(slot(Tractor.Swath.lines.2,"lines"),function (x) as.numeric(slot(x,"ID"))))) ;
 
-plot(Tractor.Swath.lines.3, col="CYAN", add=T)
+plot(Tractor.Swath.lines.3, col="PURPLE", add=T)
 
 
 writeOGR(Tractor.Swath.lines.3,"C:\\Users\\frm10\\Downloads\\Line5.shp",layer="Line5", driver="ESRI Shapefile") ;
@@ -356,7 +405,7 @@ Tractor.Swath.lines.4@data$Row.Length.m<-SpatialLinesLengths(Tractor.Swath.lines
 
 #################    Plots  and varieties  ######################
 
-########### Read infor mation about the shape files ###########
+########### Read information about the shape files ###########
 
 #readClipboard()
 ogrInfo("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\RockviewPlotsV3AR7.shp")  ; 
@@ -366,9 +415,14 @@ ogrInfo("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\RockviewPlots
 
 PlotsData.1<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\RockviewPlotsV3AR7.shp")  ;
  
-#### Change the projection to EPSG:5070 - NAD83 / Conus Albers - Projected  
+#### Change the projection to NAD83/Pennsylvania North EPSG:32128 NAD83 / Pennsylvania North
+# Extent
+# -80.53, 40.60, -74.70, 42.53
+# Proj4
+# +proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs
+
  
-PlotsData<-spTransform(PlotsData.1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") )
+PlotsData<-spTransform(PlotsData.1, CRS("+proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") )
  
 
 plot(PlotsData, lwd=2, border="CYAN", add=T)
@@ -395,9 +449,13 @@ PlantDatapart22013<-readOGR("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Wil
 
 PlantData2013.all<-union(PlantData2013,PlantDatapart22013) ;
 
-#### Change the projection to EPSG:5070 - NAD83 / Conus Albers - Projected
+#### Change the projection to NAD83/Pennsylvania North EPSG:32128 NAD83 / Pennsylvania North
+# Extent
+# -80.53, 40.60, -74.70, 42.53
+# Proj4
+# +proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs
 
-PlantData2013.all<-spTransform(PlantData2013.all, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
+PlantData2013.all<-spTransform(PlantData2013.all, CRS("+proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
 
 
 plot(PlantData2013.all, pch=20, col="RED", add=T) ;
@@ -424,9 +482,14 @@ Plants_0.2.2014<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite20
 
 Plants_0_all.2014<-rbind(Plants_0.1.2014,Plants_0.2.2014) ;
 
-#### Change the projection to EPSG:5070 - NAD83 / Conus Albers - Projected  
+#### Change the projection to NAD83/Pennsylvania North EPSG:32128 NAD83 / Pennsylvania North
+# Extent
+# -80.53, 40.60, -74.70, 42.53
+# Proj4
+# +proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs
 
-Plants_0_all.2014<-spTransform(Plants_0_all.2014, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
+
+Plants_0_all.2014<-spTransform(Plants_0_all.2014,  CRS("+proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
 
 
 plot(Plants_0_all.2014, pch=20, col="PINK", add=T) ;
@@ -453,9 +516,14 @@ Plants_1.2.2014<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite20
 
 Plants_1_all.2014<-rbind(Plants_1.1.2014,Plants_1.2.2014) ;
 
-#### Change the projection to EPSG:5070 - NAD83 / Conus Albers - Projected  
+#### Change the projection to NAD83/Pennsylvania North EPSG:32128 NAD83 / Pennsylvania North
+# Extent
+# -80.53, 40.60, -74.70, 42.53
+# Proj4
+# +proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs
 
-Plants_1_all.2014<-spTransform(Plants_1_all.2014, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
+
+Plants_1_all.2014<-spTransform(Plants_1_all.2014,  CRS("+proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
 
 
 plot(Plants_1_all.2014, pch=20, col="BLUE", add=T) ;
@@ -480,9 +548,13 @@ Plants_2.2.2014<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite20
 
 Plants_2_all.2014<-rbind(Plants_2.1.2014,Plants_2.2.2014) ;
 
-#### Change the projection to EPSG:5070 - NAD83 / Conus Albers - Projected  
+#### Change the projection to NAD83/Pennsylvania North EPSG:32128 NAD83 / Pennsylvania North
+# Extent
+# -80.53, 40.60, -74.70, 42.53
+# Proj4
+# +proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs
 
-Plants_2_all.2014<-spTransform(Plants_2_all.2014, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ) ;
+Plants_2_all.2014<-spTransform(Plants_2_all.2014, CRS("+proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")) ;
 
 
 plot(Plants_2_all.2014, pch=20, col="DARKGREEN", add=T) ;
@@ -551,7 +623,7 @@ Plants.2013.Tps.image.V1<-predictSurface(Plants.2013.Tps.V1,grid.list=Rock.View.
 
 ### Convert to a raster and a spatial object
 
-Plants.2013.Tps.sp.V1<-as(raster(Plants.2013.Tps.image.V1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")), 'SpatialGridDataFrame');
+Plants.2013.Tps.sp.V1<-as(raster(Plants.2013.Tps.image.V1, CRS("+proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")), 'SpatialGridDataFrame');
 
 
 
@@ -565,7 +637,7 @@ plot(Plants.2013.Tps.sp.V1)
 
 plot(TractorGPS,add=T)
 
-writeRaster(raster(Plants.2013.Tps.image.V1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")), filename="C:\\Users\\frm10\\Downloads\\2013SurveyDensity.tiff", format='GTiff')
+writeRaster(raster(Plants.2013.Tps.image.V1, CRS("+proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")), filename="C:\\Users\\frm10\\Downloads\\2013SurveyDensity.tiff", format='GTiff')
 
 
 ########## Repeat the method  above for the plant census in 2014 #########################
@@ -583,9 +655,9 @@ writeRaster(raster(Plants.2013.Tps.image.V1, CRS("+proj=aea +lat_1=29.5 +lat_2=4
 #### Aggreate the 2014 shape files into one
 
 Plants.2014<-rbind(Plants_0_all.2014,Plants_1_all.2014,Plants_2_all.2014) ;
-#  View(as.numeric(Plants.2014@data$comment)) str(Plants.2014@data) 
+#  View(as.numeric(Plants.2014@data$comment)) ; str(Plants.2014@data) 
 
-Plants.2014@data$S.Density<-as.numeric(Plants.2014@data$comment)-1
+Plants.2014@data$S.Density<-as.numeric(Plants.2014@data$comment)-1 ;
 
 #  View(Plants.2014@data$S.Density) ; str(Plants.2014@data) 
 
@@ -594,14 +666,13 @@ Plants.2014@data$S.Density<-as.numeric(Plants.2014@data$comment)-1
 
 ### The Thin plate smoothing Tps works, therefore that is what will be used
 
-
-Plants.2014.Tps.V1<-Tps(Plants.2014@coords[,c(1,2)],Plants.2014@data$S.Density);
-
-
 ###### Convert the Thin plate smoothing interpolation into a raster file that then can be sampled with the polygons of the tractor file
 
 
 ###### Coordinates grid to prepare image and raster
+
+
+Plants.2014.Tps.V1<-Tps(Plants.2014@coords[,c(1,2)],Plants.2014@data$S.Density);
 
 
 Range.in.x.2014<-max(Plants.2014@coords[,1]) - min(Plants.2014@coords[,1]) ;
@@ -625,7 +696,7 @@ Plants.2014.Tps.image.V1<-predictSurface(Plants.2014.Tps.V1, grid.list=Rock.View
 
 ### Convert to a raster and a spatial object
 
-Plants.2014.Tps.sp.V1<-as(raster(Plants.2014.Tps.image.V1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")), 'SpatialGridDataFrame');
+Plants.2014.Tps.sp.V1<-as(raster(Plants.2014.Tps.image.V1, CRS("+proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")), 'SpatialGridDataFrame');
 
 
 
@@ -635,9 +706,11 @@ Plants.2014.Tps.sp.V1<-as(raster(Plants.2014.Tps.image.V1, CRS("+proj=aea +lat_1
 
 plot(Plants.2014.Tps.sp.V1)
 
+plot(TractorGPS,add=T)
 
 
-writeRaster(raster(Plants.2014.Tps.image.V1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")), filename="C:\\Users\\frm10\\Downloads\\2014SurveyDensity.tiff", format='GTiff')
+
+writeRaster(raster(Plants.2014.Tps.image.V1, CRS("+proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")), filename="C:\\Users\\frm10\\Downloads\\2014SurveyDensity.tiff", format='GTiff')
 
 
 # ################################################################################################################################
@@ -653,12 +726,15 @@ writeRaster(raster(Plants.2014.Tps.image.V1, CRS("+proj=aea +lat_1=29.5 +lat_2=4
 
 ##### read the tractor lines that are inside the boundary 
 
-Tractor.Swaths.1<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\TractorCoverageinsideBoudaryTrack.shp") ;
+# Tractor.Swaths.1<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\TractorCoverageinsideBoudaryTrack.shp") ;
+# 
+# Tractor.Swaths<-spTransform(Tractor.Swaths.1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") )  ;
+#
 
-Tractor.Swaths<-spTransform(Tractor.Swaths.1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") )  ;
+Tractor.Swaths<-Tractor.Inside.Boundary ;
 
 
-plot(Tractor.Swaths,col="BLUE");
+plot(Tractor.Swaths,col="PINK");
 
 ####   Get the area and the length of each tractor swath polygon
 
@@ -667,11 +743,6 @@ Tractor.Swaths@data$P.area.m<-sapply(slot(Tractor.Swaths,"polygons"),slot,"area"
 
 Tractor.Swaths@data$P.length<-Tractor.Swaths@data$P.area.m/d.m ;
 
-#Tractor.Swaths@data$P.length.along<-cumsum(Tractor.Swaths@data$P.length) ;
-Tractor.Swaths@data
-
-#### Separate the data from each planted row  and collected into a list Planted.Rows
-
 # Initiallize the list of with a spatialPoligonsDataFrame object for each planted row
 Planted.Rows<-list()
 
@@ -679,10 +750,20 @@ for (N.ROW in seq(1,N.ROWS ) ){
   Planted.Rows[[N.ROW]]<-raster::intersect(Tractor.Swaths,Tractor.Swath.lines.4[N.ROW,])
 }
 
-plot(Planted.Rows[[2]][seq(1,10),])
-Tractor.Swath.lines.4[2,]
+plot(Planted.Rows[[1]][seq(1,10),])
+Tractor.Swath.lines.4[1,]
+
+
+
 
 cumsum(Planted.Rows[[1]]@data$P.length)
+
+#Tractor.Swaths@data$P.length.along<-cumsum(Tractor.Swaths@data$P.length) ;
+Tractor.Swaths@data
+
+#### Separate the data from each planted row  and collected into a list Planted.Rows
+
+
 
 #####  estimate plant density as a functions a row distance along the line
 
