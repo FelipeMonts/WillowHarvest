@@ -734,6 +734,7 @@ writeRaster(raster(Plants.2014.Tps.image.V1, CRS("+proj=lcc +lat_1=41.95 +lat_2=
 Tractor.Swaths<-Tractor.Inside.Boundary ;
 
 
+
 plot(Tractor.Swaths,col="PINK");
 
 ####   Get the area and the length of each tractor swath polygon
@@ -741,7 +742,13 @@ plot(Tractor.Swaths,col="PINK");
 
 Tractor.Swaths@data$P.area.m<-sapply(slot(Tractor.Swaths,"polygons"),slot,"area")  ;
 
+str(Tractor.Swaths@data)
+
 Tractor.Swaths@data$P.length<-Tractor.Swaths@data$P.area.m/d.m ;
+
+
+#### Separate the data from each planted row  and collected into a list Planted.Rows
+
 
 # Initiallize the list of with a spatialPoligonsDataFrame object for each planted row
 Planted.Rows<-list()
@@ -750,18 +757,17 @@ for (N.ROW in seq(1,N.ROWS ) ){
   Planted.Rows[[N.ROW]]<-raster::intersect(Tractor.Swaths,Tractor.Swath.lines.4[N.ROW,])
 }
 
-plot(Planted.Rows[[1]][seq(1,10),])
+plot(Planted.Rows[[16]][seq(11,20),], col="GREEN", add=T)
 Tractor.Swath.lines.4[1,]
 
+str(Planted.Rows[[80]]@data)
 
 
-
-cumsum(Planted.Rows[[1]]@data$P.length)
+cumsum(Planted.Rows[[16]]@data[seq(1:20), c("P.length")])
 
 #Tractor.Swaths@data$P.length.along<-cumsum(Tractor.Swaths@data$P.length) ;
 Tractor.Swaths@data
 
-#### Separate the data from each planted row  and collected into a list Planted.Rows
 
 
 
