@@ -317,7 +317,7 @@ writeOGR(ExtendedLine.5,"C:\\Users\\frm10\\Downloads\\Line1.shp",layer="Line1", 
 N.ROWS=132  ;
 
 
-#N.ROW=25  ;
+#  N.ROW=25  ;
 
 d.m<-2.5723 ;
 
