@@ -740,40 +740,31 @@ str(Tractor.Swath.lines.4@data)
 
 Points.1<-spsample(Tractor.Swath.lines.4@lines[[60]]@Lines[[1]],n=Tractor.Swath.lines.4@data[60,c("Row.Length.m")]*1.64,type="regular")
 
-extract(raster(Plants.2014.Tps.sp.V1),Points.1, df=T )
+str(Points.1)
+
+# distance between points 
+View(pointDistance(Points.1, lonlat=F)[,1])
+
+diff(pointDistance(Points.1, lonlat=F)[,1],lag=1, differences=1)
+
+Df.2013<-extract(raster(Plants.2013.Tps.sp.V1),Points.1, df=T )
+Df.2014<-extract(raster(Plants.2014.Tps.sp.V1),Points.1, df=T )
+Plants.on.theRow.1<-merge(Df.2013, Df.2014, by='ID')
+str(Plants.on.theRow.1)
+names(Plants.on.theRow.1)[2:3]<-c('P.2013' , 'P.2014')
+
+#  Discretize back
+
+cut(Plants.on.theRow.1$P.2013,c(-Inf,0.5,1.499,Inf),include.lowest=T,labels=c(0,1,2))
+
+as.numeric(cut(Planted.Rows[[N.ROW]]@data$X2013_Densi,c(-Inf,0.5,1.499,Inf),include.lowest=T,labels=c(0,1,2)))-1
+
+Plants.on.theRow.1$S.2013<-as.numeric(cut(Plants.on.theRow.1$P.2013,c(-Inf,0.5,1.499,Inf),include.lowest=T,labels=c(0,1,2)))-1
+
+Plants.on.theRow.1$S.2014<-as.numeric(cut(Plants.on.theRow.1$P.2014,c(-Inf,0.5,1.499,Inf),include.lowest=T,labels=c(0,1,2)))-1
 
 
-str(raster(Plants.2013.Tps.sp.V1))
-# Transforming the spatial object Tractor.Swath.lines.4 into a spatial features object sf
-
-Planted.Rows.sf<-st_as_sf(Tractor.Swath.lines.4)  ;
-
-
-str(Planted.Rows.sf)
-
-attributes(Planted.Rows.sf)
-
-st_length(Planted.Rows.sf)
-
-st_cast(Planted.Rows.sf[,c('geometry')],"LINESTRING")
-
-
-
-
-
-
-
-
-Planted.Rows.sf.PlantingPoints<-st_line_sample(st_cast(Planted.Rows.sf[,c('geometry')],"LINESTRING"), density=c(1.64), type="regular") ;
-plot(MultyP)
-
-print(Planted.Rows.sf.PlantingPoints[1:5],n=3)
-
-st_agr(Planted.Rows.sf.PlantingPoints)
-
-
-
-str(Tractor.Swath.lines.4@lines[[1]]@Lines)
+cumsum(Plants.on.theRow.1$S.2014)
 
 
 
