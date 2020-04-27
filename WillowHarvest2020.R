@@ -731,205 +731,84 @@ plot(Tractor.Swath.lines.4, col="YELLOW", add=T) ;
 
 str(Tractor.Swath.lines.4@data)
 
-# sampling the lines at each plant sistance of 2 ft  ( 2 * 0.3048 m/ft )  with the function st_line_sample {sf}. The parametre density is points per distance unit
-#
-# density = 1 point /( 2 * 0.3048) m  = 1.64042 points/m
 
 
-
-
-Points.1<-spsample(Tractor.Swath.lines.4@lines[[60]]@Lines[[1]],n=Tractor.Swath.lines.4@data[60,c("Row.Length.m")]*1.64,type="regular")
-
-str(Points.1)
-
-# distance between points 
-View(pointDistance(Points.1, lonlat=F)[,1])
-
-diff(pointDistance(Points.1, lonlat=F)[,1],lag=1, differences=1)
-
-Df.2013<-extract(raster(Plants.2013.Tps.sp.V1),Points.1, df=T )
-Df.2014<-extract(raster(Plants.2014.Tps.sp.V1),Points.1, df=T )
-Plants.on.theRow.1<-merge(Df.2013, Df.2014, by='ID')
-str(Plants.on.theRow.1)
-names(Plants.on.theRow.1)[2:3]<-c('P.2013' , 'P.2014')
-
-#  Discretize back
-
-cut(Plants.on.theRow.1$P.2013,c(-Inf,0.5,1.499,Inf),include.lowest=T,labels=c(0,1,2))
-
-as.numeric(cut(Planted.Rows[[N.ROW]]@data$X2013_Densi,c(-Inf,0.5,1.499,Inf),include.lowest=T,labels=c(0,1,2)))-1
-
-Plants.on.theRow.1$S.2013<-as.numeric(cut(Plants.on.theRow.1$P.2013,c(-Inf,0.5,1.499,Inf),include.lowest=T,labels=c(0,1,2)))-1
-
-Plants.on.theRow.1$S.2014<-as.numeric(cut(Plants.on.theRow.1$P.2014,c(-Inf,0.5,1.499,Inf),include.lowest=T,labels=c(0,1,2)))-1
-
-
-cumsum(Plants.on.theRow.1$S.2014)
-
-
-
-
-#### Separate the data from each planted row  and collected into a list Planted.Rows
-
+#### Separate the data from each planted row and collected into a list Planted.Rows
 
 # Initiallize the list of with a spatialPoligonsDataFrame object for each planted row
 Planted.Rows<-list()
 
-# N.ROW=1
 
-for (N.ROW in seq(1,N.ROWS ) ){
-  Planted.Rows[[N.ROW]]<-raster::intersect(Tractor.Swaths,Tractor.Swath.lines.4[N.ROW,])
-}
-
-plot(Planted.Rows[[16]][seq(11,20),], col="GREEN", add=T)
-Tractor.Swath.lines.4[1,]
-
-str(Planted.Rows[[80]]@data)
-
-
-cumsum(Planted.Rows[[16]]@data[seq(1:20), c("P.length")])
-
-#Tractor.Swaths@data$P.length.along<-cumsum(Tractor.Swaths@data$P.length) ;
-Tractor.Swaths@data
-
-
-
-
-#####  estimate plant density as a functions a row distance along the line
-
-for (N.ROW in seq(1,N.ROWS ) ){
-  Planted.Rows[[N.ROW]]@data$P.length.along<-cumsum(Planted.Rows[[N.ROW]]@data$P.length)
-  
-  
-}
-
-
-# RN=94
-
-plot(Planted.Rows[[RN]]@data$P.length.along, Planted.Rows[[RN]]@data$X2013_Densi, type="o", ylim=c(0,2))
-points(Planted.Rows[[RN]]@data$P.length.along, Planted.Rows[[RN]]@data$X2014_Densi, type="o", col="RED")
-
-
-str(Planted.Rows[c(1,2,3)], max.level=2)
-
-
-# ##############################################################################################################################
-# 
-# 
-# 
-#                               Discretize back to (0,1,2) the values of population dnesity obtained using cut ()
-# 
-#  ##############################################################################################################################
-
-#  View(Planted.Rows[[25]]@data);   str(Planted.Rows[[N.ROW]]@data)
-
-#  Discretize the interpolated values in each row
-
-for (N.ROW in seq(1,N.ROWS ) ){
-  
-  Planted.Rows[[N.ROW]]@data$Survey2013<-as.numeric(cut(Planted.Rows[[N.ROW]]@data$X2013_Densi,c(-Inf,0.5,1.499,Inf),include.lowest=T,labels=c(0,1,2)))-1
-  
-  
-  Planted.Rows[[N.ROW]]@data$Survey2014<-as.numeric(cut(Planted.Rows[[N.ROW]]@data$X2014_Densi,c(-Inf,0.5,1.499,Inf),include.lowest=T,labels=c(0,1,2)))-1
-}
-
-
-# #################   Conversion of the Plant population estimates  based on the 0 ,1 ,2 survey system to plants/m2             ######################
-# #
-# #
-# # Based on the diagram of the planting C:\Felipe\Willow_Project\Drawings and Pictures\Final Drawings\Cutting Spacing Rockview20120502.tif 
-# #
-# #
-# ##################                            #################                                   #################
-
-# #### Two plants per row
-
-Row.width.ft<-3.0 + 2.5 + 3.0
-Row.length.PerTwoplants.ft<-2.0 
-Plants.per.Row.lenght<-2/Row.length.PerTwoplants.ft ;
-
-
-Plant.Density.2.ft2<-Row.width.ft*Row.length.PerTwoplants.ft /2    #ft2/plant
- 
-Plant.Density.1.ft2<-Row.width.ft*Row.length.PerTwoplants.ft /1   #ft2/plant
- 
- 
-Plant.Density.2.m2<-Plant.Density.2.ft2 / 10.76391   # m2/plant
- 
-Plant.Density.1.m2<-Plant.Density.1.ft2 / 10.76391   # m2/plant
- 
-Plant.Density.2.ha<-10000 / Plant.Density.2.m2  # plants/ha 
-
-Plant.Density.1.ha<-10000 / Plant.Density.1.m2 # plants/ha 
-
-
-# ##### Density of plants per length of row in m
-
-
-Plants.per.Row.lenght.2.ft<-2/Row.length.PerTwoplants.ft;
-
-Plants.per.Row.lenght.1.ft<-1/Row.length.PerTwoplants.ft;
-
-Plants.per.Row.lenght.2.m<-Plants.per.Row.lenght.2.ft*3.28084;
-
-Plants.per.Row.lenght.1.m<-Plants.per.Row.lenght.1.ft*3.28084 ;
-
-
-####
-
-# Adding the plant density data to the  data list
 
 # N.ROW=94
 
-#  View(Planted.Rows[[N.ROW]]@data);   str(Planted.Rows[[N.ROW]]@data)
-
-
-# RWos with NA will not work and need to be corrected
-
-for (N.ROW in seq(1,N.ROWS ) ){
+for (N.ROW in seq(1,N.ROWS+1 ) ){
   
- print(which(is.na(Planted.Rows[[N.ROW]]@data$X2014_Densi), arr.ind=T))
+  # sampling the lines at each plant sistance of 2 ft  ( 2 * 0.3048 m/ft = 0.6096)  with the function spsample {sp}. 
+  # Based on the diagram of the planting C:\Felipe\Willow_Project\Drawings and Pictures\Final Drawings\Cutting Spacing Rockview20120502.tif 
+  
+  Points.1<-spsample(Tractor.Swath.lines.4@lines[[N.ROW]]@Lines[[1]],n=Tractor.Swath.lines.4@data[N.ROW,c("Row.Length.m")]/0.6096,type="regular") ; # plot(Points.1, add=T)
   
   
-}
+  # calculate the cumulative distance between points 
   
-# There is only one point with NA in the Planted.Rows[[N.ROW]]@data$X2014_Densi: the first point of row 94. It will be changed to the value closet to it.
-
-#  Planted.Rows[[94]]@data$X2014_Densi
-
-Planted.Rows[[94]]@data$X2014_Densi[1]<-Planted.Rows[[94]]@data$X2014_Densi[2]
-
-# and the Survey data corresponding to it as well 
-
-Planted.Rows[[94]]@data$Survey2014[1]<-Planted.Rows[[94]]@data$Survey2014[2]
-
-
-for (N.ROW in seq(1,N.ROWS ) ){
-
-  #   2013  #
-  
-  Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==0,"Plants2013"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==0,"P.length"]*0
-  
-  Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==1,"Plants2013"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==1,"P.length"]*Plants.per.Row.lenght.1.m
-  
-  Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==2,"Plants2013"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2013==2,"P.length"]*Plants.per.Row.lenght.2.m
+  Points.1.Cumdistance<-pointDistance(Points.1, lonlat=F)[,1] ; #  View(Points.1.Cumdistance)
   
   
-  #   2014  #
+  #sample the extrapolated plant densities from 2013 and 2014
   
-  Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==0,"Plants2014"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==0,"P.length"]*0
+  Df.2013<-extract(raster(Plants.2013.Tps.sp.V1),Points.1, df=T );
   
-  Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==1,"Plants2014"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==1,"P.length"]*Plants.per.Row.lenght.1.m
+  Df.2014<-extract(raster(Plants.2014.Tps.sp.V1),Points.1, df=T );
   
-  Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==2,"Plants2014"]<-Planted.Rows[[N.ROW]]@data[Planted.Rows[[N.ROW]]@data$Survey2014==2,"P.length"]*Plants.per.Row.lenght.2.m
+  
+  # merge the two extrapolated point data sets
+  
+  Plants.on.theRow.1<-merge(Df.2013, Df.2014, by='ID') ;    # str(Plants.on.theRow.1) ;  View(Plants.on.theRow.1)
+  
+  names(Plants.on.theRow.1)[2:3]<-c('P.2013' , 'P.2014');
+  
+  
+  #  Discretize back to the survey format of 0, 1, 2 the values of population density obtained using cut ()
+  
+  Plants.on.theRow.1$S.2013<-as.numeric(cut(Plants.on.theRow.1$P.2013,c(-Inf,0.5,1.499,Inf),include.lowest=T,labels=c(0,1,2)))-1  ;
+  
+  Plants.on.theRow.1$S.2014<-as.numeric(cut(Plants.on.theRow.1$P.2014,c(-Inf,0.5,1.499,Inf),include.lowest=T,labels=c(0,1,2)))-1  ;
+  
+  # Add the cumulative point distance
+  
+  Planted.Rows[[N.ROW]]<-cbind(Plants.on.theRow.1, Points.1.Cumdistance ) ;   #   str(Planted.Rows[[N.ROW]]) ;  View(Planted.Rows[[N.ROW]]) 
+  
+  rm(list=c('Points.1', 'Df.2013' , 'Df.2014' , 'Plants.on.theRow.1' ))
   
 }
 
-# N.ROW=50
 
 
-#  View(Planted.Rows[[N.ROW]]@data);   str(Planted.Rows[[N.ROW]]@data)
+#####  estimate plant density as a functions a row distance along the line 
 
+for (N.ROW in seq(1,N.ROWS ) ){
+  
+  #where there are NA, cumsum andd NA to all the cumulative sums afterwards, therefore NA need to be changed to 0
+  
+  Planted.Rows[[N.ROW]][is.na(Planted.Rows[[N.ROW]]$S.2013),c('S.2013')]<-0  ;
+  
+  Planted.Rows[[N.ROW]]$P.length.along.2013<-cumsum(Planted.Rows[[N.ROW]]$S.2013) ;
+  
+  Planted.Rows[[N.ROW]][is.na(Planted.Rows[[N.ROW]]$S.2014),c('S.2014')]<-0  ;
+  
+  Planted.Rows[[N.ROW]]$P.length.along.2014<-cumsum(Planted.Rows[[N.ROW]]$S.2014)
+  
+}
+
+
+# RN=1
+
+plot(Planted.Rows[[RN]]$Points.1.Cumdistance, Planted.Rows[[RN]]$P.length.along.2013, type="o")
+points(Planted.Rows[[RN]]$Points.1.Cumdistance, Planted.Rows[[RN]]$P.length.along.2014, type="o", col="RED")
+
+
+str(Planted.Rows[c(1,2,3)], max.level=2)
 
 
 
@@ -964,50 +843,64 @@ Plants.2016<-read.xlsx("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_R
 # 
 #                           Gather all data together for analysis
 # 
-# 
-# 
-# 
 ###############################################################################################################
 
-#  View(Planted.Rows[[N.ROW]]@data);   str(Planted.Rows[[N.ROW]]@data)
+#  View(Planted.Rows[[N.ROW]]);   str(Planted.Rows[[N.ROW]])
 
 # str(Harvest2015) ; str(Harvest2019)
 
 
-Paper.data.1<-merge(Harvest2015[, c('Actual.Row.#', 'Variety', 'Chips.Weight,.lb')], Harvest2019[,c('Row', 'Variety', 'Fresh.Chips.weight.lb')], by.x= 'Actual.Row.#', by.y='Row') ;
+Paper.data.1<-merge(Harvest2015[, c('Actual.Row.#', 'Plot', 'Variety', 'Chips.Weight,.lb')], Harvest2019[,c('Row', 'Variety', 'Fresh.Chips.weight.(lb)')], by.x= c('Actual.Row.#','Variety'), by.y=c('Row', 'Variety'), sort=F) ;
+
+names(Paper.data.1)<-c( 'ROW' , 'VARIETY' , 'PLOT' , '2015.FRESH.LB' , '2019.FRESH.LB') ;
+
+# str(Paper.data.1)
+
+Paper.data<-merge(Paper.data.1,Plants.2016, by="ROW" ,all.x=T) ;
+
+names(Paper.data)[6]<-c('Plants2016')  ;
+
+# View(Paper.data)  ; str(Paper.data)
 
 
-Paper.data<-merge(Paper.data.1,Plants.2016, by.x='Actual.Row.#',by.y="ROW" ,all.x=T) ;
 
-names(Paper.data)[6]<-c('Plants2016')
+########################  Summarize plant population data for each row ###########################
 
-# View(Paper.data) str(Paper.data)
+#  View(Planted.Rows[[N.ROW]]);   str(Planted.Rows[[N.ROW]])   
 
-#  Calculate summary plant population data for each row
+#################   Conversion of the Plant population estimates  based on the 0 ,1 ,2 survey system to plants/m2             ######################
+#
+#
+# Based on the diagram of the planting C:\Felipe\Willow_Project\Drawings and Pictures\Final Drawings\Cutting Spacing Rockview20120502.tif
 
-#  View(Planted.Rows[[N.ROW]]@data);   str(Planted.Rows[[N.ROW]]@data)
 
-#Paper.data<-data.frame(row = numeric(0), area = double(0) , length = double(0), Plants2013= double(), Plants2014 = double(), Plants2016 = double() , ChipsWeight.2015.lb = double(), ChipsWeight.2019.lb =double() )
+
+  Row.width.ft<-3.0 + 2.5 + 3.0
+  Row.length.PerTwoplants.ft<-2.0
+  Row.width.m<-Row.width.ft * 0.3048  # m/ft
+
+####################################################################################################################################################
+
 
 # N.ROW=4
 
 
 for (N.ROW in seq(1,N.ROWS ) ){
   
-  Paper.data$Area.m2[N.ROW]<-sum(Planted.Rows[[N.ROW]]@data$P.area.m)
+  Paper.data$Length.m[N.ROW]<-Planted.Rows[[N.ROW]]$Points.1.Cumdistance[dim(Planted.Rows[[N.ROW]])[1]] ;
   
-  Paper.data$Length.m[N.ROW]<-sum(Planted.Rows[[N.ROW]]@data$P.length)
+  Paper.data$Area.m2[N.ROW]<- Paper.data$Length.m[N.ROW] * Row.width.m 
   
-  Paper.data$Plants2013[N.ROW]<-sum(Planted.Rows[[N.ROW]]@data$Plants2013)
+  Paper.data$Plants2013[N.ROW]<-Planted.Rows[[N.ROW]]$P.length.along.2013[dim(Planted.Rows[[N.ROW]])[1]] ;
   
-  Paper.data$Plants2014[N.ROW]<-sum(Planted.Rows[[N.ROW]]@data$Plants2014)
+  Paper.data$Plants2014[N.ROW]<-Planted.Rows[[N.ROW]]$P.length.along.2014[dim(Planted.Rows[[N.ROW]])[1]] ;
   
   
 }
 
-Paper.data$Plant.Density.pl.ha.2013<-Paper.data$Plants2013/(Paper.data$Length.m * Row.width.ft/3.28084)*10000
-Paper.data$Plant.Density.pl.ha.2014<-Paper.data$Plants2014/(Paper.data$Length.m * Row.width.ft/3.28084)*10000
-Paper.data$Plant.Density.pl.ha.2016<-Paper.data$Plants2016/(Paper.data$Length.m * Row.width.ft/3.28084)*10000
+Paper.data$Plant.Density.pl.ha.2013<-Paper.data$Plants2013/ (Paper.data$Area.m2) *10000
+Paper.data$Plant.Density.pl.ha.2014<-Paper.data$Plants2014/ (Paper.data$Area.m2) *10000
+Paper.data$Plant.Density.pl.ha.2016<-Paper.data$Plants2016/ (Paper.data$Area.m2) *10000
 
 # View(Paper.data) ; str(Paper.data)
 
@@ -1015,7 +908,5 @@ Paper.data$Plant.Density.pl.ha.2016<-Paper.data$Plants2016/(Paper.data$Length.m 
 
 #  load("DataCleaning.RData")
 
-matplot(Paper.data$`Actual.Row.#`, Paper.data$Plant.Density.pl.ha.2013 , type='o' , col="RED", ylim=c(0,12000))
-matpoints(Paper.data$`Actual.Row.#`, Paper.data$Plant.Density.pl.ha.2014, type='o' , col="BLUE", ylim=c(0,12000))
-matpoints(Paper.data$`Actual.Row.#`, Paper.data$Plant.Density.pl.ha.2016, type='o' , col="GREEN", ylim=c(0,12000))
+
 
