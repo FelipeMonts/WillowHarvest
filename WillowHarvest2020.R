@@ -87,7 +87,7 @@ library(LatticeKrig)
 
 library(rgeos)
 
-
+library(sf)
 ###############################################################################################################
 #                           load willow harvest data from 2015
 ###############################################################################################################
@@ -716,35 +716,66 @@ writeRaster(raster(Plants.2014.Tps.image.V1, CRS("+proj=lcc +lat_1=41.95 +lat_2=
 # ################################################################################################################################
 # 
 # 
-# After obtaining the raster interpolated data of density it will be used to estimate the mode of each tractor swath density and from that to estimate the density in each planted row, based on the tractor swaths GIS data. After obtaining the zonal statistics survey density mode for each tractor swath polygon it will be grouped by planting row and together with the area of each tractor swath polygon (proxy for length) it will be used to estimate the plant number in each row, as a function of length in the row 
+# After obtaining the raster interpolated data of density it will be used to intersect the planted row, based on the tractor swaths GIS data.  It will be used to estimate the plant number in each row, as a function of length in the row 
 # 
 # 
 #################################################################################################################################
 
 
-#### Reading the Tractor swaths again with the updated information with the mode of the plant density estimates for 2013 and 2014
+#Cropping the rows by the perimeter boundary of the site
 
-##### read the tractor lines that are inside the boundary 
 
-# Tractor.Swaths.1<-readOGR("C:\\Felipe\\Willow_Project\\FelipeQGIS\\RockViewSite2013\\ReplantingWillow2014\\TractorCoverageinsideBoudaryTrack.shp") ;
-# 
-# Tractor.Swaths<-spTransform(Tractor.Swaths.1, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") )  ;
+plot(Boundary.Polygon,col="RED") ;
+
+plot(Tractor.Swath.lines.4, col="YELLOW", add=T) ;
+
+str(Tractor.Swath.lines.4@data)
+
+# sampling the lines at each plant sistance of 2 ft  ( 2 * 0.3048 m/ft )  with the function st_line_sample {sf}. The parametre density is points per distance unit
 #
-
-Tractor.Swaths<-Tractor.Inside.Boundary ;
-
+# density = 1 point /( 2 * 0.3048) m  = 1.64042 points/m
 
 
-plot(Tractor.Swaths,col="PINK");
-
-####   Get the area and the length of each tractor swath polygon
 
 
-Tractor.Swaths@data$P.area.m<-sapply(slot(Tractor.Swaths,"polygons"),slot,"area")  ;
+Points.1<-spsample(Tractor.Swath.lines.4@lines[[60]]@Lines[[1]],n=Tractor.Swath.lines.4@data[60,c("Row.Length.m")]*1.64,type="regular")
 
-str(Tractor.Swaths@data)
+extract(raster(Plants.2014.Tps.sp.V1),Points.1, df=T )
 
-Tractor.Swaths@data$P.length<-Tractor.Swaths@data$P.area.m/d.m ;
+
+str(raster(Plants.2013.Tps.sp.V1))
+# Transforming the spatial object Tractor.Swath.lines.4 into a spatial features object sf
+
+Planted.Rows.sf<-st_as_sf(Tractor.Swath.lines.4)  ;
+
+
+str(Planted.Rows.sf)
+
+attributes(Planted.Rows.sf)
+
+st_length(Planted.Rows.sf)
+
+st_cast(Planted.Rows.sf[,c('geometry')],"LINESTRING")
+
+
+
+
+
+
+
+
+Planted.Rows.sf.PlantingPoints<-st_line_sample(st_cast(Planted.Rows.sf[,c('geometry')],"LINESTRING"), density=c(1.64), type="regular") ;
+plot(MultyP)
+
+print(Planted.Rows.sf.PlantingPoints[1:5],n=3)
+
+st_agr(Planted.Rows.sf.PlantingPoints)
+
+
+
+str(Tractor.Swath.lines.4@lines[[1]]@Lines)
+
+
 
 
 #### Separate the data from each planted row  and collected into a list Planted.Rows
@@ -752,6 +783,8 @@ Tractor.Swaths@data$P.length<-Tractor.Swaths@data$P.area.m/d.m ;
 
 # Initiallize the list of with a spatialPoligonsDataFrame object for each planted row
 Planted.Rows<-list()
+
+# N.ROW=1
 
 for (N.ROW in seq(1,N.ROWS ) ){
   Planted.Rows[[N.ROW]]<-raster::intersect(Tractor.Swaths,Tractor.Swath.lines.4[N.ROW,])
