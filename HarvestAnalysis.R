@@ -191,14 +191,25 @@ legend(0,1400,legend=c("PREBLE-2014","FABIUS-2014","MILBROOK-2014","SX61-2014","
 
 #################  Statistical Analysis using row as experimental unit #########################
 
-Paper.data$Variety<-as.factor(Paper.data$Variety.x)
-levels(Paper.data$Variety)
 
-Paper.data$Block<-1 ; 
+####  Create the apropriate factors ####
 
-Paper.data$Block[59:132]<-2 ;
 
-names(Paper.data)[c(3,5)]<-c("HarvestWeight2015.lb","HarvestWeight2019.lb")
+Paper.data$F.VARIETY<-as.factor(Paper.data$VARIETY)  ;
+levels(Paper.data$F.VARIETY ) ;
+
+
+
+Paper.data$BLOCK<-1 ; 
+
+Paper.data$BLOCK[59:132]<-2 ;  
+
+
+Paper.data$F.BLOCK<-as.factor(Paper.data$BLOCK) ;
+
+str(Paper.data)
+
+
 
 AnalysisHArvest2015<-lm(HarvestWeight2015.lb ~ Block + Variety +  Plant.Density.pl.ha.2013 +  Plant.Density.pl.ha.2014, data=Paper.data)
 
