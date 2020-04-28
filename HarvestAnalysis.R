@@ -63,29 +63,15 @@ setwd("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowHa
 
 # install.packages('openxlsx', dep=T)
 
+# install.packages('randomForest', dep=T)
+
 
 
 ###############################################################################################################
 #                           load the libraries that are neded   
 ###############################################################################################################
-library(rgdal) ; 
 
-library(soilDB) ;
-
-library(aqp) ;
-
-library(sp) ;
-
-library(raster) ;
-
-
-library(openxlsx);
-
-library(fields);
-
-library(LatticeKrig)
-
-library(rgeos)
+library(randomForest)
 
 library(RColorBrewer)
 
@@ -98,7 +84,7 @@ library(RColorBrewer)
 
 # View(Paper.data) ; str(Paper.data)
 
-# N.ROW=35
+# N.ROW=94
 
 #  View(Planted.Rows[[N.ROW]]);   str(Planted.Rows[[N.ROW]])
 
@@ -212,11 +198,18 @@ Paper.data$F.BLOCK<-as.factor(Paper.data$BLOCK) ;
 
 str(Paper.data)
 
-#### Names of variables starting with numbers cause problems. I did not realize this when I named "2015.FRESH.LB" and "2015.FRESH.LB"
+###  Calculating row yield in Dry mater in kg/ha 
 
-#### Rename these variables
+Paper.data$DRY.MgHa.2015<-Paper.data$FRESH.LB.2015*(1-Paper.data$MOISTURE.2015)/ 2.204623 / 1000 ;# 2.204623 lb/kg  1000 kg/Mg
 
-names(Paper.data)[4:5]<-c("FRESH.LB.2015" ,"FRESH.LB.2019")
+
+Paper.data$DRY.MgHa.2019<-Paper.data$FRESH.LB.2019*(1-Paper.data$MOISTURE.2019)/ 2.204623 / 1000  ; # 2.204623 lb/kg  1000 kg/Mg
+
+
+#################  Exploratory Analysis using Random Forest  #########################
+
+#  str(Paper.data)  ; View(Paper.data)  
+
 
 
 
@@ -225,28 +218,25 @@ names(Paper.data)[4:5]<-c("FRESH.LB.2015" ,"FRESH.LB.2019")
 
 #  View(Paper.data) ; str(Paper.data) 
 
+######### Aggregating the data according to the total (sum) and the avreage (mean) of F.VARIETY and F.BLOCK groupings  ####################
 
-Paper.data$BlockVariety<-as.factor(paste(Paper.data$Variety,Paper.data$Block,sep='_')) ;
+Paper.data.Plots.sum<-aggregate(formula= cbind(Plants2013, Plants2014, Plants2016, DRY.MgHa.2015, DRY.MgHa.2019, Area.m2, Length.m ) ~ F.VARIETY + F.BLOCK, FUN=sum,data=Paper.data) ;
 
-str(Paper.data)
-
-
+names(Paper.data.Plots.sum)[3:9]<- paste0("SUM_",c("Plants2013" ,   "Plants2014"  ,  "Plants2016"   , "DRY.MgHa.2015" , "DRY.MgHa.2019", "Area.m2", "Length.m"  )) ;
 
 
-Paper.data.Plots.sum<-aggregate(formula= cbind(Plants2013, Plants2014, Plants2016, HarvestWeight2015.lb, HarvestWeight2019.lb, Area.m2) ~ Variety + Block, FUN=sum,data=Paper.data) ;
 
-names(Paper.data.Plots.sum)<-c("Variety" , "Block",  "Sum_of_Plants2013" , "Sum_of_Plants2014" , "Sum_of_Plants2016" , "Sum_of_HarvestWeight2015.lb", "Sum_of_HarvestWeight2019.lb", "Sum_of_Area.m2")
 
-Paper.data.Plots.mean<-aggregate(Paper.data, by=list(Paper.data$Variety,Paper.data$Block),FUN=mean) ;
+Paper.data.Plots.mean<-aggregate(formula= cbind(Plants2013, Plants2014, Plants2016, DRY.MgHa.2015, MOISTURE.2015, DRY.MgHa.2019, MOISTURE.2019, Area.m2, Length.m, Plant.Density.pl.ha.2013, Plant.Density.pl.ha.2014, Plant.Density.pl.ha.2016 ) ~ F.VARIETY + F.BLOCK, FUN=mean,data=Paper.data) ;
 
-names(Paper.data.Plots.mean)<-c("Variety" , "Block", "Actual.Row.#", "Variety.x" ,"mean_HarvestWeight2015.lb", "Variety.y" , "mean_HarvestWeight2019.lb","mean_Plants2016", "mean_Area.m2" ,"mean_Length.m", "mean_Plants2013", "mean_Plants2014", "mean_Plant.Density.pl.ha.2013","mean_Plant.Density.pl.ha.2014", "mean_Plant.Density.pl.ha.2016", "Colors", "Variety" , "Block", "BlockVariety");
+names(Paper.data.Plots.mean)[3:14]<-paste0("MEAN_",c("Plants2013" ,   "Plants2014"  ,  "Plants2016"   , "DRY.MgHa.2015" , "MOISTURE.2015" , "DRY.MgHa.2019", "MOISTURE.2019" ,"Area.m2", "Length.m" , "Plant.Density.pl.ha.2013" , "Plant.Density.pl.ha.2014" , "Plant.Density.pl.ha.2016"  )) ;
 
-DataForAnalysis<-cbind(Paper.data.Plots.sum,Paper.data.Plots.mean);
+DataForAnalysis<-merge(Paper.data.Plots.sum,Paper.data.Plots.mean, by=c("F.VARIETY","F.BLOCK"));
+
 names(DataForAnalysis)
 
-DataForAnalysis$Lb.m2.2015<-DataForAnalysis$Sum_of_HarvestWeight2015.lb/DataForAnalysis$Sum_of_Area.m2
 
-DataForAnalysis$Lb.m2.2019<-DataForAnalysis$Sum_of_HarvestWeight2019.lb/DataForAnalysis$Sum_of_Area.m2
+
 
 #  View(DataForAnalysis)
 
