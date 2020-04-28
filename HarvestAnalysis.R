@@ -189,7 +189,10 @@ legend(0,1400,legend=c("PREBLE-2014","FABIUS-2014","MILBROOK-2014","SX61-2014","
 
 
 
-#################  Statistical Analysis using row as experimental unit #########################
+
+
+#############################  Statistical Analysis #############################################
+
 
 
 ####  Create the apropriate factors ####
@@ -209,22 +212,19 @@ Paper.data$F.BLOCK<-as.factor(Paper.data$BLOCK) ;
 
 str(Paper.data)
 
+#### Names of variables starting with numbers cause problems. I did not realize this when I named "2015.FRESH.LB" and "2015.FRESH.LB"
+
+#### Rename these variables
+
+names(Paper.data)[4:5]<-c("FRESH.LB.2015" ,"FRESH.LB.2019")
 
 
-AnalysisHArvest2015<-lm(HarvestWeight2015.lb ~ Block + Variety +  Plant.Density.pl.ha.2013 +  Plant.Density.pl.ha.2014, data=Paper.data)
-
-anova(AnalysisHArvest2015)
-summary(AnalysisHArvest2015)
-
-AnalysisHArvest2019.row<-glm(HarvestWeight2019.lb ~ Block + Variety +  Plant.Density.pl.ha.2013  + Plant.Density.pl.ha.2016, data=Paper.data)
-
-anova(AnalysisHArvest2019)
-summary(AnalysisHArvest2019)
 
 
 #################  Statistical Analysis  using  plot as experimental unit #########################
- 
+
 #  View(Paper.data) ; str(Paper.data) 
+
 
 Paper.data$BlockVariety<-as.factor(paste(Paper.data$Variety,Paper.data$Block,sep='_')) ;
 
@@ -236,7 +236,7 @@ str(Paper.data)
 Paper.data.Plots.sum<-aggregate(formula= cbind(Plants2013, Plants2014, Plants2016, HarvestWeight2015.lb, HarvestWeight2019.lb, Area.m2) ~ Variety + Block, FUN=sum,data=Paper.data) ;
 
 names(Paper.data.Plots.sum)<-c("Variety" , "Block",  "Sum_of_Plants2013" , "Sum_of_Plants2014" , "Sum_of_Plants2016" , "Sum_of_HarvestWeight2015.lb", "Sum_of_HarvestWeight2019.lb", "Sum_of_Area.m2")
-  
+
 Paper.data.Plots.mean<-aggregate(Paper.data, by=list(Paper.data$Variety,Paper.data$Block),FUN=mean) ;
 
 names(Paper.data.Plots.mean)<-c("Variety" , "Block", "Actual.Row.#", "Variety.x" ,"mean_HarvestWeight2015.lb", "Variety.y" , "mean_HarvestWeight2019.lb","mean_Plants2016", "mean_Area.m2" ,"mean_Length.m", "mean_Plants2013", "mean_Plants2014", "mean_Plant.Density.pl.ha.2013","mean_Plant.Density.pl.ha.2014", "mean_Plant.Density.pl.ha.2016", "Colors", "Variety" , "Block", "BlockVariety");
@@ -260,4 +260,40 @@ AnalysisHArvest2019.Plot<-lm(Lb.m2.2019~ Block + Variety +  mean_Plant.Density.p
 anova(AnalysisHArvest2019.Plot,test = "F")
 summary(AnalysisHArvest2019.Plot)
 effects(AnalysisHArvest2019.Plot)
+
+#########################################################################################################
+#
+#
+#               A very good resource for glm analysis in R is the website of 
+#            German Rodriguez, Senior Research Demographer
+#                 Office of Population Research (OPR)
+#               Princeton University's Woodrow Wilson School of Public and International Affaris 
+#                        https://data.princeton.edu/P
+#
+#
+#########################################################################################################
+
+
+
+
+
+
+#################  Statistical Analysis using row as experimental unit #########################
+
+
+AnalysisHArvest2015<-glm(FRESH.LB.2015 ~ F.BLOCK + F.VARIETY +  Plants2013 +  Plants2014 + Plant.Density.pl.ha.2013 +  Plant.Density.pl.ha.2014 + Plant.Density.pl.ha.2016, data=Paper.data, family=gaussian );
+
+summary(AnalysisHArvest2015)
+
+
+anova(AnalysisHArvest2015)
+
+
+AnalysisHArvest2019.row<-glm(2015.FRESH.LB ~ Block + Variety +  Plant.Density.pl.ha.2013  + Plant.Density.pl.ha.2016, data=Paper.data)
+
+anova(AnalysisHArvest2019)
+summary(AnalysisHArvest2019)
+
+
+
 
