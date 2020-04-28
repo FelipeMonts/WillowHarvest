@@ -850,15 +850,15 @@ Plants.2016<-read.xlsx("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_R
 # str(Harvest2015) ; str(Harvest2019)
 
 
-Paper.data.1<-merge(Harvest2015[, c('Actual.Row.#', 'Plot', 'Variety', 'Chips.Weight,.lb')], Harvest2019[,c('Row', 'Variety', 'Fresh.Chips.weight.(lb)')], by.x= c('Actual.Row.#','Variety'), by.y=c('Row', 'Variety'), sort=F) ;
+Paper.data.1<-merge(Harvest2015[, c('Actual.Row.#', 'Plot', 'Variety', 'Chips.Weight,.lb', 'Moisture.%')], Harvest2019[,c('Row', 'Variety', 'Fresh.Chips.weight.(lb)', 'Moisture.(%)')], by.x= c('Actual.Row.#','Variety'), by.y=c('Row', 'Variety'), sort=F) ;
 
-names(Paper.data.1)<-c( 'ROW' , 'VARIETY' , 'PLOT' , '2015.FRESH.LB' , '2019.FRESH.LB') ;
+names(Paper.data.1)<-c( 'ROW' , 'VARIETY' , 'PLOT' , 'FRESH.LB.2015' , 'MOISTURE.2015' ,'FRESH.LB.2019' , 'MOISTURE.2019') ;
 
 # str(Paper.data.1)
 
 Paper.data<-merge(Paper.data.1,Plants.2016, by="ROW" ,all.x=T) ;
 
-names(Paper.data)[6]<-c('Plants2016')  ;
+names(Paper.data)[8]<-c('Plants2016')  ;
 
 # View(Paper.data)  ; str(Paper.data)
 
