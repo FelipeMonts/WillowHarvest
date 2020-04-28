@@ -802,7 +802,7 @@ for (N.ROW in seq(1,N.ROWS ) ){
 }
 
 
-# RN=1
+# RN=19
 
 plot(Planted.Rows[[RN]]$Points.1.Cumdistance, Planted.Rows[[RN]]$P.length.along.2013, type="o")
 points(Planted.Rows[[RN]]$Points.1.Cumdistance, Planted.Rows[[RN]]$P.length.along.2014, type="o", col="RED")

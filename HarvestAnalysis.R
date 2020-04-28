@@ -100,14 +100,14 @@ library(RColorBrewer)
 
 # N.ROW=35
 
-#  View(Planted.Rows[[N.ROW]]@data);   str(Planted.Rows[[N.ROW]]@data)
+#  View(Planted.Rows[[N.ROW]]);   str(Planted.Rows[[N.ROW]])
 
 
 ###############################################################################################################
 #                           Define Colors for Willow Varieties
 ###############################################################################################################
 
-Paper.data$Colors<-as.factor(Paper.data$Variety.y)
+Paper.data$Colors<-as.factor(Paper.data$VARIETY)
 
 levels(Paper.data$Colors)<-c('LIGHTGREEN', 'GREEN','DARKGREEN','LIGHTBLUE','BLUE', 'DARKBLUE')
 
@@ -119,60 +119,74 @@ Paper.data$Colors<-as.character(Paper.data$Colors)
 ###############################################################################################################
 
 
-
-
-for (N.ROW in seq(1,N.ROWS ) ){
-  
-  Planted.Rows[[N.ROW]]@data$CumPlants2013<-cumsum(Planted.Rows[[N.ROW]]@data$Plants2013)
-  Planted.Rows[[N.ROW]]@data$CumPlants2014<-cumsum(Planted.Rows[[N.ROW]]@data$Plants2014)
-  
-}
-
-max(Paper.data$Length.m[-1])
-max(c(max(Paper.data$Plants2013[-1]),max(Paper.data$Plants2014[-1])))
+max(Paper.data$Length.m)
+max(c(max(Paper.data$Plants2013),max(Paper.data$Plants2014)))
 Paper.data$Plant.Density.pl.ha.2013
-View(Paper.data)
 
-plot(Paper.data$`Actual.Row.#`, Paper.data$Plant.Density.pl.ha.2013 )
-points(Paper.data$`Actual.Row.#`, Paper.data$Plant.Density.pl.ha.2016, col="RED")
 
+plot(Paper.data$ROW, Paper.data$Plant.Density.pl.ha.2016, col="RED", ylim=c(0,16000))
+points(Paper.data$ROW, Paper.data$Plant.Density.pl.ha.2013 )
 
 
 ############ Figure 1 ##################################
 
-plot(Planted.Rows[[2]]@data$P.length.along,Planted.Rows[[2]]@data$CumPlants2013, type='l', col="LIGHTGRAY", lwd=3,xlim=c( 0,max(Paper.data$Length.m[-1]) ), ylim=c(0, max(c(max(Paper.data$Plants2013[-1]),max(Paper.data$Plants2014[-1]))) ), xlab= "Length along each row, m" , ylab="Number of plants")
-points(Planted.Rows[[2]]@data$P.length.along,Planted.Rows[[2]]@data$CumPlants2014, type='l', col="DARKGRAY",lwd=3)
+plot(Planted.Rows[[1]]$Points.1.Cumdistance, Planted.Rows[[1]]$P.length.along.2013, type='l', col="LIGHTGRAY", lwd=3,xlim=c( 0,max(Paper.data$Length.m) ), ylim=c(0, max(c(max(Paper.data$Plants2013),max(Paper.data$Plants2014)))+100), xlab= "Length along each row, m" , ylab="Number of plants")  ;
+points(Planted.Rows[[1]]$Points.1.Cumdistance, Planted.Rows[[1]]$P.length.along.2014, type='l', col="DARKGRAY",lwd=3)
 
 
 for (N.ROW in seq(2,N.ROWS ) ){
   
-  points(Planted.Rows[[N.ROW]]@data$P.length.along,Planted.Rows[[N.ROW]]@data$CumPlants2013, type='l', col="LIGHTGRAY" ,lwd=3)
-  points(Planted.Rows[[N.ROW]]@data$P.length.along,Planted.Rows[[N.ROW]]@data$CumPlants2014, type='l', col="DARKGRAY",lwd=3)
+  points(Planted.Rows[[N.ROW]]$Points.1.Cumdistance, Planted.Rows[[N.ROW]]$P.length.along.2013, type='l', col="LIGHTGRAY" ,lwd=3)
+  points(Planted.Rows[[N.ROW]]$Points.1.Cumdistance, Planted.Rows[[N.ROW]]$P.length.along.2014, type='l', col="DARKGRAY",lwd=3)
   
 }
 
-points(Paper.data$Length.m,Paper.data$Plants2016, pch=21, col="BLACK", bg="white",cex=1.5)
+points(Paper.data$Length.m,Paper.data$Plants2013, pch=21, col="BLACK", bg="LIGHTGRAY",cex=1.5) ;
 
-legend(0,2500,legend=c("2014","2013","2016"), lty=c(1,1,NA), col=c("DARKGRAY","LIGHTGRAY", "BLACK"), pch=c(NA,NA, 21))
+points(Paper.data$Length.m,Paper.data$Plants2014, pch=21, col="BLACK", bg="DARKGRAY",cex=1.5) ;
+
+points(Paper.data$Length.m,Paper.data$Plants2016, pch=21, col="BLACK", bg="white",cex=1.5) ;
+
+legend(0,1200,legend=c("2014","2013","2016"), lty=c(1,1,NA), col=c("DARKGRAY","LIGHTGRAY", "BLACK"), pch=c(NA,NA, 21))
 
 ############ Figure 1 a ##################################
 
 
-
-plot(Planted.Rows[[2]]@data$P.length.along,Planted.Rows[[2]]@data$CumPlants2013, type='l', col=Paper.data$Colors[2], lwd=5, xlim=c( 0,max(Paper.data$Length.m[-1]) ), ylim=c(0,max(Paper.data$Plants2013[-1])) , xlab= "Length along each row, m" , ylab="Number of plants")
+plot(Planted.Rows[[1]]$Points.1.Cumdistance , Planted.Rows[[1]]$P.length.along.2013, type='l', col=Paper.data$Colors[1], lwd=5, xlim=c( 0,max(Paper.data$Length.m) ),ylim=c(0, max(c(max(Paper.data$Plants2013),max(Paper.data$Plants2014)))+100) , xlab= "Length along each row, m" , ylab="Number of plants")
 
 
 
 for (N.ROW in seq(2,N.ROWS ) ){
   
-  points(Planted.Rows[[N.ROW]]@data$P.length.along,Planted.Rows[[N.ROW]]@data$CumPlants2013, type='l', col=Paper.data$Colors[N.ROW] ,lwd=5)
+  points(Planted.Rows[[N.ROW]]$Points.1.Cumdistance , Planted.Rows[[N.ROW]]$P.length.along.2013, type='l', col=Paper.data$Colors[N.ROW] ,lwd=5)
  
   
 }
 
-points(Paper.data$Length.m,Paper.data$Plants2016, pch=21, col=Paper.data$Colors, bg=Paper.data$Colors,cex=2)
+points(Paper.data$Length.m , Paper.data$Plants2016, pch=21, col=Paper.data$Colors, bg=Paper.data$Colors,cex=2)
 
-legend(0,2000,legend=c("PREBLE-2013","FABIUS-2013","MILBROOK-2013","SX61-2013","OTISCO-2013", "FISHCREEK-2013","2016"), lty=c(1,1,1,1,1,1,NA), lwd=c(2,2,2,2,2,2,NA),col=c('LIGHTGREEN', 'GREEN','DARKGREEN','LIGHTBLUE','BLUE', 'DARKBLUE','BLACK'), pch=c(NA,NA,NA,NA,NA,NA, 21))
+legend(0,1400,legend=c("PREBLE-2013","FABIUS-2013","MILBROOK-2013","SX61-2013","OTISCO-2013", "FISHCREEK-2013","2016"), lty=c(1,1,1,1,1,1,NA), lwd=c(2,2,2,2,2,2,NA),col=c('LIGHTGREEN', 'GREEN','DARKGREEN','LIGHTBLUE','BLUE', 'DARKBLUE','BLACK'), pch=c(NA,NA,NA,NA,NA,NA, 21))
+
+
+############ Figure 1 b ##################################
+
+plot(Planted.Rows[[1]]$Points.1.Cumdistance , Planted.Rows[[1]]$P.length.along.2014, type='l', col=Paper.data$Colors[1], lwd=5, xlim=c( 0,max(Paper.data$Length.m) ),ylim=c(0, max(c(max(Paper.data$Plants2013),max(Paper.data$Plants2014)))+100) , xlab= "Length along each row, m" , ylab="Number of plants")
+
+
+
+for (N.ROW in seq(2,N.ROWS ) ){
+  
+  points(Planted.Rows[[N.ROW]]$Points.1.Cumdistance , Planted.Rows[[N.ROW]]$P.length.along.2014, type='l', col=Paper.data$Colors[N.ROW] ,lwd=5)
+  
+  
+}
+
+points(Paper.data$Length.m , Paper.data$Plants2016, pch=21, col=Paper.data$Colors, bg=Paper.data$Colors,cex=2)
+
+legend(0,1400,legend=c("PREBLE-2014","FABIUS-2014","MILBROOK-2014","SX61-2014","OTISCO-2014", "FISHCREEK-2014","2016"), lty=c(1,1,1,1,1,1,NA), lwd=c(2,2,2,2,2,2,NA),col=c('LIGHTGREEN', 'GREEN','DARKGREEN','LIGHTBLUE','BLUE', 'DARKBLUE','BLACK'), pch=c(NA,NA,NA,NA,NA,NA, 21))
+
+
+
 
 
 #################  Statistical Analysis using row as experimental unit #########################
