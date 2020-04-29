@@ -75,6 +75,8 @@ library(randomForest)
 
 library(RColorBrewer)
 
+library(openxlsx)
+
 ###############################################################################################################
 #                           load data from DataCleaning.RData
 ###############################################################################################################
@@ -87,6 +89,8 @@ library(RColorBrewer)
 # N.ROW=94
 
 #  View(Planted.Rows[[N.ROW]]);   str(Planted.Rows[[N.ROW]])
+
+
 
 
 ###############################################################################################################
@@ -113,8 +117,11 @@ Paper.data$Plant.Density.pl.ha.2013
 plot(Paper.data$ROW, Paper.data$Plant.Density.pl.ha.2016, col="RED", ylim=c(0,16000))
 points(Paper.data$ROW, Paper.data$Plant.Density.pl.ha.2013 )
 
+###############################################################################################################
+#                           Figure 1
+###############################################################################################################
 
-############ Figure 1 ##################################
+
 
 plot(Planted.Rows[[1]]$Points.1.Cumdistance, Planted.Rows[[1]]$P.length.along.2013, type='l', col="LIGHTGRAY", lwd=3,xlim=c( 0,max(Paper.data$Length.m) ), ylim=c(0, max(c(max(Paper.data$Plants2013),max(Paper.data$Plants2014)))+100), xlab= "Length along each row, m" , ylab="Number of plants")  ;
 points(Planted.Rows[[1]]$Points.1.Cumdistance, Planted.Rows[[1]]$P.length.along.2014, type='l', col="DARKGRAY",lwd=3)
@@ -135,8 +142,10 @@ points(Paper.data$Length.m,Paper.data$Plants2016, pch=21, col="BLACK", bg="white
 
 legend(0,1200,legend=c("2014","2013","2016"), lty=c(1,1,NA), col=c("DARKGRAY","LIGHTGRAY", "BLACK"), pch=c(NA,NA, 21))
 
-############ Figure 1 a ##################################
 
+###############################################################################################################
+#                           Figure 1 a
+###############################################################################################################
 
 plot(Planted.Rows[[1]]$Points.1.Cumdistance , Planted.Rows[[1]]$P.length.along.2013, type='l', col=Paper.data$Colors[1], lwd=5, xlim=c( 0,max(Paper.data$Length.m) ),ylim=c(0, max(c(max(Paper.data$Plants2013),max(Paper.data$Plants2014)))+100) , xlab= "Length along each row, m" , ylab="Number of plants")
 
@@ -154,7 +163,11 @@ points(Paper.data$Length.m , Paper.data$Plants2016, pch=21, col=Paper.data$Color
 legend(0,1400,legend=c("PREBLE-2013","FABIUS-2013","MILBROOK-2013","SX61-2013","OTISCO-2013", "FISHCREEK-2013","2016"), lty=c(1,1,1,1,1,1,NA), lwd=c(2,2,2,2,2,2,NA),col=c('LIGHTGREEN', 'GREEN','DARKGREEN','LIGHTBLUE','BLUE', 'DARKBLUE','BLACK'), pch=c(NA,NA,NA,NA,NA,NA, 21))
 
 
-############ Figure 1 b ##################################
+
+###############################################################################################################
+#                           Figure 1 b
+###############################################################################################################
+
 
 plot(Planted.Rows[[1]]$Points.1.Cumdistance , Planted.Rows[[1]]$P.length.along.2014, type='l', col=Paper.data$Colors[1], lwd=5, xlim=c( 0,max(Paper.data$Length.m) ),ylim=c(0, max(c(max(Paper.data$Plants2013),max(Paper.data$Plants2014)))+100) , xlab= "Length along each row, m" , ylab="Number of plants")
 
@@ -200,21 +213,95 @@ str(Paper.data)
 
 ###  Calculating row yield in Dry mater in kg/ha 
 
-Paper.data$DRY.MgHa.2015<-Paper.data$FRESH.LB.2015*(1-Paper.data$MOISTURE.2015)/ 2.204623 / 1000 ;# 2.204623 lb/kg  1000 kg/Mg
+Paper.data$DRY.Mg.2015<-Paper.data$FRESH.LB.2015*(1-Paper.data$MOISTURE.2015)/ 2.204623 / 1000 ;# 2.204623 lb/kg  1000 kg/Mg
+
+Paper.data$DRY.Mg.Ha.2015<-Paper.data$DRY.Mg.2015/Paper.data$Area.m2*10000  ;
+
+Paper.data$DRY.Mg.Ha.Year.2015<-Paper.data$DRY.Mg.Ha.2015/3 ;
+
+Paper.data$DRY.Mg.2019<-Paper.data$FRESH.LB.2019*(1-Paper.data$MOISTURE.2019)/ 2.204623 / 1000  ; # 2.204623 lb/kg  1000 kg/Mg
+
+Paper.data$DRY.Mg.Ha.2019<-Paper.data$DRY.Mg.2019/Paper.data$Area.m2*10000  ;
+
+Paper.data$DRY.Mg.Ha.Year.2019<-Paper.data$DRY.Mg.Ha.2019/3 ;
 
 
-Paper.data$DRY.MgHa.2019<-Paper.data$FRESH.LB.2019*(1-Paper.data$MOISTURE.2019)/ 2.204623 / 1000  ; # 2.204623 lb/kg  1000 kg/Mg
 
+###############################################################################################################
+#                           Print the data in an excel workbook 
+###############################################################################################################
+
+write.xlsx(Paper.data, file='../WillowHarvestDataAnalysis.xlsx', sheetName='Row_Data')
 
 #################  Exploratory Analysis using Random Forest  #########################
 
-#  str(Paper.data)  ; View(Paper.data)  
+#  str(Paper.data)  ; View(Paper.data)   ; names(Paper.data)
+
+# set the seed for the random number generator
+
+#  Rand.Num.Seed<-.Random.seed 
+
+.Random.seed<-Rand.Num.Seed ;
 
 
+################  Random Forest exploratory analysis for  2015 Harvest (DRY.MgHa.2015)  ####################################################################################
+
+rf.Paper.data.2015<-randomForest(formula=DRY.Mg.Ha.Year.2015 ~ ROW + F.VARIETY + F.BLOCK + MOISTURE.2015 + Plant.Density.pl.ha.2013 + Plant.Density.pl.ha.2014 +Plant.Density.pl.ha.2016 + Length.m,  data=Paper.data[1:131,], importance=T, proximity=T ) ;
+
+print(rf.Paper.data.2015) ;
+
+plot(rf.Paper.data.2015) ;
+
+varImpPlot(rf.Paper.data.2015) ;
+
+print(rf.Paper.data.2015$importance) ;
 
 
+partialPlot(rf.Paper.data.2015, pred.data = Paper.data[1:131,], x.var=F.VARIETY, plot=T) ;
 
-#################  Statistical Analysis  using  plot as experimental unit #########################
+partialPlot(rf.Paper.data.2015, pred.data = Paper.data[1:131,], x.var=Length.m , plot=T) ;
+
+partialPlot(rf.Paper.data.2015, pred.data = Paper.data[1:131,], x.var=ROW, plot=T) ;
+
+partialPlot(rf.Paper.data.2015, pred.data = Paper.data[1:131,], x.var=Plant.Density.pl.ha.2013, plot=T) ;
+
+partialPlot(rf.Paper.data.2015, pred.data = Paper.data[1:131,], x.var=Plant.Density.pl.ha.2014, plot=T) ;
+
+partialPlot(rf.Paper.data.2015, pred.data = Paper.data[1:131,], x.var=Plant.Density.pl.ha.2016, plot=T) ;
+
+partialPlot(rf.Paper.data.2015, pred.data = Paper.data[1:131,], x.var=MOISTURE.2015, plot=T) ;
+
+varUsed(rf.Paper.data.2015, by.tree=FALSE, count=TRUE)
+
+
+################  Random Forest exploratory analysis for  2019 Harvest (DRY.MgHa.2019)  ####################################################################################
+
+rf.Paper.data.2019<-randomForest(formula=DRY.Mg.Ha.Year.2019 ~ ROW + F.VARIETY + F.BLOCK + MOISTURE.2019 + Plant.Density.pl.ha.2013 + Plant.Density.pl.ha.2014 + Plant.Density.pl.ha.2016 + Length.m,  data=Paper.data[1:131,], importance=T) ;
+
+print(rf.Paper.data.2019) ;
+
+plot(rf.Paper.data.2019) ;
+
+varImpPlot(rf.Paper.data.2019) ;
+
+print(rf.Paper.data.2019$importance) ;
+
+partialPlot(rf.Paper.data.2019, pred.data = Paper.data[1:131,], x.var=F.VARIETY, plot=T) ;
+
+partialPlot(rf.Paper.data.2019, pred.data = Paper.data[1:131,], x.var=Length.m, plot=T) ;
+
+partialPlot(rf.Paper.data.2019, pred.data = Paper.data[1:131,], x.var=ROW, plot=T) ;
+
+partialPlot(rf.Paper.data.2019, pred.data = Paper.data[1:131,], x.var=Plant.Density.pl.ha.2013, plot=T) ;
+
+partialPlot(rf.Paper.data.2019, pred.data = Paper.data[1:131,], x.var=Plant.Density.pl.ha.2014, plot=T) ;
+
+partialPlot(rf.Paper.data.2019, pred.data = Paper.data[1:131,], x.var=Plant.Density.pl.ha.2016, plot=T) ;
+
+partialPlot(rf.Paper.data.2019, pred.data = Paper.data[1:131,], x.var=MOISTURE.2019, plot=T) ;
+
+
+#################  Statistical Analysis  using  plot (Variety and Block) as experimental unit #########################
 
 #  View(Paper.data) ; str(Paper.data) 
 
