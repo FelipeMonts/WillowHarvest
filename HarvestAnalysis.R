@@ -65,7 +65,7 @@ setwd("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowHa
 
 # install.packages('randomForest', dep=T)
 
-
+# install.packages('lattice', dep=T)
 
 ###############################################################################################################
 #                           load the libraries that are neded   
@@ -76,6 +76,8 @@ library(randomForest)
 library(RColorBrewer)
 
 library(openxlsx)
+
+library(lattice)
 
 ###############################################################################################################
 #                           load data from DataCleaning.RData
@@ -228,12 +230,20 @@ Paper.data$DRY.Mg.Ha.Year.2019<-Paper.data$DRY.Mg.Ha.2019/3 ;
 
 
 ###############################################################################################################
-#                           Print the data in an excel workbook 
+#                           Print the data in an excel workbook WillowHarvestDataAnalysis.xlsx
 ###############################################################################################################
 
-write.xlsx(Paper.data, file='../WillowHarvestDataAnalysis.xlsx', sheetName='Row_Data')
+Willow.Harvest.wb<-createWorkbook() ;
 
-#################  Exploratory Analysis using Random Forest  #########################
+addWorksheet(Willow.Harvest.wb, sheetName='Row_Data') ;
+
+writeDataTable(Willow.Harvest.wb, sheet='Row_Data',x=Paper.data ) ;
+
+
+###############################################################################################################
+#                           Exploratory Analysis using Random Forest
+###############################################################################################################
+
 
 #  str(Paper.data)  ; View(Paper.data)   ; names(Paper.data)
 
@@ -244,7 +254,10 @@ write.xlsx(Paper.data, file='../WillowHarvestDataAnalysis.xlsx', sheetName='Row_
 .Random.seed<-Rand.Num.Seed ;
 
 
-################  Random Forest exploratory analysis for  2015 Harvest (DRY.MgHa.2015)  ####################################################################################
+###############################################################################################################
+#                           Random Forest exploratory analysis for  2015 Harvest (DRY.MgHa.2015)
+###############################################################################################################
+
 
 rf.Paper.data.2015<-randomForest(formula=DRY.Mg.Ha.Year.2015 ~ ROW + F.VARIETY + F.BLOCK + MOISTURE.2015 + Plant.Density.pl.ha.2013 + Plant.Density.pl.ha.2014 +Plant.Density.pl.ha.2016 + Length.m,  data=Paper.data[1:131,], importance=T, proximity=T ) ;
 
@@ -274,7 +287,11 @@ partialPlot(rf.Paper.data.2015, pred.data = Paper.data[1:131,], x.var=MOISTURE.2
 varUsed(rf.Paper.data.2015, by.tree=FALSE, count=TRUE)
 
 
-################  Random Forest exploratory analysis for  2019 Harvest (DRY.MgHa.2019)  ####################################################################################
+
+###############################################################################################################
+#                           Random Forest exploratory analysis for  2019 Harvest (DRY.MgHa.2019)
+###############################################################################################################
+
 
 rf.Paper.data.2019<-randomForest(formula=DRY.Mg.Ha.Year.2019 ~ ROW + F.VARIETY + F.BLOCK + MOISTURE.2019 + Plant.Density.pl.ha.2013 + Plant.Density.pl.ha.2014 + Plant.Density.pl.ha.2016 + Length.m,  data=Paper.data[1:131,], importance=T) ;
 
@@ -301,42 +318,54 @@ partialPlot(rf.Paper.data.2019, pred.data = Paper.data[1:131,], x.var=Plant.Dens
 partialPlot(rf.Paper.data.2019, pred.data = Paper.data[1:131,], x.var=MOISTURE.2019, plot=T) ;
 
 
-#################  Statistical Analysis  using  plot (Variety and Block) as experimental unit #########################
+
+###############################################################################################################
+#                           Statistical Analysis  using  plot (Variety and Block) as experimental unit
+###############################################################################################################
+
 
 #  View(Paper.data) ; str(Paper.data) 
 
-######### Aggregating the data according to the total (sum) and the avreage (mean) of F.VARIETY and F.BLOCK groupings  ####################
-
-Paper.data.Plots.sum<-aggregate(formula= cbind(Plants2013, Plants2014, Plants2016, DRY.MgHa.2015, DRY.MgHa.2019, Area.m2, Length.m ) ~ F.VARIETY + F.BLOCK, FUN=sum,data=Paper.data) ;
-
-names(Paper.data.Plots.sum)[3:9]<- paste0("SUM_",c("Plants2013" ,   "Plants2014"  ,  "Plants2016"   , "DRY.MgHa.2015" , "DRY.MgHa.2019", "Area.m2", "Length.m"  )) ;
+######### Aggregating the data according to the average (mean) of F.VARIETY and F.BLOCK groupings  ####################
 
 
+Paper.data.Plots.mean<-aggregate(formula= cbind(DRY.Mg.Ha.Year.2015, MOISTURE.2015, DRY.Mg.Ha.Year.2019, MOISTURE.2019, Plant.Density.pl.ha.2013, Plant.Density.pl.ha.2014, Plant.Density.pl.ha.2016 ,Area.m2 , Length.m ) ~ F.VARIETY + F.BLOCK, FUN=mean,data=Paper.data) ;
+
+names(Paper.data.Plots.mean)[3:11]<-paste0("MEAN_",c("DRY.Mg.Ha.Year.2015" , "MOISTURE.2015" ,  "DRY.Mg.Ha.Year.2019" ,  "MOISTURE.2019" , "Plant.Density.pl.ha.2013" , "Plant.Density.pl.ha.2014" , "Plant.Density.pl.ha.2016", "Area.m2" , "Length.m")) ;
+
+#  View(Paper.data.Plots.mean)
+
+###############################################################################################################
+#                           Print the data in a new sheet in the excel workbook WillowHarvestDataAnalysis.xlsx
+###############################################################################################################
+
+addWorksheet(Willow.Harvest.wb, sheetName = 'Plot_Data')  ;
+
+writeDataTable(Willow.Harvest.wb, sheet='Plot_Data', x=Paper.data.Plots.mean ) ;
+
+saveWorkbook(Willow.Harvest.wb, file='../WillowHarvestDataAnalysis.xlsx', overwrite = T ) ;
 
 
-Paper.data.Plots.mean<-aggregate(formula= cbind(Plants2013, Plants2014, Plants2016, DRY.MgHa.2015, MOISTURE.2015, DRY.MgHa.2019, MOISTURE.2019, Area.m2, Length.m, Plant.Density.pl.ha.2013, Plant.Density.pl.ha.2014, Plant.Density.pl.ha.2016 ) ~ F.VARIETY + F.BLOCK, FUN=mean,data=Paper.data) ;
 
-names(Paper.data.Plots.mean)[3:14]<-paste0("MEAN_",c("Plants2013" ,   "Plants2014"  ,  "Plants2016"   , "DRY.MgHa.2015" , "MOISTURE.2015" , "DRY.MgHa.2019", "MOISTURE.2019" ,"Area.m2", "Length.m" , "Plant.Density.pl.ha.2013" , "Plant.Density.pl.ha.2014" , "Plant.Density.pl.ha.2016"  )) ;
+###############################################################################################################
+#                           Analysis using lm 
+###############################################################################################################
 
-DataForAnalysis<-merge(Paper.data.Plots.sum,Paper.data.Plots.mean, by=c("F.VARIETY","F.BLOCK"));
+#   str(Paper.data.Plots.mean) ;View(Paper.data.Plots.mean)
 
-names(DataForAnalysis)
+AnalysisHArvest2015.Plot<-lm(MEAN_DRY.Mg.Ha.Year.2015 ~ F.BLOCK + F.VARIETY +  MEAN_Plant.Density.pl.ha.2013 +  MEAN_Plant.Density.pl.ha.2014, data=Paper.data.Plots.mean);
 
-
-
-
-#  View(DataForAnalysis)
-
-AnalysisHArvest2015.Plot<-lm(Lb.m2.2015 ~ Block + Variety +  mean_Plant.Density.pl.ha.2013 +  mean_Plant.Density.pl.ha.2014, data=DataForAnalysis);
-
-anova(AnalysisHArvest2015.Plot)
+anova(AnalysisHArvest2015.Plot, test="F")
 summary(AnalysisHArvest2015.Plot)
+plot(AnalysisHArvest2015.Plot)
+effects(AnalysisHArvest2015.Plot)
 
-AnalysisHArvest2019.Plot<-lm(Lb.m2.2019~ Block + Variety +  mean_Plant.Density.pl.ha.2013  +   mean_Plant.Density.pl.ha.2014 + mean_Plant.Density.pl.ha.2016, data=DataForAnalysis);
+AnalysisHArvest2019.Plot<-lm(MEAN_DRY.Mg.Ha.Year.2019 ~ F.BLOCK + F.VARIETY +  MEAN_Plant.Density.pl.ha.2013 +  MEAN_Plant.Density.pl.ha.2014 + MEAN_Plant.Density.pl.ha.2016, data=Paper.data.Plots.mean);
 
 anova(AnalysisHArvest2019.Plot,test = "F")
 summary(AnalysisHArvest2019.Plot)
 effects(AnalysisHArvest2019.Plot)
+plot(AnalysisHArvest2019.Plot)
 
 #########################################################################################################
 #
@@ -354,23 +383,42 @@ effects(AnalysisHArvest2019.Plot)
 
 
 
+###############################################################################################################
+#                           Statistical Analysis using row as experimental unit
+###############################################################################################################
 
-#################  Statistical Analysis using row as experimental unit #########################
-
-
-AnalysisHArvest2015<-glm(FRESH.LB.2015 ~ F.BLOCK + F.VARIETY +  Plants2013 +  Plants2014 + Plant.Density.pl.ha.2013 +  Plant.Density.pl.ha.2014 + Plant.Density.pl.ha.2016, data=Paper.data, family=gaussian );
-
-summary(AnalysisHArvest2015)
+#  View(Paper.data) ; str(Paper.data) 
 
 
-anova(AnalysisHArvest2015)
+
+AnalysisHArvest2015.Row<-lm(DRY.Mg.Ha.Year.2015  ~ F.BLOCK + F.VARIETY + Plant.Density.pl.ha.2013 +  Plant.Density.pl.ha.2014 + Plant.Density.pl.ha.2016, data=Paper.data[1:131,], );
+
+summary(AnalysisHArvest2015.Row)
+
+anova(AnalysisHArvest2015.Row, test= "F")
+
+plot(AnalysisHArvest2015.Row)
 
 
-AnalysisHArvest2019.row<-glm(2015.FRESH.LB ~ Block + Variety +  Plant.Density.pl.ha.2013  + Plant.Density.pl.ha.2016, data=Paper.data)
+AnalysisHArvest2019.Row<-lm(DRY.Mg.Ha.Year.2019 ~ F.BLOCK + F.VARIETY +  Plant.Density.pl.ha.2013  +   Plant.Density.pl.ha.2014 + Plant.Density.pl.ha.2016, data=Paper.data[1:131,])
 
-anova(AnalysisHArvest2019)
-summary(AnalysisHArvest2019)
 
+summary(AnalysisHArvest2019.Row)
+
+anova(AnalysisHArvest2019.Row, test= "F")
+
+plot(AnalysisHArvest2019.Row)
+
+
+###############################################################################################################
+#                           Plots analysis by rows
+###############################################################################################################
+
+bwplot(Length.m ~ VARIETY | F.BLOCK  , data=Paper.data )
+ 
+bwplot(DRY.Mg.Ha.Year.2015 ~ VARIETY | F.BLOCK  , data=Paper.data ) 
+
+bwplot(DRY.Mg.Ha.Year.2019 ~ VARIETY | F.BLOCK  , data=Paper.data ) 
 
 
 
