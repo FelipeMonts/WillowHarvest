@@ -67,6 +67,10 @@ setwd("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowHa
 
 # install.packages('lattice', dep=T)
 
+# install.packages('stringi', dep=T)
+
+# install_github('sorhawell/forestFloor')
+
 ###############################################################################################################
 #                           load the libraries that are neded   
 ###############################################################################################################
@@ -78,6 +82,10 @@ library(RColorBrewer)
 library(openxlsx)
 
 library(lattice)
+
+library(devtools)
+
+library(forestFloor)
 
 ###############################################################################################################
 #                           load data from DataCleaning.RData
@@ -293,7 +301,7 @@ varUsed(rf.Paper.data.2015, by.tree=FALSE, count=TRUE)
 ###############################################################################################################
 
 
-rf.Paper.data.2019<-randomForest(formula=DRY.Mg.Ha.Year.2019 ~ ROW + F.VARIETY + F.BLOCK + MOISTURE.2019 + Plant.Density.pl.ha.2013 + Plant.Density.pl.ha.2014 + Plant.Density.pl.ha.2016 + Length.m,  data=Paper.data[1:131,], importance=T) ;
+rf.Paper.data.2019<-randomForest(formula=DRY.Mg.Ha.Year.2019 ~ ROW + F.VARIETY + F.BLOCK + Plant.Density.pl.ha.2016 + DRY.Mg.Ha.Year.2015 ,  data=Paper.data[1:131,], importance=T) ;
 
 print(rf.Paper.data.2019) ;
 
@@ -316,6 +324,10 @@ partialPlot(rf.Paper.data.2019, pred.data = Paper.data[1:131,], x.var=Plant.Dens
 partialPlot(rf.Paper.data.2019, pred.data = Paper.data[1:131,], x.var=Plant.Density.pl.ha.2016, plot=T) ;
 
 partialPlot(rf.Paper.data.2019, pred.data = Paper.data[1:131,], x.var=MOISTURE.2019, plot=T) ;
+
+
+
+###################### Forest Floor visualizations #################################
 
 
 
