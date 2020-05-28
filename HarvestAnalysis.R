@@ -299,11 +299,15 @@ str(Paper.data)
 ### reshape the data to create two factors Harvest.Year, and Survey.Year
 
 
-Paper.data.V2<-Paper.data[,c("ROW" , "VARIETY", "PLOT", "Length.m", "Area.m2","F.VARIETY", "BLOCK", "F.BLOCK")]; 
+Paper.data.I1<-reshape(Paper.data, drop=c("Plant.Density.pl.ha.2013" , "Plant.Density.pl.ha.2014", "Plant.Density.pl.ha.2016"),varying=list(c("FRESH.LB.2015", "FRESH.LB.2019"), c("MOISTURE.2015", "MOISTURE.2019")) , v.names=c("FRESH.LB","MOISTURE"),idvar="ROW", times=c(2015,2019), timevar = "HARVEST_YEAR", direction="long" ); 
 
+#  View(Paper.data.I1) ; str(Paper.data.I1) ; names(Paper.data.I1)
 
+Paper.data.I2<-reshape(Paper.data.I2, varying=list(c("Plants2013" , "Plants2014" , "Plants2016")) , v.names=c("PLANT.SURVEY"), times=c(2013,2014,2016), timevar = "SURVEY.YEAR", direction="long");
 
-names(Paper.data)
+#  View(Paper.data.I2) ; str(Paper.data.I2) ; names(Paper.data.I2)
+
+Paper.data.V2<-as.data.frame(Paper.data.I2, row.names=seq(1,dim(Paper.data.I2)[1])) ;
 
 
 ###  Calculating row yield in Dry mater in kg/ha 
