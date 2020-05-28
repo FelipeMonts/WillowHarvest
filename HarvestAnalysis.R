@@ -510,6 +510,7 @@ names(Paper.data.Plots.sum)[5:6]<-paste0("TOTAL_",c("Area.m2" , "Length.m")) ;
 
 Paper.data.Plots<-merge(Paper.data.Plots.mean, Paper.data.Plots.sum) ;
 
+#  str(Paper.data.Plots) ; View(Paper.data.Plots) ;
 
 ###############################################################################################################
 #                           Print the data in a new sheet in the excel workbook WillowHarvestDataAnalysis.xlsx
@@ -528,6 +529,20 @@ writeDataTable(Willow.Harvest.wb, sheet='Plot_Data', x=Paper.data.Plots) ;
 
 saveWorkbook(Willow.Harvest.wb, file=paste0('../WillowHarvestDataAnalysis', format(Sys.time(),"%Y_%m_%d_%H_%M"), '.xlsx'), overwrite = F ) ;
 
+###############################################################################################################
+#                           Results Figures
+###############################################################################################################
+
+
+#### Bar Chart, of Results, Need to aggregate by block
+
+#  str(Paper.data.Plots)
+
+Paper.data.Plots.bar.chart<-aggregate(formula= MEAN_DRY.Mg.Ha.Year ~  F.HARVEST.YEAR + F.VARIETY  , FUN=mean , data=Paper.data.Plots) ;
+
+#  str(Paper.data.Plots.bar.chart) ; View(Paper.data.Plots.bar.chart)
+
+barplot(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart, beside=T, legend.text=T,args.legend = list(x = 16 , y = 9), col=c("RED", "BLUE"),mgp=c(2,1,0), ylab=expression(paste("Mg ","ha"^-1, "year"^-1)), xlab="WILLOW CLONE")
 
 
 ###############################################################################################################
