@@ -89,9 +89,9 @@ library(lattice)
 
 library(devtools)
 
-library(forestFloor)
+# library(forestFloor)
 
-library(rgl)
+# library(rgl)
 
 library(raster)
 
@@ -299,7 +299,7 @@ str(Paper.data)
 ### reshape the data to create two factors Harvest.Year, and Survey.Year
 
 
-Paper.data.I1<-reshape(Paper.data, drop=c("Plant.Density.pl.ha.2013" , "Plant.Density.pl.ha.2014", "Plant.Density.pl.ha.2016"),varying=list(c("FRESH.LB.2015", "FRESH.LB.2019"), c("MOISTURE.2015", "MOISTURE.2019")) , v.names=c("FRESH.LB","MOISTURE"),idvar="ROW", times=c(2015,2019), timevar = "HARVEST_YEAR", direction="long" ); 
+Paper.data.I1<-reshape(Paper.data, drop=c("Plant.Density.pl.ha.2013" , "Plant.Density.pl.ha.2014", "Plant.Density.pl.ha.2016"),varying=list(c("FRESH.LB.2015", "FRESH.LB.2019"), c("MOISTURE.2015", "MOISTURE.2019")) , v.names=c("FRESH.LB","MOISTURE"),idvar="ROW", times=c(2015,2019), timevar = "HARVEST.YEAR", direction="long" ); 
 
 #  View(Paper.data.I1) ; str(Paper.data.I1) ; names(Paper.data.I1)
 
@@ -309,7 +309,7 @@ Paper.data.I2<-reshape(Paper.data.I1, varying=list(c("Plants2013" , "Plants2014"
 
 Paper.data.V2<-as.data.frame(Paper.data.I2, row.names=seq(1,dim(Paper.data.I2)[1])) ;
 
-Paper.data.V2$F.HARVEST_YEAR<-as.factor(Paper.data.V2$HARVEST_YEAR);
+Paper.data.V2$F.HARVEST.YEAR<-as.factor(Paper.data.V2$HARVEST.YEAR);
 
 Paper.data.V2$F.SURVEY.YEAR<-as.factor(Paper.data.V2$SURVEY.YEAR);
 
@@ -324,6 +324,23 @@ Paper.data.V2$DRY.Mg<-Paper.data.V2$FRESH.LB*(1-Paper.data.V2$MOISTURE)/ 2.20462
 Paper.data.V2$DRY.Mg.Ha<-Paper.data.V2$DRY.Mg/Paper.data.V2$Area.m2*10000  ;
 
 Paper.data.V2$DRY.Mg.Ha.Year<-Paper.data.V2$DRY.Mg.Ha/3 ;
+
+
+###  Recalculating Plant Densities in plants.ha
+
+Paper.data.V2$PLANT.DENSITY.pl.ha<-(Paper.data.V2$PLANT.SURVEY/Paper.data.V2$Area.m2)*10000
+
+
+### check the changes made with Armen have not been modified 
+
+Paper.data[which(Paper.data$ROW==114) ,]
+
+Paper.data.V2[which(Paper.data.V2$ROW==114) ,]
+
+### recalculate value of plant density of row 114 of the survey 2016 to the median of the rows above it with the smame block-variety
+
+Paper.data.V2[which(Paper.data.V2$ROW==114 & Paper.data.V2$SURVEY.YEAR==2016), c('PLANT.DENSITY.pl.ha')]<-median(Paper.data[seq(101,113),c("Plant.Density.pl.ha.2016")]) ;
+
 
 
 #******************** Change made 5/21/20 Yield of last two rows of Fabius (DRY.Mg.Ha.2015, DRY.Mg.Ha.2019) were averaged using the geometric mean . The border row had higher yield, and shadowed the row. That fixed matters. 
@@ -467,26 +484,49 @@ writeDataTable(Willow.Harvest.wb, sheet='Row_Data',x=Paper.data ) ;
 ###############################################################################################################
 
 
-#  View(Paper.data) ; str(Paper.data) 
+#  View(Paper.data.V2) ; str(Paper.data.V2) 
 
-######### Aggregating the data according to the average (mean) of F.VARIETY and F.BLOCK groupings  ####################
+######### Aggregating the data according to the average (mean) of F.VARIETY, F.BLOCK , F.HARVEST.YEAR and  F.SURVEY.YEARgroupings  ####################
 
 
-Paper.data.Plots.mean<-aggregate(formula= cbind(DRY.Mg.Ha.Year.2015, MOISTURE.2015, DRY.Mg.Ha.Year.2019, MOISTURE.2019, Plant.Density.pl.ha.2013, Plant.Density.pl.ha.2014, Plant.Density.pl.ha.2016 ,Area.m2 , Length.m ) ~ F.VARIETY + F.BLOCK, FUN=mean,data=Paper.data) ;
+Paper.data.Plots.mean<-aggregate(formula= cbind(DRY.Mg.Ha.Year, MOISTURE, PLANT.DENSITY.pl.ha, Area.m2 , Length.m ) ~ F.VARIETY + F.BLOCK + F.HARVEST.YEAR + F.SURVEY.YEAR , FUN=mean,data=Paper.data.V2) ;
 
-names(Paper.data.Plots.mean)[3:11]<-paste0("MEAN_",c("DRY.Mg.Ha.Year.2015" , "MOISTURE.2015" ,  "DRY.Mg.Ha.Year.2019" ,  "MOISTURE.2019" , "Plant.Density.pl.ha.2013" , "Plant.Density.pl.ha.2014" , "Plant.Density.pl.ha.2016", "Area.m2" , "Length.m")) ;
+#  View(Paper.data.Plots.mean); str(Paper.data.Plots.mean) ; names(Paper.data.Plots.mean)
+
+names(Paper.data.Plots.mean)[5:9]<-paste0("MEAN_",c("DRY.Mg.Ha.Year" , "MOISTURE" , "PLANT.DENSITY.pl.ha" , "Area.m2" , "Length.m")) ;
 
 #  View(Paper.data.Plots.mean)
+
+
+######### Aggregating the data according to the total (sum) of F.VARIETY and F.BLOCK groupings  ####################
+
+Paper.data.Plots.sum<-aggregate(formula= cbind(Area.m2 , Length.m ) ~ F.VARIETY + F.BLOCK + F.HARVEST.YEAR + F.SURVEY.YEAR , FUN=sum,data=Paper.data.V2) ;
+
+#  View(Paper.data.Plots.sum); str(Paper.data.Plots.sum) ; names(Paper.data.Plots.sum)
+
+names(Paper.data.Plots.sum)[5:6]<-paste0("TOTAL_",c("Area.m2" , "Length.m")) ;
+
+######### Putting together  the data according to the average (mean) and the total (sum) groupings  ####################
+
+Paper.data.Plots<-merge(Paper.data.Plots.mean, Paper.data.Plots.sum) ;
+
 
 ###############################################################################################################
 #                           Print the data in a new sheet in the excel workbook WillowHarvestDataAnalysis.xlsx
 ###############################################################################################################
 
+addWorksheet(Willow.Harvest.wb, sheetName = 'Row_Data.V2')  ;
+
+writeDataTable(Willow.Harvest.wb, sheet='Row_Data.V2', x=Paper.data.V2) ;
+
+
 addWorksheet(Willow.Harvest.wb, sheetName = 'Plot_Data')  ;
 
-writeDataTable(Willow.Harvest.wb, sheet='Plot_Data', x=Paper.data.Plots.mean ) ;
+writeDataTable(Willow.Harvest.wb, sheet='Plot_Data', x=Paper.data.Plots) ;
 
-saveWorkbook(Willow.Harvest.wb, file=paste0('../WillowHarvestDataAnalysis',format(Sys.time(),"%Y_%m_%d_%H_%M"), '.xlsx'), overwrite = F ) ;
+
+
+saveWorkbook(Willow.Harvest.wb, file=paste0('../WillowHarvestDataAnalysis', format(Sys.time(),"%Y_%m_%d_%H_%M"), '.xlsx'), overwrite = F ) ;
 
 
 
