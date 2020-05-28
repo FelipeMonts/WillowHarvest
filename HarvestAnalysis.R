@@ -147,7 +147,7 @@ Paper.data[seq(128,132),]  #### See This change marked with #*************
 
 
 
-
+barplot()
 
 
 
@@ -489,11 +489,11 @@ writeDataTable(Willow.Harvest.wb, sheet='Row_Data',x=Paper.data ) ;
 ######### Aggregating the data according to the average (mean) of F.VARIETY, F.BLOCK , F.HARVEST.YEAR and  F.SURVEY.YEARgroupings  ####################
 
 
-Paper.data.Plots.mean<-aggregate(formula= cbind(DRY.Mg.Ha.Year, MOISTURE, PLANT.DENSITY.pl.ha, Area.m2 , Length.m ) ~ F.VARIETY + F.BLOCK + F.HARVEST.YEAR + F.SURVEY.YEAR , FUN=mean,data=Paper.data.V2) ;
+Paper.data.Plots.mean<-aggregate(formula= cbind(DRY.Mg.Ha,DRY.Mg.Ha.Year, MOISTURE, PLANT.DENSITY.pl.ha, Area.m2 , Length.m ) ~ F.VARIETY + F.BLOCK + F.HARVEST.YEAR + F.SURVEY.YEAR , FUN=mean,data=Paper.data.V2) ;
 
 #  View(Paper.data.Plots.mean); str(Paper.data.Plots.mean) ; names(Paper.data.Plots.mean)
 
-names(Paper.data.Plots.mean)[5:9]<-paste0("MEAN_",c("DRY.Mg.Ha.Year" , "MOISTURE" , "PLANT.DENSITY.pl.ha" , "Area.m2" , "Length.m")) ;
+names(Paper.data.Plots.mean)[5:10]<-paste0("MEAN_",c("DRY.Mg.Ha", "DRY.Mg.Ha.Year" , "MOISTURE" , "PLANT.DENSITY.pl.ha" , "Area.m2" , "Length.m")) ;
 
 #  View(Paper.data.Plots.mean)
 
@@ -534,16 +534,34 @@ saveWorkbook(Willow.Harvest.wb, file=paste0('../WillowHarvestDataAnalysis', form
 ###############################################################################################################
 
 
-#### Bar Chart, of Results, Need to aggregate by block
+#### Bar Chart, of Results, Need to aggregate by harvest and Variety
 
 #  str(Paper.data.Plots)
 
-Paper.data.Plots.bar.chart<-aggregate(formula= MEAN_DRY.Mg.Ha.Year ~  F.HARVEST.YEAR + F.VARIETY  , FUN=mean , data=Paper.data.Plots) ;
+
+### Bar Chart MEAN_DRY.Mg.Ha.Year
+
+Paper.data.Plots.bar.chart.1<-aggregate(formula= MEAN_DRY.Mg.Ha.Year ~  F.HARVEST.YEAR + F.VARIETY  , FUN=mean , data=Paper.data.Plots) ;
+
 
 #  str(Paper.data.Plots.bar.chart) ; View(Paper.data.Plots.bar.chart)
 
-barplot(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart, beside=T, legend.text=T,args.legend = list(x = 16 , y = 9), col=c("RED", "BLUE"),mgp=c(2,1,0), ylab=expression(paste("Mg ","ha"^-1, "year"^-1)), xlab="WILLOW CLONE")
+barplot(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart, beside=T, legend.text=T,args.legend = list(x = 16 , y = 9), col=c("RED", "BLUE"), mgp=c(2,1,0), ylab=expression(paste("Mg ","ha"^-1, "year"^-1)), xlab="WILLOW CLONE", cex.names=1) ;
 
+
+### Bar Chart MEAN_DRY.Mg.Ha
+
+Paper.data.Plots.bar.chart.2<-aggregate(formula= MEAN_DRY.Mg.Ha ~  F.HARVEST.YEAR + F.VARIETY  , FUN=mean , data=Paper.data.Plots) ;
+
+barplot(MEAN_DRY.Mg.Ha ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.2, beside=T, legend.text=T,args.legend = list(x = 16 , y = 28), col=c("RED", "BLUE"),mgp=c(2,1,0), ylab=expression(paste("Mg ","ha"^-1)), xlab="WILLOW CLONE", cex.names=1);
+
+
+### Bar Chart MEAN_PLANT.DENSITY.pl.ha
+
+Paper.data.Plots.bar.chart.3<-aggregate(formula= MEAN_PLANT.DENSITY.pl.ha ~  F.SURVEY.YEAR + F.VARIETY  , FUN=mean , data=Paper.data.Plots) ;
+
+
+barplot(MEAN_PLANT.DENSITY.pl.ha  ~ F.SURVEY.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.3, beside=T, legend.text=T,args.legend = list(x = 26 , y = 15000), col=c("YELLOW", "GREEN", "BROWN"),mgp=c(2,1,0), ylab=expression(paste("Plant Density - "," Plants  ","ha"^-1)), xlab="WILLOW CLONE", cex.names=1, ylim=c(0,15000));
 
 ###############################################################################################################
 #                           Analysis using lm 
