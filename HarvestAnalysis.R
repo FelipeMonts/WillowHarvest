@@ -309,21 +309,21 @@ Paper.data.I2<-reshape(Paper.data.I2, varying=list(c("Plants2013" , "Plants2014"
 
 Paper.data.V2<-as.data.frame(Paper.data.I2, row.names=seq(1,dim(Paper.data.I2)[1])) ;
 
+Paper.data.V2$F.HARVEST_YEAR<-as.factor(Paper.data.V2$HARVEST_YEAR);
+
+Paper.data.V2$F.SURVEY.YEAR<-as.factor(Paper.data.V2$SURVEY.YEAR);
+
+
+##  View(Paper.data.V2) ; str(Paper.data.V2) ; names(Paper.data.V2)
 
 ###  Calculating row yield in Dry mater in kg/ha 
 
-Paper.data$DRY.Mg.2015<-Paper.data$FRESH.LB.2015*(1-Paper.data$MOISTURE.2015)/ 2.204623 / 1000 ;# 2.204623 lb/kg  1000 kg/Mg
 
-Paper.data$DRY.Mg.Ha.2015<-Paper.data$DRY.Mg.2015/Paper.data$Area.m2*10000  ;
+Paper.data.V2$DRY.Mg<-Paper.data.V2$FRESH.LB*(1-Paper.data.V2$MOISTURE)/ 2.204623 / 1000 ;# 2.204623 lb/kg  1000 kg/Mg
 
-Paper.data$DRY.Mg.Ha.Year.2015<-Paper.data$DRY.Mg.Ha.2015/3 ;
+Paper.data.V2$DRY.Mg.Ha<-Paper.data.V2$DRY.Mg/Paper.data.V2$Area.m2*10000  ;
 
-Paper.data$DRY.Mg.2019<-Paper.data$FRESH.LB.2019*(1-Paper.data$MOISTURE.2019)/ 2.204623 / 1000  ; # 2.204623 lb/kg  1000 kg/Mg
-
-Paper.data$DRY.Mg.Ha.2019<-Paper.data$DRY.Mg.2019/Paper.data$Area.m2*10000  ;
-
-Paper.data$DRY.Mg.Ha.Year.2019<-Paper.data$DRY.Mg.Ha.2019/3 ;
-
+Paper.data.V2$DRY.Mg.Ha.Year<-Paper.data.V2$DRY.Mg.Ha/3 ;
 
 
 #******************** Change made 5/21/20 Yield of last two rows of Fabius (DRY.Mg.Ha.2015, DRY.Mg.Ha.2019) were averaged using the geometric mean . The border row had higher yield, and shadowed the row. That fixed matters. 
