@@ -303,7 +303,7 @@ Paper.data.I1<-reshape(Paper.data, drop=c("Plant.Density.pl.ha.2013" , "Plant.De
 
 #  View(Paper.data.I1) ; str(Paper.data.I1) ; names(Paper.data.I1)
 
-Paper.data.I2<-reshape(Paper.data.I2, varying=list(c("Plants2013" , "Plants2014" , "Plants2016")) , v.names=c("PLANT.SURVEY"), times=c(2013,2014,2016), timevar = "SURVEY.YEAR", direction="long");
+Paper.data.I2<-reshape(Paper.data.I1, varying=list(c("Plants2013" , "Plants2014" , "Plants2016")) , v.names=c("PLANT.SURVEY"), times=c(2013,2014,2016), timevar = "SURVEY.YEAR", direction="long");
 
 #  View(Paper.data.I2) ; str(Paper.data.I2) ; names(Paper.data.I2)
 
@@ -328,20 +328,28 @@ Paper.data.V2$DRY.Mg.Ha.Year<-Paper.data.V2$DRY.Mg.Ha/3 ;
 
 #******************** Change made 5/21/20 Yield of last two rows of Fabius (DRY.Mg.Ha.2015, DRY.Mg.Ha.2019) were averaged using the geometric mean . The border row had higher yield, and shadowed the row. That fixed matters. 
 
+Paper.data.V2[which((Paper.data.V2$ROW==131 | Paper.data.V2$ROW==132 ) & Paper.data.V2$HARVEST_YEAR==2015),c('DRY.Mg.Ha')] 
 
-View(Paper.data)
 
-Paper.data[seq(128,132),] 
+Paper.data.Last2Rows.DRY.Mg.Ha.2015<-unique(Paper.data.V2[which((Paper.data.V2$ROW==131 | Paper.data.V2$ROW==132 ) & Paper.data.V2$HARVEST_YEAR==2015),c('DRY.Mg.Ha')] )
 
-Paper.data.Last2Rows.DRY.Mg.Ha<-Paper.data[c(131,132), c('DRY.Mg.Ha.2015','DRY.Mg.Ha.2019' )] 
+Paper.data.Last2Rows.DRY.Mg.Ha.GeoMean.2015<-exp(mean(log(Paper.data.Last2Rows.DRY.Mg.Ha.2015))) ;
 
-Paper.data.Last2Rows.DRY.Mg.Ha.GeoMean<-sapply(Paper.data.Last2Rows.DRY.Mg.Ha, function(x)  exp(mean(log(x)))) ;
+Paper.data.V2[which((Paper.data.V2$ROW==131 | Paper.data.V2$ROW==132 ) & Paper.data.V2$HARVEST_YEAR==2015),c('DRY.Mg.Ha')] <-Paper.data.Last2Rows.DRY.Mg.Ha.GeoMean.2015 ;
 
-Paper.data[131, c('DRY.Mg.Ha.2015','DRY.Mg.Ha.2019' )]<-Paper.data.Last2Rows.DRY.Mg.Ha.GeoMean ;
 
-Paper.data[132, c('DRY.Mg.Ha.2015','DRY.Mg.Ha.2019' )]<-Paper.data.Last2Rows.DRY.Mg.Ha.GeoMean ;
+Paper.data.V2[which((Paper.data.V2$ROW==131 | Paper.data.V2$ROW==132 ) & Paper.data.V2$HARVEST_YEAR==2019),c('DRY.Mg.Ha')] 
 
-Paper.data[c(131,132), c('DRY.Mg.Ha.Year.2015','DRY.Mg.Ha.Year.2019' )]<-Paper.data[c(131,132),c('DRY.Mg.Ha.2015','DRY.Mg.Ha.2019' )]/3 ;
+Paper.data.Last2Rows.DRY.Mg.Ha.2019<-unique(Paper.data.V2[which((Paper.data.V2$ROW==131 | Paper.data.V2$ROW==132 ) & Paper.data.V2$HARVEST_YEAR==2019),c('DRY.Mg.Ha')] )
+
+Paper.data.Last2Rows.DRY.Mg.Ha.GeoMean.2019<-exp(mean(log(Paper.data.Last2Rows.DRY.Mg.Ha.2019))) ;
+
+Paper.data.V2[which((Paper.data.V2$ROW==131 | Paper.data.V2$ROW==132 ) & Paper.data.V2$HARVEST_YEAR==2019),c('DRY.Mg.Ha')] <-Paper.data.Last2Rows.DRY.Mg.Ha.GeoMean.2019 ;
+
+
+
+Paper.data.V2[which(Paper.data.V2$ROW==131 | Paper.data.V2$ROW==132 ) , c('DRY.Mg.Ha.Year')]<-Paper.data.V2[which(Paper.data.V2$ROW==131 | Paper.data.V2$ROW==132 ) , c('DRY.Mg.Ha')]/3 ;
+
 
 ###############################################################################################################
 #                           Print the data in an excel workbook WillowHarvestDataAnalysis.xlsx
