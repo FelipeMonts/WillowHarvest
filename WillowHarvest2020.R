@@ -32,7 +32,7 @@
 
 #      set the working directory
 
-#readClipboard()
+# readClipboard()
 setwd("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowHarvestPaper\\WillowHarvest") ;   # 
 
 
@@ -817,7 +817,6 @@ str(Planted.Rows[c(1,2,3)], max.level=2)
 
 
 
-
 #################          Plant population estimates based on counts of plants 2016             ######################
 
 #########################            Plants by row 2016                     ###########################
@@ -908,6 +907,92 @@ Paper.data$Plant.Density.pl.ha.2014<-Paper.data$Plants2014/ (Paper.data$Area.m2)
 Paper.data$Plant.Density.pl.ha.2016<-Paper.data$Plants2016/ (Paper.data$Area.m2) *10000
 
 # View(Paper.data) ; str(Paper.data)
+
+
+# ###############################################################################################################
+# 
+# 
+#                           SpatialPlant population estimates based on counts of plants 2016
+# 
+###############################################################################################################
+
+
+#### The idea is to use the spatial points of the plant survey 2014 and scaled to the total plants per row obtained in the Survey 2016
+
+#### Separate the data from each planted row and collected into a list Planted.Rows.Points
+
+# Initiallize the list of with a spatialPoligonsDataFrame object for each planted row
+Planted.Rows.Points<-list() ;
+
+
+
+
+
+# N.ROW=94
+
+for (N.ROW in seq(1,N.ROWS+1 ) ){
+  
+  # sampling the lines at each plant sistance of 2 ft  ( 2 * 0.3048 m/ft = 0.6096)  with the function spsample {sp}. 
+  # Based on the diagram of the planting C:\Felipe\Willow_Project\Drawings and Pictures\Final Drawings\Cutting Spacing Rockview20120502.tif 
+  
+  Points.2<-spsample(Tractor.Swath.lines.4@lines[[N.ROW]]@Lines[[1]],n=Tractor.Swath.lines.4@data[N.ROW,c("Row.Length.m")]/0.6096,type="regular") ; # plot(Points.1, add=T)
+  
+  Planted.Rows.Points[[N.ROW]]<-Points.2 ;  #   str(Planted.Rows.Points[[N.ROW]]) ;  View(Planted.Rows.Points[[N.ROW]]) 
+  
+  Planted.Rows[[N.ROW]]$P.2014
+  
+  #  Paper.data$Plants2014[N.ROW]
+  
+  #  Plants.2016$PLANTS[N.ROW]
+  
+   Scale.2016.2014<-Plants.2016$PLANTS[N.ROW] / Paper.data$Plants2014[N.ROW] ;
+  
+   Planted.Rows[[N.ROW]]$P.2016<-Planted.Rows[[N.ROW]]$P.2014*Scale.2016.2014  ; # str(Planted.Rows[[N.ROW]])
+   
+   Planted.Rows.Points[[N.ROW]]<-SpatialPointsDataFrame(Points.2,data.frame(Planted.Rows[[N.ROW]]$P.2016))
+   
+   
+  
+  # Add the cumulative point distance
+  
+#  Planted.Rows[[N.ROW]]<-cbind(Plants.on.theRow.1, Points.1.Cumdistance ) ;   #   str(Planted.Rows.Points[[N.ROW]]) ;  View(Planted.Rows[[N.ROW]]) 
+  
+  rm(list=c('Points.2', 'Scale.2016.2014' ))
+  
+}
+
+
+##### Bind all the spatial points for 2016 together in on SpatialPointsDataframe
+
+#### Initialize the SpatialPointsDataFrame 
+
+Spatial.Points.2016<-Planted.Rows.Points[[1]] ;
+
+for (N.ROW in seq(2,N.ROWS+1 ) ) {
+  
+  NewPlanted.Rows.Points<-bind(Spatial.Points.2016, Planted.Rows.Points[[N.ROW]]) ;
+  
+  Spatial.Points.2016<-NewPlanted.Rows.Points ;
+  
+  rm(NewPlanted.Rows.Points) ;
+  
+  
+  
+}
+
+
+Spatial.Points.2016@proj4string<- CRS("+proj=lcc +lat_1=41.95 +lat_2=40.88333333333333 +lat_0=40.16666666666666 +lon_0=-77.75 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs") ;
+
+
+### write the spatial points data frame as a ESRI shape file to rasterized in QGIS
+
+writeOGR(Spatial.Points.2016,"C:\\Users\\frm10\\Downloads\\Spatial.Points.2016",layer="Spatial.Points.2016", driver="ESRI Shapefile") ;
+
+
+### read the rasterized spatial points data frame, Raster.2016
+
+Raster.2016<-raster("..\\WillowHarvestGIS\\Raster2016.tif",layer="Spatial.Points.2016");
+
 
 # save.image("DataCleaning.RData")
 

@@ -624,10 +624,16 @@ plot(AnalysisHArvest.Plot)
 
 #  str(Paper.data.Plots) ; View(Paper.data.Plots) ;
 
+Paper.data.Plots$TIMETOHARVEST<-3 ;
+
+Paper.data.Plots[Paper.data.Plots$F.HARVEST.YEAR == 2019, c('TIMETOHARVEST')]<-6 ;
+  
+  
+
 AnalysisHArvest.Plot<-nlme::gls(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * F.BLOCK * F.VARIETY  , data=Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]); ### Overfitted
 
 
-AnalysisHArvest.Plot.gls<-nlme::gls(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * (F.BLOCK + F.VARIETY)  , corr=corExp(form=~ F.VARIETY|F.HARVEST.YEAR, nugget=T),
+AnalysisHArvest.Plot.gls<-nlme::gls(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * (F.BLOCK + F.VARIETY)  , corr=corExp(form=~ TIMETOHARVEST|F.BLOCK, nugget=T),
                                     data=Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]);
 
 
