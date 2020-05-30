@@ -73,7 +73,9 @@ setwd("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowHa
 
 # install_github('sorhawell/forestFloor')
 
+# install.packages('nlme', dep=T)
 
+# install.packages('nlme', dep=T)
 
 ###############################################################################################################
 #                           load the libraries that are neded   
@@ -94,6 +96,8 @@ library(devtools)
 # library(rgl)
 
 library(raster)
+
+library(nlme)
 
 ###############################################################################################################
 #                           load data from DataCleaning.RData
@@ -563,27 +567,36 @@ Paper.data.Plots.bar.chart.3<-aggregate(formula= MEAN_PLANT.DENSITY.pl.ha ~  F.S
 
 barplot(MEAN_PLANT.DENSITY.pl.ha  ~ F.SURVEY.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.3, beside=T, legend.text=T,args.legend = list(x = 26 , y = 15000), col=c("YELLOW", "GREEN", "BROWN"),mgp=c(2,1,0), ylab=expression(paste("Plant Density - "," Plants  ","ha"^-1)), xlab="WILLOW CLONE", cex.names=1, ylim=c(0,15000));
 
+
+
+
 ###############################################################################################################
 #                           Analysis using lm 
 ###############################################################################################################
 
-#   str(Paper.data.Plots.mean) ;View(Paper.data.Plots.mean)
+#   str(Paper.data.Plots) ;View(Paper.data.Plots)
 
-AnalysisHArvest2015.Plot<-lm(MEAN_DRY.Mg.Ha.Year.2015 ~ F.BLOCK + F.VARIETY +  MEAN_Plant.Density.pl.ha.2013 +  MEAN_Plant.Density.pl.ha.2014, data=Paper.data.Plots.mean);
+Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]
 
-AnalysisHArvest2015.Plot<-lm(MEAN_DRY.Mg.Ha.Year.2015 ~ F.BLOCK + F.VARIETY * MEAN_Plant.Density.pl.ha.2014, data=Paper.data.Plots.mean);
+AnalysisHArvest.Plot<-lm(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * F.BLOCK * F.VARIETY  , data=Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]); ### Overfitted
 
-anova(AnalysisHArvest2015.Plot, test="F")
-summary(AnalysisHArvest2015.Plot)
-plot(AnalysisHArvest2015.Plot)
-effects(AnalysisHArvest2015.Plot)
 
-AnalysisHArvest2019.Plot<-lm(MEAN_DRY.Mg.Ha.Year.2019 ~ F.BLOCK + F.VARIETY +  MEAN_Plant.Density.pl.ha.2013 +  MEAN_Plant.Density.pl.ha.2014 + MEAN_Plant.Density.pl.ha.2016, data=Paper.data.Plots.mean);
+AnalysisHArvest.Plot<-lm(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * (F.BLOCK + F.VARIETY)  , data=Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]);
 
-anova(AnalysisHArvest2019.Plot,test = "F")
-summary(AnalysisHArvest2019.Plot)
-effects(AnalysisHArvest2019.Plot)
-plot(AnalysisHArvest2019.Plot)
+AnalysisHArvest.Plot<-lm(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * F.VARIETY  , data=Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]);
+
+AnalysisHArvest.Plot<-lm(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * (F.BLOCK + F.VARIETY + (F.SURVEY.YEAR *MEAN_PLANT.DENSITY.pl.ha) ) , data=Paper.data.Plots);
+
+summary(AnalysisHArvest.Plot)
+
+anova(AnalysisHArvest.Plot, test="F")
+
+effects(AnalysisHArvest.Plot)
+
+plot(AnalysisHArvest.Plot)
+
+
+
 
 #########################################################################################################
 #
@@ -597,6 +610,41 @@ plot(AnalysisHArvest2019.Plot)
 #
 #########################################################################################################
 
+
+###############################################################################################################
+#                           Analysis using mixed effects and repeated measure using the nlme package
+#
+#   Edmondson, Rodney, Hans-Peter Piepho, and Muhammad Yaseen. 2019. AgriTutorial: Tutorial Analysis of Some Agricultural Experiments (version 0.1.5).
+#    https://CRAN.R-project.org/package=agriTutorial.
+#
+#   Piepho, H. P., and R. N. Edmondson. 2018. "A Tutorial on the Statistical Analysis of Factorial Experiments with Qualitative and Quantitative Treatment Factor Levels." 
+#   Journal of Agronomy and Crop Science 204 (5): 429-55. https://doi.org/10.1111/jac.12267.
+#    
+###############################################################################################################
+
+#  str(Paper.data.Plots) ; View(Paper.data.Plots) ;
+
+AnalysisHArvest.Plot<-nlme::gls(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * F.BLOCK * F.VARIETY  , data=Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]); ### Overfitted
+
+
+AnalysisHArvest.Plot.gls<-nlme::gls(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * (F.BLOCK + F.VARIETY)  , corr=corExp(form=~ F.VARIETY|F.HARVEST.YEAR, nugget=T),
+                                    data=Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]);
+
+
+AnalysisHArvest.Plot.gls<-nlme::gls(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * F.VARIETY  , data=Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]);
+
+
+
+
+AnalysisHArvest.Plot.gls<-nlme::gls(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * (F.BLOCK + F.VARIETY + (F.SURVEY.YEAR *MEAN_PLANT.DENSITY.pl.ha) ) , data=Paper.data.Plots);
+
+summary(AnalysisHArvest.Plot.gls)
+
+anova(AnalysisHArvest.Plot.gls, test="F")
+
+nlme::Variogram(AnalysisHArvest.Plot.gls)
+
+plot(AnalysisHArvest.Plot)
 
 
 
