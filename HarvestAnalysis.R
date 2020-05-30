@@ -275,7 +275,19 @@ contour(Plant.Survey.2014, add=T) ;
 plot(Plant.Survey.2014, legend.only=T, horizontal =T)
 
 
-Plant.survey.2106
+
+
+Plant.Survey.2016<-Raster.2016*50;
+
+maxValue(Plant.Survey.2016)
+
+
+plot(Plant.Survey.2016, col=terrain.colors(10, rev=T), axes=F, box=F, legend=F, main="Plant Population Survey 2016") ;
+
+contour(Plant.Survey.2016, levels=c(0,30,60,90,120),add=T) ;
+max(Plant.Survey.2016)
+
+plot(Plant.Survey.2016, legend.only=T, horizontal =T)
 
 
 #############################  Statistical Analysis #############################################
