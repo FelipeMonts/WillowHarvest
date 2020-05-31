@@ -151,7 +151,6 @@ Paper.data[seq(128,132),]  #### See This change marked with #*************
 
 
 
-barplot()
 
 
 
@@ -562,14 +561,14 @@ Paper.data.Plots.bar.chart.1<-aggregate(formula= MEAN_DRY.Mg.Ha.Year ~  F.HARVES
 
 #  str(Paper.data.Plots.bar.chart) ; View(Paper.data.Plots.bar.chart)
 
-barplot(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart, beside=T, legend.text=T,args.legend = list(x = 16 , y = 9), col=c("RED", "BLUE"), mgp=c(2,1,0), ylab=expression(paste("Mg ","ha"^-1, "year"^-1)), xlab="WILLOW CLONE", cex.names=1) ;
+barplot(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.1, beside=T, legend.text=T,args.legend = list(x = 16 , y = 9), col=c("RED", "BLUE"), mgp=c(2,1,0), ylab=expression(paste("OD Mg ","ha"^-1, "year"^-1)), xlab="WILLOW CLONE", cex.names=1, main="Biomass Yield") ;
 
 
 ### Bar Chart MEAN_DRY.Mg.Ha
 
 Paper.data.Plots.bar.chart.2<-aggregate(formula= MEAN_DRY.Mg.Ha ~  F.HARVEST.YEAR + F.VARIETY  , FUN=mean , data=Paper.data.Plots) ;
 
-barplot(MEAN_DRY.Mg.Ha ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.2, beside=T, legend.text=T,args.legend = list(x = 16 , y = 28), col=c("RED", "BLUE"),mgp=c(2,1,0), ylab=expression(paste("Mg ","ha"^-1)), xlab="WILLOW CLONE", cex.names=1);
+barplot(MEAN_DRY.Mg.Ha ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.2, beside=T, legend.text=T,args.legend = list(x = 16 , y = 28), col=c("RED", "BLUE"),mgp=c(2,1,0), ylab=expression(paste("OD Mg ","ha"^-1)), xlab="WILLOW CLONE", cex.names=1,main="Biomass Harvested");
 
 
 ### Bar Chart MEAN_PLANT.DENSITY.pl.ha
@@ -577,8 +576,35 @@ barplot(MEAN_DRY.Mg.Ha ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.
 Paper.data.Plots.bar.chart.3<-aggregate(formula= MEAN_PLANT.DENSITY.pl.ha ~  F.SURVEY.YEAR + F.VARIETY  , FUN=mean , data=Paper.data.Plots) ;
 
 
-barplot(MEAN_PLANT.DENSITY.pl.ha  ~ F.SURVEY.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.3, beside=T, legend.text=T,args.legend = list(x = 26 , y = 15000), col=c("YELLOW", "GREEN", "BROWN"),mgp=c(2,1,0), ylab=expression(paste("Plant Density - "," Plants  ","ha"^-1)), xlab="WILLOW CLONE", cex.names=1, ylim=c(0,15000));
+barplot(MEAN_PLANT.DENSITY.pl.ha  ~ F.SURVEY.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.3, beside=T, legend.text=T,args.legend = list(x = 26 , y = 15000), col=c("YELLOW", "GREEN", "BROWN"),mgp=c(2,1,0), ylab=expression(paste(" Plants  ","ha"^-1)), xlab="WILLOW CLONE", cex.names=1, ylim=c(0,15000),main="Plant Density");
 
+
+### plot of total plants vs total harvest
+
+#  View(Paper.data.V2) ; str(Paper.data.V2) 
+
+CLONE="SX61" 
+
+SURVEY="2013"
+HARVEST="2015"
+
+plot(Paper.data.V2[which(Paper.data.V2$VARIETY == CLONE & Paper.data.V2$F.SURVEY.YEAR == SURVEY & Paper.data.V2$HARVEST.YEAR == HARVEST),'PLANT.DENSITY.pl.ha'],
+     Paper.data.V2[which(Paper.data.V2$VARIETY == CLONE & Paper.data.V2$F.SURVEY.YEAR == SURVEY & Paper.data.V2$HARVEST.YEAR == HARVEST),'DRY.Mg.Ha'], col='BLUE',
+     main=paste0(CLONE," SURVEY=",SURVEY ," HARVEST=",HARVEST),ylab="OD Mg" ,xlab="PLANTS / ha",xlim=c(0, 12000)) ;
+
+SURVEY="2014"
+
+points(Paper.data.V2[which(Paper.data.V2$VARIETY == CLONE & Paper.data.V2$F.SURVEY.YEAR == SURVEY & Paper.data.V2$HARVEST.YEAR == HARVEST),'PLANT.DENSITY.pl.ha'],
+       Paper.data.V2[which(Paper.data.V2$VARIETY == CLONE & Paper.data.V2$F.SURVEY.YEAR == SURVEY & Paper.data.V2$HARVEST.YEAR == HARVEST),'DRY.Mg.Ha'], col='RED') ;
+legend(x='top', legend=c("2013", "2014"), text.col = c("BLUE" , "RED"))
+
+
+SURVEY="2016"
+HARVEST="2019"
+
+plot(Paper.data.V2[which(Paper.data.V2$VARIETY == CLONE & Paper.data.V2$F.SURVEY.YEAR == SURVEY & Paper.data.V2$HARVEST.YEAR == HARVEST),'PLANT.DENSITY.pl.ha'],
+     Paper.data.V2[which(Paper.data.V2$VARIETY == CLONE & Paper.data.V2$F.SURVEY.YEAR == SURVEY & Paper.data.V2$HARVEST.YEAR == HARVEST),'DRY.Mg.Ha'], col='BLACK', 
+     main=paste0(CLONE," SURVEY=",SURVEY ," HARVEST=",HARVEST),ylab="OD Mg" ,xlab="PLANTS / ha") ;
 
 
 
