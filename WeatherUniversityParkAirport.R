@@ -96,9 +96,9 @@ library(devtools)
 
 # library(rgl)
 
-library(raster)
-
-library(nlme)
+# library(raster)
+# 
+# library(nlme)
 
 ###############################################################################################################
 #                           Read the data from the text files
@@ -112,7 +112,7 @@ University.Park.Weather.1<-read.table(file='6094568232309dat.txt', header=T, as.
 
 ### convert YR..MODAHRMN to .POSIXct date time format
 
-University.Park.Weather.1$Date.Time<-as.POSIXct(as.character(University.Park.Weather$YR..MODAHRMN), tz = "", format=c("%Y%m%d%H%M")) ;
+University.Park.Weather.1$Date.Time<-as.POSIXct(as.character(University.Park.Weather.1$YR..MODAHRMN), tz = "", format=c("%Y%m%d%H%M")) ;
 
 ### Aggregate  the data by months to plot 
 
@@ -132,7 +132,29 @@ University.Park.Temp.Pcp<-University.Park.Temp ;
 University.Park.Temp.Pcp[is.na(University.Park.Temp.Pcp$PCP01),c('PCP01')]<-0 ;
 
 
+###############################################################################################################
+#
+#                           Transform the data to SI units
+#
+#                 https://www.nist.gov/pml/weights-and-measures/si-units
+#                  https://www.nist.gov/pml/special-publication-330
+#
+###############################################################################################################
 
+
+
+###### Transform the data to SI units #########
+
+# View(University.Park.Temp.Pcp)  ; str(University.Park.Temp.Pcp)
+
+
+University.Park.Temp.Pcp$TEMP_C<-(University.Park.Temp.Pcp$TEMP-32)/1.8 ;
+
+University.Park.Temp.Pcp$MAX_C<-(University.Park.Temp.Pcp$MAX-32)/1.8  ;
+
+University.Park.Temp.Pcp$MIN_C<-(University.Park.Temp.Pcp$MIN-32)/1.8   ;
+
+University.Park.Temp.Pcp$PCP_MM<-University.Park.Temp.Pcp$PCP01*25.4  ;
 
 ###############################################################################################################
 #                           Read the data from the text files
@@ -162,13 +184,10 @@ University.Park.Temp.Pcp$Date.Year.Month<-as.Date(paste0(as.character(University
 
 # find the range of values to be plotted
 
-Pcp.range<-range(University.Park.Temp.Pcp$PCP01) ; 
+Pcp.range<-range(University.Park.Temp.Pcp$PCP_MM) ; 
 
-Temp.range<-range(range(University.Park.Temp.Pcp[,c('TEMP')]),range(University.Park.Temp.Pcp[!is.na(University.Park.Temp.Pcp$MAX),c('MAX')]), range(University.Park.Temp.Pcp[!is.na(University.Park.Temp.Pcp$MIN),c('MIN')])) ; 
+Temp.range<-range(range(University.Park.Temp.Pcp[,c('TEMP_C')]),range(University.Park.Temp.Pcp[!is.na(University.Park.Temp.Pcp$MAX_C),c('MAX_C')]), range(University.Park.Temp.Pcp[!is.na(University.Park.Temp.Pcp$MIN_C),c('MIN_C')])) ; 
 
-
-
-range(University.Park.Temp.Pcp[!is.na(University.Park.Temp.Pcp$MIN),c('MIN')])
 
 DateTime.range<-range(University.Park.Weather.1[!is.na(University.Park.Weather.1$Date.Time),"Date.Time"]);
 
@@ -179,52 +198,55 @@ DateTime.range.2<-DateTime.range ;
 DateTime.range.2[2]<-as.Date(DateTime.range[2])+365
 
 
+##### Create the graphics in EPS Postscript format ######
 
+postscript(file="Figure1Weather.eps" , onefile=F, width=8, height=4, paper= "letter")
 
 
 par(mar=c(3,5,1,4)+0.1);
 
 #  plot the pcp
-plot(University.Park.Temp.Pcp$Date.Year.Month, University.Park.Temp.Pcp$PCP01, type="h",yaxt="n",xaxt="n", ylim=rev(c(0,4*pcp.range[2])), bty="n", main="University Park Airport",col="light blue",ylab=NA,xlab=NA, lwd=3);
+plot(University.Park.Temp.Pcp$Date.Year.Month, University.Park.Temp.Pcp$PCP_MM, type="h",yaxt="n",xaxt="n", ylim=rev(c(0,4*Pcp.range[2])), bty="n", main="University Park Airport",col="light blue",ylab=NA,xlab=NA, lwd=3);
 
 # add axis with proper labeling
 
 axis(side = 3, pos = 0, tck = 0,xaxt = "n") ;
-axis(side = 4, at = pretty(seq(0, floor(pcp.range[2] + 1),length=c(5))),labels=pretty(seq(0, floor(pcp.range[2] + 1),length=c(5)))) ;
-mtext(side=4,"Precip in",line = 2, cex = 0.9, adj = 0.8) ;
+axis(side = 4, at = pretty(seq(0, floor(Pcp.range[2] + 1),length=c(5))),labels=pretty(seq(0, floor(Pcp.range[2] + 1),length=c(5)))) ;
+mtext(side=4,"Precipitation mm",line = 2, cex = 0.9, adj = 0.95) ;
 
 #add Temp  plot
 par(new=T);
 
 par(mar=c(5.1, 4.1, 4.1 ,2.1))
 
-plot(University.Park.Temp.Pcp$Date.Year.Month,University.Park.Temp.Pcp$TEMP, type='l',col="BLACK",axes=F,yaxt="n", ylab="Temperature °C",xlab="date", ylim =c(2*Temp.range[1],1.2*Temp.range[2]));
+plot(University.Park.Temp.Pcp$Date.Year.Month,University.Park.Temp.Pcp$TEMP_C, type='l',col="BLACK",axes=F,yaxt="n", ylab="Temperature °C",xlab="Date", ylim =c(-25,40));
 
 #coordinates for the Temp max min polygon
 
 #  View(University.Park.Temp.Pcp) ; str(University.Park.Temp.Pcp)  ; names(University.Park.Temp.Pcp)
 
-Polygon.coords<-University.Park.Temp.Pcp[seq(7,96),c("TEMP" , "MAX" , "MIN" , "PCP01", "Date.Year.Month")] ;
+Polygon.coords<-University.Park.Temp.Pcp[seq(7,96),c("TEMP_C" , "MAX_C" , "MIN_C" , "PCP_MM", "Date.Year.Month")] ;
 
-Polygon.coords[1,c("MAX", "MIN")]<-(Temp.range[1]+Temp.range[2])/2 ;
+Polygon.coords[1,c("MAX_C", "MIN_C")]<-(Temp.range[1]+Temp.range[2])/2 ;
 
-polygon(x=c(Polygon.coords$Date.Year.Month, rev(Polygon.coords$Date.Year.Month)), y=c(Polygon.coords$MAX,rev(Polygon.coords$MIN)),col=gray(0.5,0.5))
+polygon(x=c(Polygon.coords$Date.Year.Month, rev(Polygon.coords$Date.Year.Month)), y=c(Polygon.coords$MAX,rev(Polygon.coords$MIN)),col="GRAY")
 
 
 #add axis with appropriate labels
 axis.Date(side=1, at=seq(DateTime.range[1],DateTime.range.2[2],by='year')) 
 
 #axis.POSIXct(side=1,University.Park.Temp.Pcp$Date.Year.Month, at=seq(DateTime.range[1],DateTime.range[2],length.out=5),labels=format(seq(DateTime.range[1],DateTime.range[2],length.out=5),"%Y")) ;
-axis(side=2,at=pretty(seq(floor(2*Temp.range[1]-1),floor(Temp.range[2]+1),length=10))) ;
+axis(side=2,at=pretty(seq(-25,40,length=15))) ;
 
 
 #add aditional flow data 
-lines(University.Park.Temp.Pcp$Date.Year.Month,University.Park.Temp.Pcp$TEMP, col="BLACK")
+lines(University.Park.Temp.Pcp$Date.Year.Month,University.Park.Temp.Pcp$TEMP_C, col="BLACK")
 
-lines(University.Park.Temp.Pcp$Date.Year.Month,University.Park.Temp.Pcp$MAX, col="RED")
+lines(University.Park.Temp.Pcp$Date.Year.Month,University.Park.Temp.Pcp$MAX_C, col="RED")
 
-lines(University.Park.Temp.Pcp$Date.Year.Month,University.Park.Temp.Pcp$MIN, col="BLUE")
+lines(University.Park.Temp.Pcp$Date.Year.Month,University.Park.Temp.Pcp$MIN_C, col="BLUE")
 
-#dev.off()
+
+invisible(dev.off())
 
 

@@ -579,7 +579,7 @@ Paper.data.Plots.bar.chart.3<-aggregate(formula= MEAN_PLANT.DENSITY.pl.ha ~  F.S
 barplot(MEAN_PLANT.DENSITY.pl.ha  ~ F.SURVEY.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.3, beside=T, legend.text=T,args.legend = list(x = 26 , y = 15000), col=c("YELLOW", "GREEN", "BROWN"),mgp=c(2,1,0), ylab=expression(paste(" Plants  ","ha"^-1)), xlab="WILLOW CLONE", cex.names=1, ylim=c(0,15000),main="Plant Density");
 
 
-### plot of total plants vs total harvest
+###########   plot of total plants per ha  vs total harvest per ha
 
 #  View(Paper.data.V2) ; str(Paper.data.V2) 
 
@@ -605,6 +605,14 @@ HARVEST="2019"
 plot(Paper.data.V2[which(Paper.data.V2$VARIETY == CLONE & Paper.data.V2$F.SURVEY.YEAR == SURVEY & Paper.data.V2$HARVEST.YEAR == HARVEST),'PLANT.DENSITY.pl.ha'],
      Paper.data.V2[which(Paper.data.V2$VARIETY == CLONE & Paper.data.V2$F.SURVEY.YEAR == SURVEY & Paper.data.V2$HARVEST.YEAR == HARVEST),'DRY.Mg.Ha'], col='BLACK', 
      main=paste0(CLONE," SURVEY=",SURVEY ," HARVEST=",HARVEST),ylab="OD Mg" ,xlab="PLANTS / ha") ;
+
+
+
+
+0(CLONE," SURVEY=",SURVEY ," HARVEST=",HARVEST),ylab="OD Mg" ,xlab="PLANTS / ha") ;
+
+
+
 
 
 
@@ -662,10 +670,6 @@ plot(AnalysisHArvest.Plot)
 
 #  str(Paper.data.Plots) ; View(Paper.data.Plots) ;
 
-Paper.data.Plots$TIMETOHARVEST<-3 ;
-
-Paper.data.Plots[Paper.data.Plots$F.HARVEST.YEAR == 2019, c('TIMETOHARVEST')]<-6 ;
-  
   
 
 AnalysisHArvest.Plot<-nlme::gls(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * F.BLOCK * F.VARIETY  , data=Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]); ### Overfitted
@@ -698,6 +702,8 @@ plot(AnalysisHArvest.Plot)
 ###############################################################################################################
 
 #  View(Paper.data) ; str(Paper.data) 
+
+
 
 
 
