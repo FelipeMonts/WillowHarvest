@@ -200,7 +200,7 @@ DateTime.range.2[2]<-as.Date(DateTime.range[2])+365
 
 ##### Create the graphics in EPS Postscript format ######
 
-postscript(file="Figure1Weather.eps" , onefile=F, width=8, height=4, paper= "letter")
+postscript(file="..\\Agronomy Journal\\Figure1Weather.eps" , onefile=F, width=8, height=4, paper= "letter")
 
 
 par(mar=c(3,5,1,4)+0.1);

@@ -255,23 +255,37 @@ Paper.data[seq(128,132),]  #### See This change marked with #*************
 ###############################################################################################################
 #                           Figure 1
 ###############################################################################################################
+
+# create standard colors and break points for the figures of the spatila plant distribution according to the surveys
+
+Survey.Raster.Levels<-seq(0,120,10) ;
+
+Survey.Raster.Colors<-terrain.colors(13, rev=T)
++
+
+postscript(file="..\\Agronomy Journal\\Figure2Surveys.eps" , onefile=F, width=8, height=4, paper= "letter") ;
+
+par(mfcol=c(1,3))
+
+
 Plant.Survey.2013<-mask(raster(Plants.2013.Tps.sp.V1)*50,Boundary.Polygon);
 
-plot(Plant.Survey.2013, col=terrain.colors(10, rev=T), axes=F, box=F, legend=F, main="Plant Population Survey 2013");
+
+plot(Plant.Survey.2013, breaks=Survey.Raster.Levels, col=Survey.Raster.Colors, axes=F, box=F, legend=F, main="2013");
 
 contour(Plant.Survey.2013, add=T) ;
 
-plot(Plant.Survey.2013, legend.only=T, horizontal =T); 
+#plot(Plant.Survey.2013, legend.only=T, breaks=Survey.Raster.Levels, col=Survey.Raster.Colors, horizontal =T); 
 
 
 
 Plant.Survey.2014<-mask(raster(Plants.2014.Tps.sp.V1)*50,Boundary.Polygon);
 
-plot(Plant.Survey.2014, col=terrain.colors(10, rev=T), axes=F, box=F, legend=F, main="Plant Population Survey 2014") ;
+plot(Plant.Survey.2014, breaks=Survey.Raster.Levels, col=Survey.Raster.Colors, axes=F, box=F, legend=F, main="2014") ;
 
 contour(Plant.Survey.2014, add=T) ;
 
-plot(Plant.Survey.2014, legend.only=T, horizontal =T)
+plot(Plant.Survey.2014, breaks=Survey.Raster.Levels, col=Survey.Raster.Colors, legend.only=T, horizontal =T, legend.shrink=1.1)
 
 
 
@@ -280,14 +294,18 @@ Plant.Survey.2016<-Raster.2016*50;
 
 maxValue(Plant.Survey.2016)
 
+### reduce the max values to 120 to be able to plot in the same color and break format
 
-plot(Plant.Survey.2016, col=terrain.colors(10, rev=T), axes=F, box=F, legend=F, main="Plant Population Survey 2016") ;
+Plant.Survey.2016@data@values[which(Plant.Survey.2016@data@values>120)]<-120
 
-contour(Plant.Survey.2016, levels=c(0,30,60,90,120),add=T) ;
+plot(Plant.Survey.2016, breaks=Survey.Raster.Levels, col=Survey.Raster.Colors, axes=F, box=F, legend=F, main="2016", interpolate=T) ;
+
+contour(Plant.Survey.2016, levels=c(0,20,40,60,80,100,120), add=T) ;
 max(Plant.Survey.2016)
 
-plot(Plant.Survey.2016, legend.only=T, horizontal =T)
+#plot(Plant.Survey.2016, breaks=Survey.Raster.Levels, col=Survey.Raster.Colors,legend.only=T, horizontal =T, legend.shrink=1.1)
 
+invisible(dev.off())
 
 #############################  Statistical Analysis #############################################
 
@@ -609,11 +627,6 @@ plot(Paper.data.V2[which(Paper.data.V2$VARIETY == CLONE & Paper.data.V2$F.SURVEY
 
 
 
-0(CLONE," SURVEY=",SURVEY ," HARVEST=",HARVEST),ylab="OD Mg" ,xlab="PLANTS / ha") ;
-
-
-
-
 
 
 ###############################################################################################################
@@ -670,12 +683,14 @@ plot(AnalysisHArvest.Plot)
 
 #  str(Paper.data.Plots) ; View(Paper.data.Plots) ;
 
-  
 
 AnalysisHArvest.Plot<-nlme::gls(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * F.BLOCK * F.VARIETY  , data=Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]); ### Overfitted
 
 
-AnalysisHArvest.Plot.gls<-nlme::gls(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * (F.BLOCK + F.VARIETY)  , corr=corExp(form=~ TIMETOHARVEST|F.BLOCK, nugget=T),
+#AnalysisHArvest.Plot.gls<-nlme::gls(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * (F.BLOCK + F.VARIETY)  , corr=corExp(form=~ TIMETOHARVEST|F.BLOCK, nugget=T),
+#                                    data=Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]);
+
+AnalysisHArvest.Plot.gls<-nlme::gls(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * (F.BLOCK + F.VARIETY),
                                     data=Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]);
 
 
@@ -701,32 +716,87 @@ plot(AnalysisHArvest.Plot)
 #                           Statistical Analysis using row as experimental unit
 ###############################################################################################################
 
-#  View(Paper.data) ; str(Paper.data) 
+#  View(Paper.data.V2) ; str(Paper.data.V2) 
+
+
+##### Use length as weight for the statistical analysis
+
+hist(Paper.data$Length.m)
+
+diff(range(Paper.data$Length.m) )
+
+median(Paper.data$Length.m)
+
+sum(scale(Paper.data$Length.m,center=F,scale=T))/length(Paper.data$Length.m) 
+
+
+Paper.data.V2$W.Length.m<-scale(Paper.data.V2$Length.m,center=F,scale=T) ;
+
+Paper.data.V2$F.ROW<-as.factor(Paper.data.V2$ROW)
+
+
+###############################################################################################################
+#                           Analysis using lm 
+###############################################################################################################
+
+
+AnalysisHarvest.Rows.lm <-lm(DRY.Mg.Ha ~ W.Length.m * F.VARIETY * F.HARVEST.YEAR , data=Paper.data.V2[which(Paper.data.V2$F.SURVEY.YEAR==2013),])
+
+summary(AnalysisHarvest.Rows.lm)
+
+anova(AnalysisHarvest.Rows.lm)
+
+plot(AnalysisHarvest.Rows.lm)
+
+
+
+AnalysisHarvest.Rows.lm<-lm(DRY.Mg.Ha ~ W.Length.m * F.VARIETY * F.HARVEST.YEAR  + (F.SURVEY.YEAR * PLANT.DENSITY.pl.ha)*W.Length.m , data=Paper.data.V2)
+
+summary(AnalysisHarvest.Rows.lm)
+
+anova(AnalysisHarvest.Rows.lm)
+
+plot(AnalysisHarvest.Rows.lm)
 
 
 
 
+###############################################################################################################
+#                           Analysis using mixed effects and repeated measure using the nlme package
+#
+#   Edmondson, Rodney, Hans-Peter Piepho, and Muhammad Yaseen. 2019. AgriTutorial: Tutorial Analysis of Some Agricultural Experiments (version 0.1.5).
+#    https://CRAN.R-project.org/package=agriTutorial.
+#
+#   Piepho, H. P., and R. N. Edmondson. 2018. "A Tutorial on the Statistical Analysis of Factorial Experiments with Qualitative and Quantitative Treatment Factor Levels." 
+#   Journal of Agronomy and Crop Science 204 (5): 429-55. https://doi.org/10.1111/jac.12267.
+#    
+###############################################################################################################
 
-AnalysisHArvest2015.Row<-lm(DRY.Mg.Ha.Year.2015  ~ F.BLOCK + F.VARIETY + Plant.Density.pl.ha.2013 +  Plant.Density.pl.ha.2014 + Plant.Density.pl.ha.2016, data=Paper.data[1:131,], );
 
-AnalysisHArvest2015.RowV2<-lm(DRY.Mg.Ha.Year.2015  ~ F.BLOCK + F.VARIETY * Plant.Density.pl.ha.2014, data=Paper.data[1:131,], );
+AnalysisHarvest.Rows<-nlme::gls(DRY.Mg.Ha ~ W.Length.m * F.VARIETY * F.HARVEST.YEAR , data=Paper.data.V2[which(Paper.data.V2$F.SURVEY.YEAR==2013),])
 
-summary(AnalysisHArvest2015.RowV2)
+summary(AnalysisHarvest.Rows)
 
-anova(AnalysisHArvest2015.RowV2, test= "F")
+anova(AnalysisHarvest.Rows)
 
-plot(AnalysisHArvest2015.Row)
+nlme::Variogram(AnalysisHarvest.Rows)
+
+plot(AnalysisHarvest.Rows)
 
 
-AnalysisHArvest2019.Row<-lm(DRY.Mg.Ha.Year.2019 ~ F.BLOCK + F.VARIETY +  Plant.Density.pl.ha.2013  +   Plant.Density.pl.ha.2014 + Plant.Density.pl.ha.2016, data=Paper.data[1:131,])
 
-AnalysisHArvest2019.RowV2<-lm(DRY.Mg.Ha.Year.2019 ~ F.BLOCK + F.VARIETY * Plant.Density.pl.ha.2016, data=Paper.data[1:131,])
+AnalysisHarvest.Rows<-nlme::gls(DRY.Mg.Ha ~ W.Length.m * F.VARIETY * F.HARVEST.YEAR  + (F.SURVEY.YEAR * PLANT.DENSITY.pl.ha)*W.Length.m , data=Paper.data.V2)
 
-summary(AnalysisHArvest2019.RowV2)
 
-anova(AnalysisHArvest2019.RowV2, test= "F")
+#[which(Paper.data.V2$F.SURVEY.YEAR==2013),])
 
-plot(AnalysisHArvest2019.Row)
+summary(AnalysisHarvest.Rows)
+
+anova(AnalysisHarvest.Rows)
+
+nlme::Variogram(AnalysisHarvest.Rows)
+
+plot(AnalysisHarvest.Rows)
 
 
 ###############################################################################################################
