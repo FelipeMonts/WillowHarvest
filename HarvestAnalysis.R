@@ -571,6 +571,22 @@ saveWorkbook(Willow.Harvest.wb, file=paste0('../WillowHarvestDataAnalysis', form
 
 #  str(Paper.data.Plots)
 
+postscript(file="..\\Agronomy Journal\\Figure5Harvest.eps" , onefile=F, width=8, height=6, paper= "letter")
+
+# par("mar")  default (5.1 4.1 4.1 2.1)
+
+par(mar=c(5.1, 4.1, 4.1 ,4.1))
+
+### Bar Chart MEAN_DRY.Mg.Ha
+
+Paper.data.Plots.bar.chart.2<-aggregate(formula= MEAN_DRY.Mg.Ha ~  F.HARVEST.YEAR + F.VARIETY  , FUN=mean , data=Paper.data.Plots) ;
+
+barplot(MEAN_DRY.Mg.Ha ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.2, beside=T, legend.text=T,args.legend = list(x = 16 , y = 26), col=c("RED", "BLUE"),mgp=c(2,1,0), ylab=expression(paste("OD Mg ","ha"^-1)), xlab="Genetic Material", cex.names=0.8,main="Biomass Yield");
+
+
+#add Temp  plot
+par(new=T);
+
 
 ### Bar Chart MEAN_DRY.Mg.Ha.Year
 
@@ -579,14 +595,16 @@ Paper.data.Plots.bar.chart.1<-aggregate(formula= MEAN_DRY.Mg.Ha.Year ~  F.HARVES
 
 #  str(Paper.data.Plots.bar.chart) ; View(Paper.data.Plots.bar.chart)
 
-barplot(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.1, beside=T, legend.text=T,args.legend = list(x = 16 , y = 9), col=c("RED", "BLUE"), mgp=c(2,1,0), ylab=expression(paste("OD Mg ","ha"^-1, "year"^-1)), xlab="WILLOW CLONE", cex.names=1, main="Biomass Yield") ;
+barplot(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.1, beside=T, col=c("RED", "BLUE"), axes=F, ylab="", names=c(rep("",6)),xlab="") ;
+        
+axis(side=4, mgp=c(4,1,0)) ;
+
+mtext(expression(paste("OD Mg ","ha"^-1, "year"^-1)), side=4, line=2) 
+
+invisible(dev.off())
 
 
-### Bar Chart MEAN_DRY.Mg.Ha
 
-Paper.data.Plots.bar.chart.2<-aggregate(formula= MEAN_DRY.Mg.Ha ~  F.HARVEST.YEAR + F.VARIETY  , FUN=mean , data=Paper.data.Plots) ;
-
-barplot(MEAN_DRY.Mg.Ha ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.2, beside=T, legend.text=T,args.legend = list(x = 16 , y = 28), col=c("RED", "BLUE"),mgp=c(2,1,0), ylab=expression(paste("OD Mg ","ha"^-1)), xlab="WILLOW CLONE", cex.names=1,main="Biomass Harvested");
 
 
 ### Bar Chart MEAN_PLANT.DENSITY.pl.ha

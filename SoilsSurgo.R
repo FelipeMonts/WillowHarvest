@@ -61,8 +61,9 @@ setwd("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowHa
 # install.packages("reshape")
 # install.packages("dplyr", dep=TRUE)
 # install.packages("aqp", dep=TRUE)
-
-
+# install.packages("maps", dep=TRUE)
+# install.packages("png", dep=TRUE)
+# install.packages("tmap", dep=TRUE)
 
 
 
@@ -90,8 +91,8 @@ library(tidyr)  ;
 library(devtools) ;
 library(stats)
 library(DescTools);
-
-
+library(openxlsx)
+library(tmap)
 
 # ########################## import the Shape file with the GSSURGO Data for RockView ####################
 # 
@@ -197,12 +198,92 @@ plot(Mukey.Pedon, name='hzname',color='dbthirdbar_r')  ;
 
 explainPlotSPC(Mukey.Pedon, name='name')
 
+#    Get the Color from the Pedon Description at    https://ncsslabdatamart.sc.egov.usda.gov/querypage.aspx  
+
+Pedons.Info<-read.xlsx("..\\Soils\\PedonColor.xlsx", sheet="Color")
+
+str(Pedons.Info)
+Pedons.Info$hue<-sapply(strsplit(Pedons.Info$Main_Color,split=" "),'[', 1) ;
+
+Pedons.Info$value<-sapply(strsplit(sapply(strsplit(Pedons.Info$Main_Color,split=" "),'[', 2), split="/"),'[', 1) ;
+
+Pedons.Info$chroma<-sapply(strsplit(sapply(strsplit(Pedons.Info$Main_Color,split=" "),'[', 2), split="/"),'[', 2) ;
+
+Pedons.Info$RGBColor<-munsell2rgb(the_hue = Pedons.Info$hue, the_value = Pedons.Info$value , the_chroma = Pedons.Info$chroma) ;
+
+#  Transform the Pedon.info query in to the right format to be converted into a SoilProfileCollection object
+#   https://ncss-tech.github.io/AQP/aqp/aqp-intro.html
+
+depths(Pedons.Info)<-pedon_key~hzn_top + hzn_bot ;
+
+plot(Pedons.Info, name='hzn_desgn', color='RGBColor')
+
+View(Pedons.Info@horizons)
+
+
+### The pedon that is more representative of the Rock view site is  04N0805. This is the one that is going to be used in the figure for the paper
+
+Pedon.04N0805<-Pedons.Info[1] ; 
+
+str(Pedon.04N0805@horizons)
+
+Pedon.04N0805.horizons<-Pedon.04N0805@horizons ;
+
+Pedon.04N0805.PSD<-read.csv("..\\Soils\\Pedon04N0805\\PSDA_and_Rock_Fragments.csv", header = T) ;
+
+Pedon.04N0805.Organic<-read.csv("..\\Soils\\Pedon04N0805\\Carbon_and_Extractions.csv", header = T) ;
+
+Pedon.04N0805.BD<-read.csv("..\\Soils\\Pedon04N0805\\Bulk_Density_and_Moisture.csv", header = T) ;
+
+Pedon.04N0805.pH<-read.csv("..\\Soils\\Pedon04N0805\\pH_and_Carbonates.csv", header = T) ;
+
+      
+Pedon.04N0805.Other<-data.frame(Pedon.04N0805.PSD [, c("layer_key","Clay_3A1a1a_Sjj_39_SSL_0_0" , "Silt_d.1_S" , "Sand_d.1_S" , "wp25_d.1_S" , "wp520_d.1_S" , "wp2075_d.1_S" , "wp0175_d.1_S" , "wpG2_d.1_S")],  Pedon.04N0805.Organic[, c(14,18)],Pedon.04N0805.BD[,c("Db13b_3B1b_Caj_0_SSL_0_0")], Pedon.04N0805.pH[ , c( "pHh2o_4C1a2a1_Sjj_73_SSL_0_0")] )  ;
+
+Pedon.04N0805@horizons<-merge(Pedon.04N0805.horizons,Pedon.04N0805.Other, by="layer_key", all.x=T) ;
+
+str(Pedon.04N0805)
+
+explainPlotSPC(Pedon.04N0805, name='hzn_desgn', color='RGBColor')
+
+plotSPC(Pedon.04N0805, name='hzn_desgn', color='RGBColor', width=0.05, cex.depth.axis = 1.5, print.id = F, plot.depth.axis=F)
+addVolumeFraction(Pedon.04N0805, colname='wp25_d.1_S', cex.min = 0.1, cex.max=0.1)
+addVolumeFraction(Pedon.04N0805, colname='wp0175_d.1_S', cex.min = 0.2, cex.max=0.5)
+addVolumeFraction(Pedon.04N0805, colname='wpG2_d.1_S', cex.min = 1, cex.max=2)
+
+explainPlotSPC(Pedon.04N0805, name='hzn_desgn', color='RGBColor')
 
 
 
+#### Arrange the data for the profile properties plotting
+
+Pedon.04N0805.1<-Pedon.04N0805@horizons[,c("layer_key", "hzID", 'hzn_top', 'hzn_bot', 'hzn_desgn', 'Clay_3A1a1a_Sjj_39_SSL_0_0' , 'Silt_d.1_S' , 'Sand_d.1_S' , 'Ctot_4H2a_Sjf_8_SSL_0_0' , 'Ntot_4H2a_Sjf_8_SSL_0_0', 'Pedon.04N0805.BD...c..Db13b_3B1b_Caj_0_SSL_0_0...' , 'Pedon.04N0805.pH...c..pHh2o_4C1a2a1_Sjj_73_SSL_0_0...' )] ;
+
+Pedon.04N0805.2<-reshape(data=Pedon.04N0805.1, varying=list(names(Pedon.04N0805.1)[6:12]) , direction= 'long', idvar=c('layer_key', 'hzn_desgn', 'hzID', 'hzn_top', 'hzn_bot'), v.names='Values',times=c("Clay %", "Silt %","Sand %" ,"T. Carbon" , "T. Nitrogen","B. Density",  "pH"))
 
 
 
+postscript(file="..\\Agronomy Journal\\Figure2Soil.eps" , onefile=F, width=8, height=2, paper= "letter")
 
+par(mar=c(1,3,1,1),xpd=NA)
+
+layout(matrix(c(1, rep(0,7)), 1,8, byrow=T))
+
+plotSPC(Pedon.04N0805, name='hzn_desgn', color='RGBColor', width=0.25, print.id = F, plot.depth.axis=F)
+addVolumeFraction(Pedon.04N0805, colname='wp25_d.1_S', cex.min = 0.1, cex.max=0.1)
+addVolumeFraction(Pedon.04N0805, colname='wp0175_d.1_S', cex.min = 0.2, cex.max=0.5)
+addVolumeFraction(Pedon.04N0805, colname='wpG2_d.1_S', cex.min = 1, cex.max=2)
+
+Plot.2<-xyplot(hzn_top ~ Values | time, data=Pedon.04N0805.2, index.cond=list(c(2,5,4,1,6,7,3)), ylim=c(130,-2), ylab=NULL,ylab.right="Depth cm", strip=strip.custom(bg=grey(0.8),par.strip.text=list(cex=0.8)), par.strip.text=list(cex=0.8),layout=c(7,1), type="b", grid=T, col.line="BLACK", col.symbol="BLACK", bg="BLACK" ,lwd=2,scales=list(x=list(tick.number=4, alternating=3, relation="free", cex=0.8), y=list(draw=T,relation="same", alternating=2)))
+
+
+print(Plot.2, position=c(0.125,0,1,1),more=T)
+
+
+invisible(dev.off())
+
+### Creating the map of north america with the location of the plot using the package maps  https://cran.r-project.org/web/packages/maps/
+
+tm_shape(world) + tm_polygons() 
 
 
