@@ -77,6 +77,8 @@ setwd("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowHa
 
 # install.packages('nlme', dep=T)
 
+# install.packages('broom', dep=T)
+
 ###############################################################################################################
 #                           load the libraries that are neded   
 ###############################################################################################################
@@ -98,6 +100,7 @@ library(devtools)
 library(raster)
 
 library(nlme)
+library(broom)
 
 ###############################################################################################################
 #                           load data from DataCleaning.RData
@@ -658,21 +661,123 @@ Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]
 AnalysisHArvest.Plot<-lm(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * F.BLOCK * F.VARIETY  , data=Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]); ### Overfitted
 
 
-AnalysisHArvest.Plot<-lm(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * (F.BLOCK + F.VARIETY)  , data=Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]);
+AnalysisHArvest.Plot.TS1<-lm(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * (F.BLOCK + F.VARIETY)  , data=Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]); ### Table S1
 
-AnalysisHArvest.Plot<-lm(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * F.VARIETY  , data=Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]);
+summary(AnalysisHArvest.Plot.TS1)
 
-AnalysisHArvest.Plot<-lm(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * (F.BLOCK + F.VARIETY + (F.SURVEY.YEAR *MEAN_PLANT.DENSITY.pl.ha) ) , data=Paper.data.Plots);
+anova(AnalysisHArvest.Plot.TS1, test="F")
 
-summary(AnalysisHArvest.Plot)
+TS1<-tidy(anova(AnalysisHArvest.Plot.TS1, test="F"))
 
-anova(AnalysisHArvest.Plot, test="F")
-
-effects(AnalysisHArvest.Plot)
-
-plot(AnalysisHArvest.Plot)
+TS1.coeff<-tidy(AnalysisHArvest.Plot.TS1)
 
 
+
+AnalysisHArvest.Plot.T1<-lm(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * F.VARIETY  , data=Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]);### Table 1
+
+summary(AnalysisHArvest.Plot.T1)
+
+anova(AnalysisHArvest.Plot.T1, test="F")
+
+T1<-tidy(anova(AnalysisHArvest.Plot.T1, test="F"))
+
+T1.coeff<-tidy(AnalysisHArvest.Plot.T1)
+
+
+
+###############################################################################################################
+#                           Analysis using lm  and adding a dummy variable to include the survey year
+###############################################################################################################
+
+# View(Paper.data.Plots)  ;  str(Paper.data.Plots)
+
+#  For three different cathegories, two dummy variables are needed to differentiate between them; [z1, z2] where z1={1, 0, 0} and z2={0, 1, 0}
+#  See Draper and Smith, 1998. Applied Regression Analysis
+# 
+
+Paper.data.Plots$Z1<-Paper.data.Plots$Z2<-0 ;
+
+# Dummy variables for survey year 2013 = {z1=1, z2=0}
+
+Paper.data.Plots[Paper.data.Plots$F.SURVEY.YEAR == "2013", c("Z1")]<-1 ;
+Paper.data.Plots[Paper.data.Plots$F.SURVEY.YEAR == "2013", c("Z2")]<-0 ;
+
+
+# Dummy variables for survey year 2014 = {z1=0, z2=1}
+
+Paper.data.Plots[Paper.data.Plots$F.SURVEY.YEAR == "2014", c("Z1")]<-0 ;
+Paper.data.Plots[Paper.data.Plots$F.SURVEY.YEAR == "2014", c("Z2")]<-1 ;
+
+
+
+# Dummy variables for survey year 2015 = {z1=0, z2=0}
+
+Paper.data.Plots[Paper.data.Plots$F.SURVEY.YEAR == "2016", c("Z1","Z2")]<-0 ;
+
+### Analysis with lm with survey year and the dummy variables z1 z2
+
+
+AnalysisHArvest.Plot.T2<-lm(MEAN_DRY.Mg.Ha.Year ~ Z1 + Z2 + ( F.HARVEST.YEAR * F.VARIETY * MEAN_PLANT.DENSITY.pl.ha) , data=Paper.data.Plots);
+
+
+summary(AnalysisHArvest.Plot.T2)
+
+anova(AnalysisHArvest.Plot.T2, test="F")
+
+T2<-tidy(anova(AnalysisHArvest.Plot.T2, test="F"))
+
+T2.coeff<-tidy(AnalysisHArvest.Plot.T2)
+
+
+
+#####Analysis using only the population density of the 2016 survey
+
+AnalysisHArvest.Plot.T3<-lm(MEAN_DRY.Mg.Ha.Year ~  MEAN_PLANT.DENSITY.pl.ha + (F.HARVEST.YEAR * F.VARIETY) + MEAN_PLANT.DENSITY.pl.ha * F.VARIETY, data=Paper.data.Plots[Paper.data.Plots$F.SURVEY.YEAR == '2016',]);
+
+summary(AnalysisHArvest.Plot.T3)
+
+anova(AnalysisHArvest.Plot.T3, test="F")
+
+T3<-tidy(anova(AnalysisHArvest.Plot.T3, test="F"))
+
+T3.coeff<-tidy(AnalysisHArvest.Plot.T3)
+
+###############################################################################################################
+#                           Print the data in an excel workbook Tables.xlsx
+###############################################################################################################
+
+Willow.Harvest.Tables.wb<-createWorkbook() ;
+
+#### Table_S1
+
+addWorksheet(Willow.Harvest.Tables.wb, sheetName='Table_S1') ;
+
+writeDataTable(Willow.Harvest.Tables.wb, sheet='Table_S1',x= TS1) ;
+
+writeData(Willow.Harvest.Tables.wb, sheet='Table_S1',x= TS1.coeff, startRow= dim(TS1)[1]+10) ;
+
+
+#### Table_1
+
+addWorksheet(Willow.Harvest.Tables.wb, sheetName='Table_1') ;
+
+writeDataTable(Willow.Harvest.Tables.wb, sheet='Table_1',x= T1) ;
+
+writeData(Willow.Harvest.Tables.wb, sheet='Table_1',x= T1.coeff, startRow= dim(T1)[1]+10) ;
+
+
+addWorksheet(Willow.Harvest.Tables.wb, sheetName='Table_2') ;
+
+writeDataTable(Willow.Harvest.Tables.wb, sheet='Table_2',x= T2) ;
+
+writeData(Willow.Harvest.Tables.wb, sheet='Table_2',x= T2.coeff, startRow= dim(T2)[1]+10) ;
+
+
+
+
+saveWorkbook(Willow.Harvest.Tables.wb, file=paste0('../Tables', '.xlsx'), overwrite = T ) ;
+
+# saveWorkbook(Willow.Harvest.Tables.wb, file=paste0('../Tables', format(Sys.time(),"%Y_%m_%d_%H_%M"), '.xlsx'), overwrite = F ) ;
 
 
 #########################################################################################################
