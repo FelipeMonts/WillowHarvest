@@ -668,6 +668,7 @@ summary(AnalysisHArvest.Plot.TS1)
 anova(AnalysisHArvest.Plot.TS1, test="F")
 
 TS1<-tidy(anova(AnalysisHArvest.Plot.TS1, test="F"))
+names(TS1)
 
 TS1.coeff<-tidy(AnalysisHArvest.Plot.TS1)
 
@@ -685,97 +686,117 @@ T1.coeff<-tidy(AnalysisHArvest.Plot.T1)
 
 
 
-###############################################################################################################
-#                           Analysis using lm  and adding a dummy variable to include the survey year
-###############################################################################################################
-
-# View(Paper.data.Plots)  ;  str(Paper.data.Plots)
-
-#  For three different cathegories, two dummy variables are needed to differentiate between them; [z1, z2] where z1={1, 0, 0} and z2={0, 1, 0}
-#  See Draper and Smith, 1998. Applied Regression Analysis
+# ###############################################################################################################
+# #                           Analysis using lm  and adding a dummy variable to include the survey year
+# ###############################################################################################################
+# 
+# # View(Paper.data.Plots)  ;  str(Paper.data.Plots)
+# 
+# #  For three different cathegories, two dummy variables are needed to differentiate between them; [z1, z2] where z1={1, 0, 0} and z2={0, 1, 0}
+# #  See Draper and Smith, 1998. Applied Regression Analysis
+# # 
+# 
+# Paper.data.Plots$Z1<-Paper.data.Plots$Z2<-0 ;
+# 
+# # Dummy variables for survey year 2013 = {z1=1, z2=0}
+# 
+# Paper.data.Plots[Paper.data.Plots$F.SURVEY.YEAR == "2013", c("Z1")]<-1 ;
+# Paper.data.Plots[Paper.data.Plots$F.SURVEY.YEAR == "2013", c("Z2")]<-0 ;
+# 
+# 
+# # Dummy variables for survey year 2014 = {z1=0, z2=1}
+# 
+# Paper.data.Plots[Paper.data.Plots$F.SURVEY.YEAR == "2014", c("Z1")]<-0 ;
+# Paper.data.Plots[Paper.data.Plots$F.SURVEY.YEAR == "2014", c("Z2")]<-1 ;
+# 
+# 
+# 
+# # Dummy variables for survey year 2015 = {z1=0, z2=0}
+# 
+# Paper.data.Plots[Paper.data.Plots$F.SURVEY.YEAR == "2016", c("Z1","Z2")]<-0 ;
+# 
+# ### Analysis with lm with survey year and the dummy variables z1 z2
+# 
+# 
+# AnalysisHArvest.Plot.T2<-lm(MEAN_DRY.Mg.Ha.Year ~ Z1 + Z2 + ( F.HARVEST.YEAR * F.VARIETY * MEAN_PLANT.DENSITY.pl.ha) , data=Paper.data.Plots);
+# 
+# 
+# summary(AnalysisHArvest.Plot.T2)
+# 
+# anova(AnalysisHArvest.Plot.T2, test="F")
+# 
+# T2<-tidy(anova(AnalysisHArvest.Plot.T2, test="F"))
+# 
+# T2.coeff<-tidy(AnalysisHArvest.Plot.T2)
+# 
 # 
 
-Paper.data.Plots$Z1<-Paper.data.Plots$Z2<-0 ;
+#####Analysis using only the population density of the 2016 survey which is an random effect factor
 
-# Dummy variables for survey year 2013 = {z1=1, z2=0}
-
-Paper.data.Plots[Paper.data.Plots$F.SURVEY.YEAR == "2013", c("Z1")]<-1 ;
-Paper.data.Plots[Paper.data.Plots$F.SURVEY.YEAR == "2013", c("Z2")]<-0 ;
-
-
-# Dummy variables for survey year 2014 = {z1=0, z2=1}
-
-Paper.data.Plots[Paper.data.Plots$F.SURVEY.YEAR == "2014", c("Z1")]<-0 ;
-Paper.data.Plots[Paper.data.Plots$F.SURVEY.YEAR == "2014", c("Z2")]<-1 ;
-
-
-
-# Dummy variables for survey year 2015 = {z1=0, z2=0}
-
-Paper.data.Plots[Paper.data.Plots$F.SURVEY.YEAR == "2016", c("Z1","Z2")]<-0 ;
-
-### Analysis with lm with survey year and the dummy variables z1 z2
-
-
-AnalysisHArvest.Plot.T2<-lm(MEAN_DRY.Mg.Ha.Year ~ Z1 + Z2 + ( F.HARVEST.YEAR * F.VARIETY * MEAN_PLANT.DENSITY.pl.ha) , data=Paper.data.Plots);
-
+AnalysisHArvest.Plot.T2<-lme(MEAN_DRY.Mg.Ha.Year ~  MEAN_PLANT.DENSITY.pl.ha + (F.HARVEST.YEAR * F.VARIETY) + MEAN_PLANT.DENSITY.pl.ha * F.VARIETY, data=Paper.data.Plots[Paper.data.Plots$F.SURVEY.YEAR == '2016',], random = ~ MEAN_PLANT.DENSITY.pl.ha | F.VARIETY);
 
 summary(AnalysisHArvest.Plot.T2)
 
-anova(AnalysisHArvest.Plot.T2, test="F")
+anova(AnalysisHArvest.Plot.T2)
 
-T2<-tidy(anova(AnalysisHArvest.Plot.T2, test="F"))
+T2<-anova(AnalysisHArvest.Plot.T2)
 
 T2.coeff<-tidy(AnalysisHArvest.Plot.T2)
-
-
-
-#####Analysis using only the population density of the 2016 survey
-
-AnalysisHArvest.Plot.T3<-lm(MEAN_DRY.Mg.Ha.Year ~  MEAN_PLANT.DENSITY.pl.ha + (F.HARVEST.YEAR * F.VARIETY) + MEAN_PLANT.DENSITY.pl.ha * F.VARIETY, data=Paper.data.Plots[Paper.data.Plots$F.SURVEY.YEAR == '2016',]);
-
-summary(AnalysisHArvest.Plot.T3)
-
-anova(AnalysisHArvest.Plot.T3, test="F")
-
-T3<-tidy(anova(AnalysisHArvest.Plot.T3, test="F"))
-
-T3.coeff<-tidy(AnalysisHArvest.Plot.T3)
 
 ###############################################################################################################
 #                           Print the data in an excel workbook Tables.xlsx
 ###############################################################################################################
+## Set excel table formatting parameters and create workbook
+
+HeadersStyle<-createStyle(fontName="Times New Roman",fontSize = 12, halign = "CENTER", textDecoration = "bold", border = "Bottom", fontColour = "black") ;
+
+CellStyle<-createStyle(fontName="Times New Roman",fontSize = 12, halign = "CENTER", fontColour='black') ;
+
+
+
 
 Willow.Harvest.Tables.wb<-createWorkbook() ;
+
+
 
 #### Table_S1
 
 addWorksheet(Willow.Harvest.Tables.wb, sheetName='Table_S1') ;
 
-writeDataTable(Willow.Harvest.Tables.wb, sheet='Table_S1',x= TS1) ;
+
+writeData(Willow.Harvest.Tables.wb, sheet='Table_S1',x= TS1, headerStyle = HeadersStyle) ;
+
+addStyle(Willow.Harvest.Tables.wb, sheet='Table_S1', style=CellStyle, rows=seq(2,dim(TS1)[1]+2), cols=seq(1,dim(TS1)[2]), gridExpand = TRUE );
 
 writeData(Willow.Harvest.Tables.wb, sheet='Table_S1',x= TS1.coeff, startRow= dim(TS1)[1]+10) ;
+
 
 
 #### Table_1
 
 addWorksheet(Willow.Harvest.Tables.wb, sheetName='Table_1') ;
 
-writeDataTable(Willow.Harvest.Tables.wb, sheet='Table_1',x= T1) ;
+writeData(Willow.Harvest.Tables.wb, sheet='Table_1',x= T1 , headerStyle = HeadersStyle)  ;
+
+addStyle(Willow.Harvest.Tables.wb, sheet='Table_1', style=CellStyle, rows=seq(2,dim(T1)[1]+2), cols=seq(1,dim(T1)[2]), gridExpand = TRUE ) ;
 
 writeData(Willow.Harvest.Tables.wb, sheet='Table_1',x= T1.coeff, startRow= dim(T1)[1]+10) ;
 
 
+#### Table_2
+
 addWorksheet(Willow.Harvest.Tables.wb, sheetName='Table_2') ;
 
-writeDataTable(Willow.Harvest.Tables.wb, sheet='Table_2',x= T2) ;
+writeData(Willow.Harvest.Tables.wb, sheet='Table_2',x= T2, headerStyle = HeadersStyle, rowNames = T) ;
+
+addStyle(Willow.Harvest.Tables.wb, sheet='Table_2', style=CellStyle, rows=seq(2,dim(T2)[1]+2), cols=seq(1,dim(T2)[2]), gridExpand = TRUE ) ;
 
 writeData(Willow.Harvest.Tables.wb, sheet='Table_2',x= T2.coeff, startRow= dim(T2)[1]+10) ;
 
 
 
 
-saveWorkbook(Willow.Harvest.Tables.wb, file=paste0('../Tables', '.xlsx'), overwrite = T ) ;
+saveWorkbook(Willow.Harvest.Tables.wb, file=paste0('../Agronomy Journal/Tables', '.xlsx'), overwrite = T ) ;
 
 # saveWorkbook(Willow.Harvest.Tables.wb, file=paste0('../Tables', format(Sys.time(),"%Y_%m_%d_%H_%M"), '.xlsx'), overwrite = F ) ;
 
