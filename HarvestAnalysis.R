@@ -153,6 +153,17 @@ Paper.data[seq(128,132),]  #### See This change marked with #*************
 #Average yield was nearly identical in 2015-16 winter vs 2018-19 winter: 291 Mg dry harvest, annual yield 6.7 Mg/ha. An estimate of achievable maximum yield is 8.7 to 9.0 Mg/ha/yr, considering the top 10% of the best rows. 
 
 
+###############################################################################################################################################
+#             Corrections to the data made after field verification of the row numbers and varieties on 06/17/2020
+###############################################################################################################################################
+
+#Row 59 belongs to Fish Creek instead of Preble. That needs to be changed
+
+Paper.data[59,c('VARIETY')]<-'FISH-CREEK' ;
+
+
+
+
 
 
 
