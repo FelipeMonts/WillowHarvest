@@ -275,7 +275,7 @@ Paper.data[59,c('VARIETY')]<-'FISH-CREEK' ;
 Survey.Raster.Levels<-seq(0,120,10) ;
 
 Survey.Raster.Colors<-terrain.colors(13, rev=T)
-+
+
 
 postscript(file="..\\Agronomy Journal\\Figure2Surveys.eps" , onefile=F, width=8, height=4, paper= "letter") ;
 

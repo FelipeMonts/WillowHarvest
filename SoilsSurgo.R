@@ -39,6 +39,8 @@ setwd("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowHa
 
 # Install the packages that are needed #
 
+# install.packages('remotes', dep=TRUE)
+
 # install.packages('ggplot2', dep=TRUE)
 # install.packages('base64enc' , dep=TRUE)
 # install.packages("raster", dep = TRUE)
@@ -65,7 +67,8 @@ setwd("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowHa
 # install.packages("png", dep=TRUE)
 # install.packages("tmap", dep=TRUE)
 
-
+# remotes::install_github('ncss-tech/aqp', dependencies = FALSE, force=T)
+# remotes::install_github('ncss-tech/soilDB', dependencies = FALSE, force=T)
 
 ###############################################################################################################
 #                           load the libraries that are neded   
@@ -73,6 +76,7 @@ setwd("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowHa
 
 
 # load libraries
+library(remotes) ;
 library(Hmisc) ;
 library(plyr) ;
 library(dplyr)  ;
@@ -246,12 +250,47 @@ str(Pedon.04N0805)
 
 explainPlotSPC(Pedon.04N0805, name='hzn_desgn', color='RGBColor')
 
-plotSPC(Pedon.04N0805, name='hzn_desgn', color='RGBColor', width=0.05, cex.depth.axis = 1.5, print.id = F, plot.depth.axis=F)
+plotSPC(Pedon.04N0805, name='hzn_desgn', name.style = 'left-center', color='RGBColor', width=0.1, cex.depth.axis = 1.5, print.id = F, plot.depth.axis=F)
 addVolumeFraction(Pedon.04N0805, colname='wp25_d.1_S', cex.min = 0.1, cex.max=0.1)
 addVolumeFraction(Pedon.04N0805, colname='wp0175_d.1_S', cex.min = 0.2, cex.max=0.5)
 addVolumeFraction(Pedon.04N0805, colname='wpG2_d.1_S', cex.min = 1, cex.max=2)
 
 explainPlotSPC(Pedon.04N0805, name='hzn_desgn', color='RGBColor')
+
+######################################################################################################################################################################
+
+
+
+# Emailed Andrew Brown USDA-NRCS Soil and plant divisions Sonora CA for help with the individual soil profile
+# https://github.com/brownag 
+# Brown, Andrew.G - NRCS, Sonora, CA <andrew.g.brown@usda.gov>
+# Andrew Brown
+# Soil Scientist
+# Phone: 209-591-5186
+# E-mail: andrew.g.brown@usda.gov
+
+
+# 1. this one just uses arguments to plotSPC -- but the axis still has the default orientation...
+#  plotSPC(your.spc, name.style = "left-center", axis.line.offset = -20, width = 0.1)
+
+# 2. this one rebuilds the axis custom to switch the side the tick marks are on
+# 
+# plotSPC(your.spc, name.style = "left-center", plot.depth.axis = FALSE, width = 0.1)
+# 
+# depth_axis_intervals <- pretty(seq(from=0, to=max(your.spc), by=1), n=5)
+# 
+# depth_axis_labels <- paste(depth_axis_intervals, "cm")
+# 
+# axis(side=2, las=2, line = -10, at=depth_axis_intervals,
+#      
+#      labels = depth_axis_labels,
+#      
+#      cex.axis=0.5,
+#      
+#      col.axis=par('fg'))
+
+
+######################################################################################################################################################################
 
 
 
@@ -262,19 +301,38 @@ Pedon.04N0805.1<-Pedon.04N0805@horizons[,c("layer_key", "hzID", 'hzn_top', 'hzn_
 Pedon.04N0805.2<-reshape(data=Pedon.04N0805.1, varying=list(names(Pedon.04N0805.1)[6:12]) , direction= 'long', idvar=c('layer_key', 'hzn_desgn', 'hzID', 'hzn_top', 'hzn_bot'), v.names='Values',times=c("Clay %", "Silt %","Sand %" ,"T. Carbon" , "T. Nitrogen","B. Density",  "pH"))
 
 
+Pedon.04N0805@horizons$hzname<-Pedon.04N0805@horizons$hzn_desgn ;
+
+Pedon.04N0805@site$pedon_key<-c("HAGERSTOWN  ")
 
 postscript(file="..\\Agronomy Journal\\Figure2Soil.eps" , onefile=F, width=8, height=2, paper= "letter")
 
-par(mar=c(1,3,1,1),xpd=NA)
+par(mar=c(4.1,5,2,1),xpd=NA)
 
 layout(matrix(c(1, rep(0,7)), 1,8, byrow=T))
 
-plotSPC(Pedon.04N0805, name='hzn_desgn', color='RGBColor', width=0.25, print.id = F, plot.depth.axis=F)
-addVolumeFraction(Pedon.04N0805, colname='wp25_d.1_S', cex.min = 0.1, cex.max=0.1)
-addVolumeFraction(Pedon.04N0805, colname='wp0175_d.1_S', cex.min = 0.2, cex.max=0.5)
-addVolumeFraction(Pedon.04N0805, colname='wpG2_d.1_S', cex.min = 1, cex.max=2)
 
-Plot.2<-xyplot(hzn_top ~ Values | time, data=Pedon.04N0805.2, index.cond=list(c(2,5,4,1,6,7,3)), ylim=c(130,-2), ylab=NULL,ylab.right="Depth cm", strip=strip.custom(bg=grey(0.8),par.strip.text=list(cex=0.8)), par.strip.text=list(cex=0.8),layout=c(7,1), type="b", grid=T, col.line="BLACK", col.symbol="BLACK", bg="BLACK" ,lwd=2,scales=list(x=list(tick.number=4, alternating=3, relation="free", cex=0.8), y=list(draw=T,relation="same", alternating=2)))
+ plotSPC(Pedon.04N0805, name='hzn_desgn', name.style = 'left-center', color='RGBColor', width=0.4, print.id = F, plot.depth.axis=F,y.offset=0, cex.names= 1.0 ,relative.pos = c(1.75), id.style = "top")
+ 
+ depth_axis_intervals <- c(0,20,40,60,80,100,120) #pretty(seq(from=0, to=max(Pedon.04N0805@horizons$hzn_bot), by=1), n=5)
+ 
+ depth_axis_labels <- depth_axis_intervals 
+ 
+ axis(side=2, las=2, line = 0.5, at=depth_axis_intervals,
+      
+      labels = depth_axis_labels,
+      
+      cex.axis=1.2,
+      
+      col.axis=par('fg'))
+ mtext("Depth cm", side = 2, line = 3.5)
+ 
+ 
+ # addVolumeFraction(Pedon.04N0805, colname='wp25_d.1_S', cex.min = 0.1, cex.max=0.1)
+ # addVolumeFraction(Pedon.04N0805, colname='wp0175_d.1_S', cex.min = 0.2, cex.max=0.5)
+ # addVolumeFraction(Pedon.04N0805, colname='wpG2_d.1_S', cex.min = 1, cex.max=2)
+
+ Plot.2<-xyplot(hzn_top ~ Values | time, data=Pedon.04N0805.2, index.cond=list(c(2,5,4,1,6,7,3)), ylim=c(130,-2), ylab=NULL,ylab.right="Depth cm", strip=strip.custom(bg=grey(0.8),par.strip.text=list(cex=0.8)), par.strip.text=list(cex=0.8),layout=c(7,1), type="b", grid=T, col.line="BLACK", col.symbol="BLACK", bg="BLACK" ,lwd=2,scales=list(x=list(tick.number=4, alternating=3, relation="free", cex=0.8), y=list(draw=T,relation="same", alternating=2)))
 
 
 print(Plot.2, position=c(0.125,0,1,1),more=T)
