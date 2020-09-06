@@ -79,6 +79,8 @@ setwd("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowHa
 
 # install.packages('broom', dep=T)
 
+# install.packages('HRW')
+
 ###############################################################################################################
 #                           load the libraries that are neded   
 ###############################################################################################################
@@ -100,7 +102,12 @@ library(devtools)
 library(raster)
 
 library(nlme)
+
 library(broom)
+
+library(HRW)
+
+library(mgcv)
 
 ###############################################################################################################
 #                           load data from DataCleaning.RData
@@ -330,6 +337,12 @@ invisible(dev.off())
 
 Paper.data$F.VARIETY<-as.factor(Paper.data$VARIETY)  ;
 levels(Paper.data$F.VARIETY ) ;
+
+
+#### Correct the Name of Milbrook to Millbrook (double ll)
+
+levels(Paper.data$F.VARIETY)[3]<-"MILLBROOK"
+
 
 
 
@@ -585,6 +598,11 @@ saveWorkbook(Willow.Harvest.wb, file=paste0('../WillowHarvestDataAnalysis', form
 
 #  str(Paper.data.Plots)
 
+
+###############################################################################################################
+#                           Figure 5 Harvest yields
+###############################################################################################################
+
 postscript(file="..\\Agronomy Journal\\Figure5Harvest.eps" , onefile=F, width=8, height=6, paper= "letter")
 
 # par("mar")  default (5.1 4.1 4.1 2.1)
@@ -595,7 +613,7 @@ par(mar=c(5.1, 4.1, 4.1 ,4.1))
 
 Paper.data.Plots.bar.chart.2<-aggregate(formula= MEAN_DRY.Mg.Ha ~  F.HARVEST.YEAR + F.VARIETY  , FUN=mean , data=Paper.data.Plots) ;
 
-barplot(MEAN_DRY.Mg.Ha ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.2, beside=T, legend.text=T,args.legend = list(x = 16 , y = 26), col=c("RED", "BLUE"),mgp=c(2,1,0), ylab=expression(paste("OD Mg ","ha"^-1)), xlab="Genetic Material", cex.names=0.8,main="Biomass Yield");
+barplot(MEAN_DRY.Mg.Ha ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.2, beside=T, legend.text=T,args.legend = list(x = 16 , y = 26, bty="n"), col=c("RED", "BLUE"),mgp=c(2,1,0), ylab=expression(paste("Mg ","ha"^-1)), xlab="", cex.names=0.8);
 
 
 #add Temp  plot
@@ -613,12 +631,23 @@ barplot(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots
         
 axis(side=4, mgp=c(4,1,0)) ;
 
-mtext(expression(paste("OD Mg ","ha"^-1, "year"^-1)), side=4, line=2) 
+mtext(expression(paste("Mg ","ha"^-1, "year"^-1)), side=4, line=2) 
+
+mtext('Cultivar', side=1, line=3)
 
 invisible(dev.off())
 
 
+###############################################################################################################
+#                           Figure 4  Plant density
+###############################################################################################################
 
+
+postscript(file="..\\Agronomy Journal\\Figure4PlantDensity.eps" , onefile=F, width=8, height=6, paper= "letter")
+
+# par("mar")  default (5.1 4.1 4.1 2.1)
+
+par(mar=c(5.1, 4.1, 2.1 ,2.1))
 
 
 ### Bar Chart MEAN_PLANT.DENSITY.pl.ha
@@ -626,7 +655,13 @@ invisible(dev.off())
 Paper.data.Plots.bar.chart.3<-aggregate(formula= MEAN_PLANT.DENSITY.pl.ha ~  F.SURVEY.YEAR + F.VARIETY  , FUN=mean , data=Paper.data.Plots) ;
 
 
-barplot(MEAN_PLANT.DENSITY.pl.ha  ~ F.SURVEY.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.3, beside=T, legend.text=T,args.legend = list(x = 26 , y = 15000), col=c("YELLOW", "GREEN", "BROWN"),mgp=c(2,1,0), ylab=expression(paste(" Plants  ","ha"^-1)), xlab="WILLOW CLONE", cex.names=1, ylim=c(0,15000),main="Plant Density");
+barplot(MEAN_PLANT.DENSITY.pl.ha  ~ F.SURVEY.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.3, beside=T, legend.text=T,args.legend = list(x = 23 , y = 15000, bty="n"), col=c("YELLOW", "GREEN", "BROWN"),mgp=c(2,1,0), ylab=expression(paste(" Plants  ","ha"^-1)), xlab="", cex.names=0.8, ylim=c(0,15000));
+
+mtext('Cultivar', side=1, line=3)
+
+
+invisible(dev.off())
+
 
 
 ###########   plot of total plants per ha  vs total harvest per ha
@@ -958,7 +993,7 @@ plot(AnalysisHarvest.Rows)
 #                           Plots analysis by rows
 ###############################################################################################################
 
-bwplot(Length.m ~ VARIETY | F.BLOCK  , data=Paper.data )
+bwplot(Length.m ~ VARIETY, groups = F.BLOCK  , data=Paper.data )
  
 bwplot(DRY.Mg.Ha.Year.2015 ~ VARIETY | F.BLOCK  , data=Paper.data ) 
 
@@ -969,4 +1004,246 @@ bwplot(DRY.Mg.Ha.Year.2019 ~ VARIETY | F.BLOCK  , data=Paper.data )
 
 plot(Freq ~ Var1, data=data.frame(table(Paper.data$F.VARIETY,Paper.data$F.BLOCK)), ylab="Number of Rows", xlab="VARIETY")
 
-View(Paper.data)
+#View(Paper.data)
+
+
+###############################################################################################################
+#                           Analysis using nonparametric regression methods
+#
+#   Harezlak, Jaroslaw, David Ruppert, and Matt P. Wand. 2018. Semiparametric Regression with R. Use R! 
+#   New York, NY: Springer New York. https://doi.org/10.1007/978-1-4939-8853-2.
+# 
+#     Harezlak, Jaroslaw, David Ruppert, and Matt P. Wand. 2019. 
+#    HRW: Datasets, Functions and Scripts for Semiparametric Regression Supporting Harezlak, Ruppert & Wand (2018)
+#     (version 1.0-3). https://CRAN.R-project.org/package=HRW.
+#
+#    
+###############################################################################################################
+
+# View(Paper.data) ; str(Paper.data)
+
+#  View(Paper.data.V2) ; str(Paper.data.V2) 
+
+Paper.data.ROWS<-Paper.data.V2[Paper.data.V2$SURVEY.YEAR == "2016",] ;
+
+
+xyplot( DRY.Mg.Ha.Year ~ PLANT.DENSITY.pl.ha, groups= F.VARIETY, data=Paper.data.ROWS)
+
+
+
+######### Remove signifficant effects from the data Based on the linear model plot based analysis
+
+TS1.coeff[TS1.coeff$p.value<=0.1,1]
+
+TS1.coeff[TS1.coeff$p.value<=0.1,]
+
+###Initialize the effect corrected dataframe
+
+Paper.data.NoEff<-Paper.data.ROWS  ;
+
+# Effect: F.HARVEST.YEAR2019   1.60
+
+Paper.data.NoEff[Paper.data.NoEff$F.HARVEST.YEAR == "2019", c("DRY.Mg.Ha.Year") ] <- Paper.data.ROWS[Paper.data.ROWS$F.HARVEST.YEAR == "2019", c("DRY.Mg.Ha.Year") ] - as.numeric(TS1.coeff[TS1.coeff$term == "F.HARVEST.YEAR2019",c('estimate')])
+
+# Effect: F.VARIETYFISH-CREEK    2.63 
+
+Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == "FISH-CREEK", c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.VARIETY == "FISH-CREEK", c("DRY.Mg.Ha.Year")] - as.numeric(TS1.coeff[TS1.coeff$term == "F.VARIETYFISH-CREEK",c('estimate')])
+
+
+# Effect: F.VARIETYMILLBROOK     1.94
+
+Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == "MILLBROOK", c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.VARIETY == "MILLBROOK", c("DRY.Mg.Ha.Year")] - as.numeric(TS1.coeff[TS1.coeff$term == "F.VARIETYMILLBROOK",c('estimate')])
+
+
+# Effect:  F.VARIETYPREBLE    1.38 
+
+Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == "PREBLE", c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.VARIETY == "PREBLE", c("DRY.Mg.Ha.Year")] - as.numeric(TS1.coeff[TS1.coeff$term == "F.VARIETYPREBLE",c('estimate')])
+
+# Effect:  F.VARIETYSX61      1.44
+
+Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == "SX61", c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.VARIETY == "SX61", c("DRY.Mg.Ha.Year")] - as.numeric(TS1.coeff[TS1.coeff$term == "F.VARIETYSX61",c('estimate')])
+
+# Effect: F.HARVEST.YEAR2019:F.VARIETYFISH-CREEK    -2.73 
+
+Paper.data.NoEff[Paper.data.NoEff$F.HARVEST.YEAR == "2019" & Paper.data.NoEff$F.VARIETY == "FISH-CREEK" , c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.HARVEST.YEAR == "2019" & Paper.data.ROWS$F.VARIETY == "FISH-CREEK" , c("DRY.Mg.Ha.Year") ] - as.numeric(TS1.coeff[TS1.coeff$term == "F.HARVEST.YEAR2019:F.VARIETYFISH-CREEK",c('estimate')])
+
+# Effect: F.HARVEST.YEAR2019:F.VARIETYOTISCO        -2.87 
+
+Paper.data.NoEff[Paper.data.NoEff$F.HARVEST.YEAR == "2019" & Paper.data.NoEff$F.VARIETY == "OTISCO" , c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.HARVEST.YEAR == "2019" & Paper.data.ROWS$F.VARIETY == "OTISCO" , c("DRY.Mg.Ha.Year") ] - as.numeric(TS1.coeff[TS1.coeff$term == "F.HARVEST.YEAR2019:F.VARIETYOTISCO",c('estimate')])
+
+# Effect: F.HARVEST.YEAR2019:F.VARIETYPREBLE        -2.56
+
+Paper.data.NoEff[Paper.data.NoEff$F.HARVEST.YEAR == "2019" & Paper.data.NoEff$F.VARIETY == "PREBLE" , c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.HARVEST.YEAR == "2019" & Paper.data.ROWS$F.VARIETY == "PREBLE" , c("DRY.Mg.Ha.Year") ] - as.numeric(TS1.coeff[TS1.coeff$term == "F.HARVEST.YEAR2019:F.VARIETYPREBLE",c('estimate')])
+
+
+# Check results 
+
+xyplot( DRY.Mg.Ha.Year ~ PLANT.DENSITY.pl.ha, groups= F.VARIETY, data=Paper.data.NoEff,
+        auto.key = list(title = "Cultivar",x = 0.70, y=0.95))
+
+# points(Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == 'SX61', c('PLANT.DENSITY.pl.ha', 'DRY.Mg.Ha.Year')], type="x")
+
+
+
+
+###############################################################################################################
+# Every plot in each block, corresponding to each cultivar is  approximately 1 ha. Therefore the analysis by plot using linear models is appropriate.
+# This is not the case for the data analysis by rows, because of the particular shape of the experimental field, guaranteeing the same area for the plots on the east side
+# (right sied of Figure #) of the experimental site requires more rows per plot/variety Figure S3. This is aspect is particulrly accentuated on the two varieties located
+# at the left side of the plot: SX61 and FABIUS. No only the number of rows is affected in these polts/varieties, but also the length/area of every rown and therefore the
+# variance, the importance and teh representation of each data point. Using the robustness of semiparametric regression analysis and generalk aditive models would be more
+# appropriate for this analysis. In addition, taking insigt from the literature on Size based sampling and importance bised sampling, the data set can be resampled to
+# balance the size and muber of observations for the two extreme plots. Balancing of teh two extreme plots is achieved by averaging each two consecutive rows.
+# the average procedure wwill be done using the pairs based on the longest and shortest rows in each plot
+
+
+################################################################################################################
+
+
+
+
+aggregate(Area.m2 ~ F.VARIETY + F.BLOCK, data=Paper.data.NoEff[Paper.data.NoEff$F.HARVEST.YEAR == 2019,], FUN=sum)
+
+
+
+#  View(Paper.data.NoEff) ;  str(Paper.data.NoEff)
+
+
+bwplot(Length.m ~ F.VARIETY| F.BLOCK , data=Paper.data.NoEff, auto.key = T,scales=list(y=list(draw=T,relation="same", alternating=3)))
+
+plot(Freq ~ Var1, data=data.frame(table(Paper.data.NoEff$F.VARIETY,Paper.data.NoEff$F.BLOCK)), ylab="Number of Rows", xlab="VARIETY") 
+
+RowCount.table<-data.frame(table(Paper.data.NoEff[Paper.data.NoEff$F.HARVEST.YEAR == 2019, c('F.BLOCK','F.VARIETY')]));
+
+str(RowCount.table)
+
+
+RowCount.bp<-barplot(RowCount.table$Freq,names=paste0(RowCount.table$F.VARIETY,"-",RowCount.table$F.BLOCK), ylim=c(0,20), ylab="Number of Rows", xlab='Cultivar')
+text(RowCount.bp, RowCount.table$Freq + 1, paste0("n=", RowCount.table$Freq) ,cex=1) 
+
+
+### average two rows: the longest and the smallest:
+
+####  B2.SX61 2015
+
+plot( B2.SX61$ROW , B2.SX61$Area.m2)
+
+B2.SX61.2015<-Paper.data.NoEff[Paper.data.NoEff$F.BLOCK == 2 & Paper.data.NoEff$F.VARIETY == 'SX61' & Paper.data.NoEff$HARVEST.YEAR == '2015',] ;
+
+
+B2.SX61.2015.up<-B2.SX61.2015[order(B2.SX61.2015$ROW),c('ROW','PLANT.DENSITY.pl.ha', 'DRY.Mg.Ha.Year')];
+
+B2.SX61.2015.down<-B2.SX61.2015[order(B2.SX61.2015$ROW, decreasing = T),c('ROW','PLANT.DENSITY.pl.ha', 'DRY.Mg.Ha.Year') ];
+
+B2.SX61.2015.Avg<-(B2.SX61.2015.up[seq(1,dim(B2.SX61.2015.up)[1]/2),c('PLANT.DENSITY.pl.ha', 'DRY.Mg.Ha.Year')] + B2.SX61.2015.down[seq(1,dim(B2.SX61.2015.down)[1]/2),c('PLANT.DENSITY.pl.ha', 'DRY.Mg.Ha.Year')])/2 ;
+
+B2.SX61.2015.Avg$HARVEST.YEAR<-'2015'  ;
+
+####  B2.SX61 2019
+
+B2.SX61.2019<-Paper.data.NoEff[Paper.data.NoEff$F.BLOCK == 2 & Paper.data.NoEff$F.VARIETY == 'SX61' & Paper.data.NoEff$HARVEST.YEAR == '2019',] ;
+
+B2.SX61.2019.up<-B2.SX61.2019[order(B2.SX61.2019$ROW),c('ROW','PLANT.DENSITY.pl.ha', 'DRY.Mg.Ha.Year')];
+
+B2.SX61.2019.down<-B2.SX61.2019[order(B2.SX61.2019$ROW, decreasing = T),c('ROW','PLANT.DENSITY.pl.ha', 'DRY.Mg.Ha.Year') ];
+
+B2.SX61.2019.Avg<-(B2.SX61.2019.up[seq(1,dim(B2.SX61.2019.up)[1]/2),c('PLANT.DENSITY.pl.ha', 'DRY.Mg.Ha.Year')] + B2.SX61.2019.down[seq(1,dim(B2.SX61.2019.down)[1]/2),c('PLANT.DENSITY.pl.ha', 'DRY.Mg.Ha.Year')])/2 ;
+
+B2.SX61.2019.Avg$HARVEST.YEAR<-'2019' ;
+
+
+### Collecting the data together
+
+B2.SX61.Avg<-rbind( B2.SX61.2015.Avg , B2.SX61.2019.Avg ) ;
+
+B2.SX61.Avg$VARIETY<-'SX61' ;
+
+####  B2.FABIUS  2015
+
+B2.FABIUS.2015<-Paper.data.NoEff[Paper.data.NoEff$F.BLOCK == 2 & Paper.data.NoEff$F.VARIETY == 'FABIUS' & Paper.data.NoEff$HARVEST.YEAR == '2015',] ;
+
+
+B2.FABIUS.2015.up<-B2.FABIUS.2015[order(B2.FABIUS.2015$ROW),c('ROW','PLANT.DENSITY.pl.ha', 'DRY.Mg.Ha.Year')];
+
+B2.FABIUS.2015.down<-B2.FABIUS.2015[order(B2.FABIUS.2015$ROW, decreasing = T),c('ROW','PLANT.DENSITY.pl.ha', 'DRY.Mg.Ha.Year') ];
+
+B2.FABIUS.2015.Avg<-(B2.FABIUS.2015.up[seq(1,dim(B2.FABIUS.2015.up)[1]/2),c('PLANT.DENSITY.pl.ha', 'DRY.Mg.Ha.Year')] + B2.FABIUS.2015.down[seq(1,dim(B2.FABIUS.2015.down)[1]/2),c('PLANT.DENSITY.pl.ha', 'DRY.Mg.Ha.Year')])/2 ;
+
+B2.FABIUS.2015.Avg$HARVEST.YEAR<-'2015'  ;
+
+
+####  B2.FABIUS  2019
+
+B2.FABIUS.2019<-Paper.data.NoEff[Paper.data.NoEff$F.BLOCK == 2 & Paper.data.NoEff$F.VARIETY == 'FABIUS' & Paper.data.NoEff$HARVEST.YEAR == '2019',] ;
+
+
+B2.FABIUS.2019.up<-B2.FABIUS.2019[order(B2.FABIUS.2019$ROW),c('ROW','PLANT.DENSITY.pl.ha', 'DRY.Mg.Ha.Year')]
+
+B2.FABIUS.2019.down<-B2.FABIUS.2019[order(B2.FABIUS.2019$ROW, decreasing = T),c('ROW','PLANT.DENSITY.pl.ha', 'DRY.Mg.Ha.Year') ]
+
+B2.FABIUS.2019.Avg<-(B2.FABIUS.2019.up[seq(1,dim(B2.FABIUS.2019.up)[1]/2),c('PLANT.DENSITY.pl.ha', 'DRY.Mg.Ha.Year')] + B2.FABIUS.2019.down[seq(1,dim(B2.FABIUS.2019.down)[1]/2),c('PLANT.DENSITY.pl.ha', 'DRY.Mg.Ha.Year')])/2 ;
+
+B2.FABIUS.2019.Avg$HARVEST.YEAR<-'2019' ;
+
+#### Put data together 
+
+B2.FABIUS.Avg<-rbind( B2.FABIUS.2015.Avg , B2.FABIUS.2019.Avg ) ;
+
+B2.FABIUS.Avg$VARIETY<-'FABIUS' ;
+
+### Collect the resampled data into the main dataframe
+
+B2.Avg<-rbind(B2.SX61.Avg , B2.FABIUS.Avg );
+
+
+B2.Avg$ROW<-200  ;
+
+B2.Avg$BLOCK<-2  ;
+
+#  View(Paper.data.NoEff) ;  str(Paper.data.NoEff)
+
+
+####  Select rows that were not resampled
+
+
+Paper.data.NoEff.Last2Avg.1<-Paper.data.NoEff[!(Paper.data.NoEff$F.BLOCK == 2 & (Paper.data.NoEff$F.VARIETY == "FABIUS"  |Paper.data.NoEff$F.VARIETY == "SX61" )),c('ROW', 'BLOCK' , 'VARIETY' , 'HARVEST.YEAR',  'PLANT.DENSITY.pl.ha', 'DRY.Mg.Ha.Year')] ;
+
+#### Combine with resampled rows
+
+Paper.data.NoEff.Last2Avg<-rbind(Paper.data.NoEff.Last2Avg.1 ,  B2.Avg ) ;
+
+
+# View(Paper.data.NoEff.Last2Avg)  ;  str(Paper.data.NoEff.Last2Avg)  ; str(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$BLOCK == 2,])
+
+
+
+
+
+###############################################################################################################
+#                           Analysis using nonparametric regression methods
+#
+#                             Using penalized splines  Package: HRW,  function: smooth.spline()  
+#
+###############################################################################################################
+
+
+
+
+
+
+fitSS<- smooth.spline(Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == 'SX61', c('PLANT.DENSITY.pl.ha', 'DRY.Mg.Ha.Year')])
+plot(fitSS, type="o")
+
+fitGAM<-gam(Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == 'SX61',c('DRY.Mg.Ha.Year')]~ s(Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == 'SX61', c('PLANT.DENSITY.pl.ha')],bs = "cr",k = 15))
+
+gam.check(fitGAM)
+plot(fitGAM)
+print(gam.check(fitGAM))
+
+print(fitSS$df)
+anova(fitGAM)
+
+points(Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == 'SX61', c('PLANT.DENSITY.pl.ha', 'DRY.Mg.Ha.Year')])
+points
+
+    
