@@ -1222,15 +1222,17 @@ Paper.data.NoEff.Last2Avg$F.BLOCK<-as.factor(Paper.data.NoEff.Last2Avg$BLOCK) ;
 
 Paper.data.NoEff.Last2Avg$F.VARIETY<-as.factor(Paper.data.NoEff.Last2Avg$VARIETY) ;
 
+Paper.data.NoEff.Last2Avg$LOG.DRY.Mg.Ha.Year<-log(Paper.data.NoEff.Last2Avg$DRY.Mg.Ha.Year) ;
+
 
 # View(Paper.data.NoEff.Last2Avg)  ;  str(Paper.data.NoEff.Last2Avg)  ; str(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$BLOCK == 2,])
 
 
 ##### Checking and comparing the new data
 
-original.data<-xyplot( DRY.Mg.Ha.Year ~ PLANT.DENSITY.pl.ha, groups= F.VARIETY, data=Paper.data.ROWS, pch=0, ylim=c(0,14), xlim=c(0,20000))  + as.layer(Noeff.data<-xyplot( DRY.Mg.Ha.Year ~ PLANT.DENSITY.pl.ha, groups= F.VARIETY, data=Paper.data.NoEff, pch=1,ylim=c(0,14),xlim=c(0,20000) )) +
+original.data<-xyplot( DRY.Mg.Ha.Year ~ PLANT.DENSITY.pl.ha, groups= F.VARIETY, data=Paper.data.ROWS, pch=0, ylim=c(0,14), xlim=c(0,20000))  + 
   
-  as.layer(NoEff.Last2Avg<-xyplot( DRY.Mg.Ha.Year ~ PLANT.DENSITY.pl.ha, groups= F.VARIETY, data=Paper.data.NoEff.Last2Avg, pch=2 ,ylim=c(0,14),xlim=c(0,20000) ) ) + 
+  as.layer(Noeff.data<-xyplot( DRY.Mg.Ha.Year ~ PLANT.DENSITY.pl.ha, groups= F.VARIETY, data=Paper.data.NoEff, pch=1,ylim=c(0,14),xlim=c(0,20000) )) +
   
   as.layer(NoEff.Last2Avg<-xyplot( DRY.Mg.Ha.Year ~ PLANT.DENSITY.pl.ha, groups= F.VARIETY, data=Paper.data.NoEff.Last2Avg, pch=2 ,ylim=c(0,14),xlim=c(0,20000) ) );
 
@@ -1247,21 +1249,36 @@ original.data
 
 # View(Paper.data.NoEff.Last2Avg) ; str(Paper.data.NoEff.Last2Avg)
 
+as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY))
+
+i=as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY))[1]
 
 
-fitSS<- smooth.spline(Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == 'SX61', c('PLANT.DENSITY.pl.ha', 'DRY.Mg.Ha.Year')])
-plot(fitSS, type="o")
 
-fitGAM<-gam(Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == 'SX61',c('DRY.Mg.Ha.Year')]~ s(Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == 'SX61', c('PLANT.DENSITY.pl.ha')],bs = "cr",k = 15))
+postscript(file="..\\Agronomy Journal\\Figure6PlantDensityEff.eps" , onefile=F, width=8, height=6, paper= "letter");
 
-gam.check(fitGAM)
-plot(fitGAM)
-print(gam.check(fitGAM))
+par(mfrow=c(2,3),cex.main = 1.0, col.main = "BLACK",cex.lab=1.0 ,mar=c(5,4,1,1), cex.axis=1.0) ;
 
-print(fitSS$df)
-anova(fitGAM)
 
-points(Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == 'SX61', c('PLANT.DENSITY.pl.ha', 'DRY.Mg.Ha.Year')])
-points
+for (i in as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY)) ) {
+#  i=as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY))[1]  
+  print(i)
+  
+  fitGAM<-gam(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('DRY.Mg.Ha.Year')] ~ s(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('PLANT.DENSITY.pl.ha')]))
+  
+  plot(fitGAM,select = 1,shade = TRUE, bty = "l", xlab = "Plant Density", ylab = "Effect on Yield", shade.col = "palegreen", rug = FALSE, xlim=c(4000,12000), ylim=c(-5,5)) ;
+  
+  rug(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('PLANT.DENSITY.pl.ha')], col="dodgerblue", ticksize = 0.1) ;
+  
+  text(8000,4.5, i,cex=1.0)
+  
+  text(8000,4.0, paste0("p-value =", sprintf("%.5f",summary(fitGAM)[[24]][4])),cex=0.8)
+  
+  print(summary(fitGAM))
 
-    
+  
+}
+
+invisible(dev.off())
+
+
