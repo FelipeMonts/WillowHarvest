@@ -67,6 +67,8 @@ setwd("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowHa
 
 # install.packages('lattice', dep=T)
 
+# install.packages('latticeExtra', dep=T)
+
 # install.packages('stringi', dep=T)
 
 # install.packages('rgl', dep=T)
@@ -93,6 +95,8 @@ library(openxlsx)
 
 library(lattice)
 
+library(latticeExtra)
+
 library(devtools)
 
 # library(forestFloor)
@@ -108,6 +112,8 @@ library(broom)
 library(HRW)
 
 library(mgcv)
+
+
 
 ###############################################################################################################
 #                           load data from DataCleaning.RData
@@ -1212,22 +1218,34 @@ Paper.data.NoEff.Last2Avg.1<-Paper.data.NoEff[!(Paper.data.NoEff$F.BLOCK == 2 & 
 
 Paper.data.NoEff.Last2Avg<-rbind(Paper.data.NoEff.Last2Avg.1 ,  B2.Avg ) ;
 
+Paper.data.NoEff.Last2Avg$F.BLOCK<-as.factor(Paper.data.NoEff.Last2Avg$BLOCK) ;
+
+Paper.data.NoEff.Last2Avg$F.VARIETY<-as.factor(Paper.data.NoEff.Last2Avg$VARIETY) ;
+
 
 # View(Paper.data.NoEff.Last2Avg)  ;  str(Paper.data.NoEff.Last2Avg)  ; str(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$BLOCK == 2,])
 
 
+##### Checking and comparing the new data
 
+original.data<-xyplot( DRY.Mg.Ha.Year ~ PLANT.DENSITY.pl.ha, groups= F.VARIETY, data=Paper.data.ROWS, pch=0, ylim=c(0,14), xlim=c(0,20000))  + as.layer(Noeff.data<-xyplot( DRY.Mg.Ha.Year ~ PLANT.DENSITY.pl.ha, groups= F.VARIETY, data=Paper.data.NoEff, pch=1,ylim=c(0,14),xlim=c(0,20000) )) +
+  
+  as.layer(NoEff.Last2Avg<-xyplot( DRY.Mg.Ha.Year ~ PLANT.DENSITY.pl.ha, groups= F.VARIETY, data=Paper.data.NoEff.Last2Avg, pch=2 ,ylim=c(0,14),xlim=c(0,20000) ) ) + 
+  
+  as.layer(NoEff.Last2Avg<-xyplot( DRY.Mg.Ha.Year ~ PLANT.DENSITY.pl.ha, groups= F.VARIETY, data=Paper.data.NoEff.Last2Avg, pch=2 ,ylim=c(0,14),xlim=c(0,20000) ) );
+
+original.data
 
 
 ###############################################################################################################
 #                           Analysis using nonparametric regression methods
 #
-#                             Using penalized splines  Package: HRW,  function: smooth.spline()  
+#                             Using generalized additive models gam  Package: mgcv,  function: gam()  
 #
 ###############################################################################################################
 
 
-
+# View(Paper.data.NoEff.Last2Avg) ; str(Paper.data.NoEff.Last2Avg)
 
 
 
