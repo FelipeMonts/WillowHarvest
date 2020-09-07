@@ -712,8 +712,10 @@ Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]
 
 AnalysisHArvest.Plot<-lm(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * F.BLOCK * F.VARIETY  , data=Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]); ### Overfitted
 
+AnalysisHArvest.Plot.TS1<-lm(MEAN_DRY.Mg.Ha.Year ~ F.BLOCK + F.HARVEST.YEAR + F.VARIETY + (F.BLOCK * F.HARVEST.YEAR) + (F.BLOCK *F.VARIETY) + (F.HARVEST.YEAR * F.VARIETY)  , data=Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]); ### Table S1
 
-AnalysisHArvest.Plot.TS1<-lm(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * (F.BLOCK + F.VARIETY)  , data=Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]); ### Table S1
+
+#AnalysisHArvest.Plot.TS1<-lm(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * (F.BLOCK + F.VARIETY)  , data=Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]); ### Table S1
 
 summary(AnalysisHArvest.Plot.TS1)
 
@@ -726,7 +728,7 @@ TS1.coeff<-tidy(AnalysisHArvest.Plot.TS1)
 
 
 
-AnalysisHArvest.Plot.T1<-lm(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR * F.VARIETY  , data=Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]);### Table 1
+AnalysisHArvest.Plot.T1<-lm(MEAN_DRY.Mg.Ha.Year ~ F.BLOCK + F.HARVEST.YEAR + F.VARIETY + (F.HARVEST.YEAR * F.VARIETY)  , data=Paper.data.Plots[which(Paper.data.Plots$F.SURVEY.YEAR==2014),]);### Table 1
 
 summary(AnalysisHArvest.Plot.T1)
 
@@ -848,9 +850,9 @@ writeData(Willow.Harvest.Tables.wb, sheet='Table_2',x= T2.coeff, startRow= dim(T
 
 
 
-saveWorkbook(Willow.Harvest.Tables.wb, file=paste0('../Agronomy Journal/Tables', '.xlsx'), overwrite = T ) ;
+#saveWorkbook(Willow.Harvest.Tables.wb, file=paste0('../Agronomy Journal/Tables', '.xlsx'), overwrite = T ) ;
 
-# saveWorkbook(Willow.Harvest.Tables.wb, file=paste0('../Tables', format(Sys.time(),"%Y_%m_%d_%H_%M"), '.xlsx'), overwrite = F ) ;
+saveWorkbook(Willow.Harvest.Tables.wb, file=paste0('../Agronomy Journal/Tables', format(Sys.time(),"%Y_%m_%d_%H_%M"), '.xlsx'), overwrite = F ) ;
 
 
 #########################################################################################################
@@ -1039,31 +1041,31 @@ xyplot( DRY.Mg.Ha.Year ~ PLANT.DENSITY.pl.ha, groups= F.VARIETY, data=Paper.data
 
 ######### Remove signifficant effects from the data Based on the linear model plot based analysis
 
-TS1.coeff[TS1.coeff$p.value<=0.1,1]
+T1.coeff[T1.coeff$p.value<=0.1,1]
 
-TS1.coeff[TS1.coeff$p.value<=0.1,]
+T1.coeff[T1.coeff$p.value<=0.1,]
 
 ###Initialize the effect corrected dataframe
 
 Paper.data.NoEff<-Paper.data.ROWS  ;
 
-# Effect: F.HARVEST.YEAR2019   1.60
+# Effect: F.HARVEST.YEAR2019   1.66
 
-Paper.data.NoEff[Paper.data.NoEff$F.HARVEST.YEAR == "2019", c("DRY.Mg.Ha.Year") ] <- Paper.data.ROWS[Paper.data.ROWS$F.HARVEST.YEAR == "2019", c("DRY.Mg.Ha.Year") ] - as.numeric(TS1.coeff[TS1.coeff$term == "F.HARVEST.YEAR2019",c('estimate')])
+Paper.data.NoEff[Paper.data.NoEff$F.HARVEST.YEAR == "2019", c("DRY.Mg.Ha.Year") ] <- Paper.data.ROWS[Paper.data.ROWS$F.HARVEST.YEAR == "2019", c("DRY.Mg.Ha.Year") ] - as.numeric(T1.coeff[T1.coeff$term == "F.HARVEST.YEAR2019",c('estimate')])
 
 # Effect: F.VARIETYFISH-CREEK    2.63 
 
-Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == "FISH-CREEK", c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.VARIETY == "FISH-CREEK", c("DRY.Mg.Ha.Year")] - as.numeric(TS1.coeff[TS1.coeff$term == "F.VARIETYFISH-CREEK",c('estimate')])
+Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == "FISH-CREEK", c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.VARIETY == "FISH-CREEK", c("DRY.Mg.Ha.Year")] - as.numeric(T1.coeff[T1.coeff$term == "F.VARIETYFISH-CREEK",c('estimate')])
 
 
 # Effect: F.VARIETYMILLBROOK     1.94
 
-Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == "MILLBROOK", c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.VARIETY == "MILLBROOK", c("DRY.Mg.Ha.Year")] - as.numeric(TS1.coeff[TS1.coeff$term == "F.VARIETYMILLBROOK",c('estimate')])
+Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == "MILLBROOK", c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.VARIETY == "MILLBROOK", c("DRY.Mg.Ha.Year")] - as.numeric(T1.coeff[T1.coeff$term == "F.VARIETYMILLBROOK",c('estimate')])
 
 
 # Effect:  F.VARIETYPREBLE    1.38 
 
-Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == "PREBLE", c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.VARIETY == "PREBLE", c("DRY.Mg.Ha.Year")] - as.numeric(TS1.coeff[TS1.coeff$term == "F.VARIETYPREBLE",c('estimate')])
+Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == "PREBLE", c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.VARIETY == "PREBLE", c("DRY.Mg.Ha.Year")] - as.numeric(T1.coeff[T1.coeff$term == "F.VARIETYPREBLE",c('estimate')])
 
 # Effect:  F.VARIETYSX61      1.44
 
@@ -1072,6 +1074,10 @@ Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == "SX61", c("DRY.Mg.Ha.Year") ] <-P
 # Effect: F.HARVEST.YEAR2019:F.VARIETYFISH-CREEK    -2.73 
 
 Paper.data.NoEff[Paper.data.NoEff$F.HARVEST.YEAR == "2019" & Paper.data.NoEff$F.VARIETY == "FISH-CREEK" , c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.HARVEST.YEAR == "2019" & Paper.data.ROWS$F.VARIETY == "FISH-CREEK" , c("DRY.Mg.Ha.Year") ] - as.numeric(TS1.coeff[TS1.coeff$term == "F.HARVEST.YEAR2019:F.VARIETYFISH-CREEK",c('estimate')])
+
+# Effect: F.HARVEST.YEAR2019:F.VARIETYMILLBROOK    -1.76 
+
+Paper.data.NoEff[Paper.data.NoEff$F.HARVEST.YEAR == "2019" & Paper.data.NoEff$F.VARIETY == "MILLBROOK" , c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.HARVEST.YEAR == "2019" & Paper.data.ROWS$F.VARIETY == "MILLBROOK" , c("DRY.Mg.Ha.Year") ] - as.numeric(T1.coeff[T1.coeff$term == "F.HARVEST.YEAR2019:F.VARIETYMILLBROOK",c('estimate')])
 
 # Effect: F.HARVEST.YEAR2019:F.VARIETYOTISCO        -2.87 
 
@@ -1124,7 +1130,11 @@ RowCount.table<-data.frame(table(Paper.data.NoEff[Paper.data.NoEff$F.HARVEST.YEA
 str(RowCount.table)
 
 
-RowCount.bp<-barplot(RowCount.table$Freq,names=paste0(RowCount.table$F.VARIETY,"-",RowCount.table$F.BLOCK), ylim=c(0,20), ylab="Number of Rows", xlab='Cultivar')
+RowCount.bp<-barplot(RowCount.table$Freq,names=paste0(RowCount.table$F.VARIETY,"-",RowCount.table$F.BLOCK), ylim=c(0,20), ylab="Number of Rows", xlab='Cultivar', cex.names=1.0)
+text(RowCount.bp, RowCount.table$Freq + 1, paste0("n=", RowCount.table$Freq) ,cex=1) 
+
+
+RowCount.bp<-barplot(RowCount.table$Freq,names=RowCount.table$F.VARIETY, ylim=c(0,20), ylab="Number of Rows", xlab='Cultivar', cex.names=0.8)
 text(RowCount.bp, RowCount.table$Freq + 1, paste0("n=", RowCount.table$Freq) ,cex=1) 
 
 
@@ -1253,7 +1263,7 @@ as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY))
 
 i=as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY))[1]
 
-
+#### Performing the analysis and plotting the results 
 
 postscript(file="..\\Agronomy Journal\\Figure6PlantDensityEff.eps" , onefile=F, width=8, height=6, paper= "letter");
 
@@ -1280,5 +1290,7 @@ for (i in as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY)) ) {
 }
 
 invisible(dev.off())
+
+###############################################################################################################
 
 
