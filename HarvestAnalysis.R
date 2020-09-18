@@ -1306,14 +1306,14 @@ postscript(file="..\\Agronomy Journal\\Figure6PlantDensityEff.eps" , onefile=F, 
 par(cex.main = 1.0, col.main = "BLACK",cex.lab=1.0 ,mar=c(5,4,1,1), cex.axis=1.0) ;
 
 
-#for (i in as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY)) ) {
+for (i in as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY)) ) {
 #  i=as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY))[1]  
   print(i)
   
   
-  fitGAM<-gam(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('DRY.Mg.Ha.Year')] ~ s(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('PLANT.DENSITY.pl.ha')]))
+  assign(paste0("fitGAM", i),gam(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('DRY.Mg.Ha.Year')] ~ s(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('PLANT.DENSITY.pl.ha')])))
   
-  plot(fitGAM,select = 1,shade = TRUE, bty = "l", xlab = "Plant density", ylab = "Effect on Yield", shade.col = "palegreen", rug = FALSE, xlim=c(8000,13000), ylim=c(-5,5)) ;
+#  plot(get(paste0("fitGAM", i)),select = 1,shade = TRUE, bty = "l", xlab = "Plant density", ylab = "Effect on Yield", shade.col = "palegreen", rug = FALSE, xlim=c(8000,13000), ylim=c(-5,5)) ;
 
   rug(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('PLANT.DENSITY.pl.ha')], col="dodgerblue", ticksize = 0.1) ;
 
@@ -1325,7 +1325,20 @@ par(cex.main = 1.0, col.main = "BLACK",cex.lab=1.0 ,mar=c(5,4,1,1), cex.axis=1.0
   #print(anova(fitGAM))
 
   
-#}
+}
+
+
+plot(get(paste0("fitGAM", i)),select = 1,shade = TRUE, bty = "l", xlab = "Plant density", ylab = "Effect on Yield", shade.col = "palegreen", rug = FALSE, ylim=c(-5,5)) 
+
+text(median(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('PLANT.DENSITY.pl.ha')]),4.5, i,cex=1.0)
+
+# View(Paper.data.NoEff.Last2Avg) ; str(Paper.data.NoEff.Last2Avg)
+
+points(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('PLANT.DENSITY.pl.ha')],(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('DRY.Mg.Ha.Year')]-5.483))
+
+
+
+#points(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('DRY.Mg.Ha.Year')], (Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('PLANT.DENSITY.pl.ha')]-5.4835))
 
 invisible(dev.off())
 
