@@ -298,7 +298,7 @@ explainPlotSPC(Pedon.04N0805, name='hzn_desgn', color='RGBColor')
 
 Pedon.04N0805.1<-Pedon.04N0805@horizons[,c("layer_key", "hzID", 'hzn_top', 'hzn_bot', 'hzn_desgn', 'Clay_3A1a1a_Sjj_39_SSL_0_0' , 'Silt_d.1_S' , 'Sand_d.1_S' , 'Ctot_4H2a_Sjf_8_SSL_0_0' , 'Ntot_4H2a_Sjf_8_SSL_0_0', 'Pedon.04N0805.BD...c..Db13b_3B1b_Caj_0_SSL_0_0...' , 'Pedon.04N0805.pH...c..pHh2o_4C1a2a1_Sjj_73_SSL_0_0...' )] ;
 
-Pedon.04N0805.2<-reshape(data=Pedon.04N0805.1, varying=list(names(Pedon.04N0805.1)[6:12]) , direction= 'long', idvar=c('layer_key', 'hzn_desgn', 'hzID', 'hzn_top', 'hzn_bot'), v.names='Values',times=c("Clay %", "Silt %","Sand %" ,"T. Carbon" , "T. Nitrogen","B. Density",  "pH"))
+Pedon.04N0805.2<-reshape(data=Pedon.04N0805.1, varying=list(names(Pedon.04N0805.1)[6:12]) , direction= 'long', idvar=c('layer_key', 'hzn_desgn', 'hzID', 'hzn_top', 'hzn_bot'), v.names='Values',times=c("Clay %", "Silt %","Sand %" ,"T. Carbon %" , "T. Nitrogen %","B. Density*",  "pH"))
 
 
 Pedon.04N0805@horizons$hzname<-Pedon.04N0805@horizons$hzn_desgn ;

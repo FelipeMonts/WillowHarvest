@@ -1001,7 +1001,43 @@ plot(AnalysisHarvest.Rows)
 #                           Plots analysis by rows
 ###############################################################################################################
 
-bwplot(Length.m ~ VARIETY, groups = F.BLOCK  , data=Paper.data )
+
+
+# Boxand wiskers plot
+
+
+bwplot(Length.m ~ VARIETY, data=Paper.data )
+
+# Combine factors F.BLOCK and F.VARIETY into one to plot the distribution of row length as a function
+
+Paper.data$BLOCKXVARIETY<-paste0(as.character(Paper.data$F.BLOCK), ":" , as.character(Paper.data$F.VARIETY ))
+
+Paper.data$F.BLOCKXVARIETY<-as.factor(Paper.data$BLOCKXVARIETY)
+
+Paper.data$F.BLOCKXVARIETY<-factor(Paper.data$BLOCKXVARIETY, levels=c("1:PREBLE" , "1:FABIUS" , "1:MILLBROOK" , "1:SX61" , "1:OTISCO" , "1:FISH-CREEK" , "2:PREBLE" , "2:OTISCO" , "2:FISH-CREEK" , "2:SX61" , "2:FABIUS" ))
+
+
+levels(Paper.data$F.BLOCKXVARIETY)
+
+# colors for the bwplot
+
+display.brewer.pal(n = 6, name = 'Set1')
+
+
+
+#######  Boxand wiskers plot in order on how they are distributed in the field
+
+postscript(file="..\\Agronomy Journal\\FigureS1Rowlength.eps" , onefile=F, width=8, height=10, paper= "letter");
+
+bwplot(Length.m ~ F.BLOCKXVARIETY, data=Paper.data, horizontal=FALSE, ylab=list(label="Row length (m)", cex= 1.5), scales=list(x=list(rot=90,cex=1.5),y=list(cex=1.5)), ylim=c(100,600), 
+       par.settings = list(box.rectangle= list(fill= rep(brewer.pal(n = 6, name = 'Set1'),2))))
+                        
+
+
+
+invisible(dev.off())
+
+# #######################
  
 bwplot(DRY.Mg.Ha.Year.2015 ~ VARIETY | F.BLOCK  , data=Paper.data ) 
 
@@ -1011,8 +1047,8 @@ bwplot(DRY.Mg.Ha.Year.2019 ~ VARIETY | F.BLOCK  , data=Paper.data )
 
 
 plot(Freq ~ Var1, data=data.frame(table(Paper.data$F.VARIETY,Paper.data$F.BLOCK)), ylab="Number of Rows", xlab="VARIETY")
-
-#View(Paper.data)
+ 
+#View(Paper.data); str(Paper.data) ;
 
 
 ###############################################################################################################
@@ -1267,27 +1303,29 @@ i=as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY))[1]
 
 postscript(file="..\\Agronomy Journal\\Figure6PlantDensityEff.eps" , onefile=F, width=8, height=6, paper= "letter");
 
-par(mfrow=c(2,3),cex.main = 1.0, col.main = "BLACK",cex.lab=1.0 ,mar=c(5,4,1,1), cex.axis=1.0) ;
+par(cex.main = 1.0, col.main = "BLACK",cex.lab=1.0 ,mar=c(5,4,1,1), cex.axis=1.0) ;
 
 
-for (i in as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY)) ) {
+#for (i in as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY)) ) {
 #  i=as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY))[1]  
   print(i)
   
+  
   fitGAM<-gam(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('DRY.Mg.Ha.Year')] ~ s(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('PLANT.DENSITY.pl.ha')]))
   
-  plot(fitGAM,select = 1,shade = TRUE, bty = "l", xlab = "Plant Density", ylab = "Effect on Yield", shade.col = "palegreen", rug = FALSE, xlim=c(4000,12000), ylim=c(-5,5)) ;
-  
+  plot(fitGAM,select = 1,shade = TRUE, bty = "l", xlab = "Plant density", ylab = "Effect on Yield", shade.col = "palegreen", rug = FALSE, xlim=c(8000,13000), ylim=c(-5,5)) ;
+
   rug(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('PLANT.DENSITY.pl.ha')], col="dodgerblue", ticksize = 0.1) ;
-  
-  text(8000,4.5, i,cex=1.0)
-  
-  text(8000,4.0, paste0("p-value =", sprintf("%.5f",summary(fitGAM)[[24]][4])),cex=0.8)
-  
+
+  text(11000,4.5, i,cex=1.0)
+
+  text(11000,4.0,expression(paste("R"^2, "= 0.58")),cex=1.0)
+
   print(summary(fitGAM))
+  #print(anova(fitGAM))
 
   
-}
+#}
 
 invisible(dev.off())
 
