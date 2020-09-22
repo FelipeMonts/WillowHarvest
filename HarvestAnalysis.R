@@ -620,18 +620,7 @@ par(mar=c(5.1, 4.1, 4.1 ,4.1))
 
 Paper.data.Plots.bar.chart.2<-aggregate(formula= MEAN_DRY.Mg.Ha ~  F.HARVEST.YEAR + F.VARIETY  , FUN=mean , data=Paper.data.Plots) ;
 
-barplot(MEAN_DRY.Mg.Ha ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.2, beside=T, legend.text=T,args.legend = list(x = 16 , y = 26, bty="n"), col=c("RED", "BLUE"),mgp=c(2,1,0), ylab=expression(paste("Mg ","ha"^-1)), xlab="", cex.names=0.8);
-
-
-#### Prepare data to add error bars with the funcion arrows
-
-#  View(Paper.data.Plots.bar.chart.2)
-
-Paper.data.Plots.bar.chart.2.Error<-as.matrix(Paper.data.Plots.bar.chart.2[,-1]) ;
-
-str(Paper.data.Plots.bar.chart.2.Error)
-
-Paper.data.Plots.bar.chart.2.Error[,2]<-as.numeric(Paper.data.Plots.bar.chart.2.Error[,2])
+barplot(MEAN_DRY.Mg.Ha ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.2, ylim=c(0,30), beside=T, legend.text=T,args.legend = list(x = 16 , y = 30, bty="n"), col=c("RED", "BLUE"),mgp=c(2,1,0), ylab=expression(paste("Mg ","ha"^-1)), xlab="", cex.names=0.8);
 
 
 
@@ -646,13 +635,24 @@ Paper.data.Plots.bar.chart.1<-aggregate(formula= MEAN_DRY.Mg.Ha.Year ~  F.HARVES
 
 #  str(Paper.data.Plots.bar.chart) ; View(Paper.data.Plots.bar.chart)
 
-barplot(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.1, beside=T, col=c("RED", "BLUE"), axes=F, ylab="", names=c(rep("",6)),xlab="") ;
+Harvest.Barchart<-barplot(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.1, beside=T, ylim=c(0,10),  col=c("RED", "BLUE"), axes=F, ylab="", names=c(rep("",6)),xlab="") ;
         
 axis(side=4, mgp=c(4,1,0)) ;
 
 mtext(expression(paste("Mg ","ha"^-1, "year"^-1)), side=4, line=2) 
 
 mtext('Cultivar', side=1, line=3)
+
+
+#### Prepare data to add error bars with the funcion arrows
+
+#  View(Paper.data.Plots.bar.chart.2)
+
+
+arrows(x0=Harvest.Barchart, y0=Paper.data.Plots.bar.chart.1$MEAN_DRY.Mg.Ha.Year-0.68, x1=Harvest.Barchart, y1=Paper.data.Plots.bar.chart.1$MEAN_DRY.Mg.Ha.Year+0.68 , code=3, angle=90, length=0.1)
+
+
+
 
 invisible(dev.off())
 
