@@ -609,6 +609,7 @@ saveWorkbook(Willow.Harvest.wb, file=paste0('../WillowHarvestDataAnalysis', form
 #                           Figure 5 Harvest yields
 ###############################################################################################################
 
+
 postscript(file="..\\Agronomy Journal\\Figure5Harvest.eps" , onefile=F, width=8, height=6, paper= "letter")
 
 # par("mar")  default (5.1 4.1 4.1 2.1)
@@ -620,6 +621,18 @@ par(mar=c(5.1, 4.1, 4.1 ,4.1))
 Paper.data.Plots.bar.chart.2<-aggregate(formula= MEAN_DRY.Mg.Ha ~  F.HARVEST.YEAR + F.VARIETY  , FUN=mean , data=Paper.data.Plots) ;
 
 barplot(MEAN_DRY.Mg.Ha ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.2, beside=T, legend.text=T,args.legend = list(x = 16 , y = 26, bty="n"), col=c("RED", "BLUE"),mgp=c(2,1,0), ylab=expression(paste("Mg ","ha"^-1)), xlab="", cex.names=0.8);
+
+
+#### Prepare data to add error bars with the funcion arrows
+
+#  View(Paper.data.Plots.bar.chart.2)
+
+Paper.data.Plots.bar.chart.2.Error<-as.matrix(Paper.data.Plots.bar.chart.2[,-1]) ;
+
+str(Paper.data.Plots.bar.chart.2.Error)
+
+Paper.data.Plots.bar.chart.2.Error[,2]<-as.numeric(Paper.data.Plots.bar.chart.2.Error[,2])
+
 
 
 #add Temp  plot
