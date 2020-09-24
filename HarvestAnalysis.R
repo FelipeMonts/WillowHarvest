@@ -1315,7 +1315,7 @@ i=as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY))[1]
 
 postscript(file="..\\Agronomy Journal\\Figure6PlantDensityEff.eps" , onefile=F, width=8, height=6, paper= "letter");
 
-par(cex.main = 1.0, col.main = "BLACK",cex.lab=1.0 ,mar=c(5,4,1,1), cex.axis=1.0) ;
+par(mfrow=c(2,3),cex.main = 1.0, col.main = "BLACK",cex.lab=1.0 ,mar=c(5,4,1,1), cex.axis=1.0) ;
 
 
 for (i in as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY)) ) {
@@ -1323,22 +1323,25 @@ for (i in as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY)) ) {
   print(i)
   
   
-  assign(paste0("fitGAM", i),gam(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('DRY.Mg.Ha.Year')] ~ s(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('PLANT.DENSITY.pl.ha')])))
+  assign(paste0("fitGAM", i),gam(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('DRY.Mg.Ha.Year')] ~ s(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('PLANT.DENSITY.pl.ha')]))) ;
   
-  plot(get(paste0("fitGAM", i)),select = 1,shade = TRUE, bty = "l", xlab = "Plant density", ylab = "Effect on Yield", shade.col = "palegreen", rug = FALSE, xlim=c(8000,13000), ylim=c(-5,5)) ;
 
-  rug(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('PLANT.DENSITY.pl.ha')], col="dodgerblue", ticksize = 0.1) ;
+  plot(get(paste0("fitGAM", i)),select = 1,shade = T, bty = "l", shade.col = "palegreen", rug = FALSE, scheme=1,xlab = "Plant density", ylab = "Effect on Yield" , xlim=c(4000,13000), ylim=c(-5,5)) ;
 
-  text(11000,4.5, i,cex=1.0)
+ # rug(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('PLANT.DENSITY.pl.ha')], col="dodgerblue", ticksize = 0.1) ;
 
-  text(11000,4.0,bquote("R"^2 == .(format(summary(get(paste0("fitGAM", i)))$r.sq, digits=2))),cex=1.0)
+  text(8000,5.1, i,cex=1.0)
+
+  text(11000,-4.0,bquote("R"^2 == .(format(summary(get(paste0("fitGAM", i)))$r.sq, digits=2))),cex=0.9)
   
-  text(11000,3.0,bquote("Deviance explained" == .(format(summary(get(paste0("fitGAM", i)))$dev.expl, digits=2)) %),cex=1.0)
+  text(11000,-4.5,bquote("D. E." == .(format(summary(get(paste0("fitGAM", i)))$dev.expl*100, digits=3))~"%"),cex=0.9)
   
-  R2=summary(get(paste0("fitGAM", i)))$r.sq 
-expression(paste("Mg ","ha"^-1, "year"^-1)
+  
+  points(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('PLANT.DENSITY.pl.ha')] , (Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('DRY.Mg.Ha.Year')]-get(paste0("fitGAM", i))$coefficients[c('(Intercept)')]))
 
   print(summary(get(paste0("fitGAM", i))))
+  
+  #gam.check(get(paste0("fitGAM", i)))
   
   #  str(summary(get(paste0("fitGAM", i))))
 
@@ -1347,14 +1350,8 @@ expression(paste("Mg ","ha"^-1, "year"^-1)
   # get(paste0("fitGAM", i))$coefficients[c('(Intercept)')]
 
 
-
-plot(get(paste0("fitGAM", i)),select = 1,shade = TRUE, bty = "l", xlab = "Plant density", ylab = "Effect on Yield", shade.col = "palegreen", rug = FALSE, ylim=c(-5,5)) 
-
-text(median(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('PLANT.DENSITY.pl.ha')]),4.5, i,cex=1.0)
-
 # View(Paper.data.NoEff.Last2Avg) ; str(Paper.data.NoEff.Last2Avg)
 
-points(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('PLANT.DENSITY.pl.ha')],(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('DRY.Mg.Ha.Year')]-get(paste0("fitGAM", i))$coefficients[c('(Intercept)')]))
 
 }
 
