@@ -1191,7 +1191,6 @@ text(RowCount.bp, RowCount.table$Freq + 1, paste0("n=", RowCount.table$Freq) ,ce
 
 ####  B2.SX61 2015
 
-plot( B2.SX61$ROW , B2.SX61$Area.m2)
 
 B2.SX61.2015<-Paper.data.NoEff[Paper.data.NoEff$F.BLOCK == 2 & Paper.data.NoEff$F.VARIETY == 'SX61' & Paper.data.NoEff$HARVEST.YEAR == '2015',] ;
 
@@ -1326,19 +1325,27 @@ for (i in as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY)) ) {
   
   assign(paste0("fitGAM", i),gam(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('DRY.Mg.Ha.Year')] ~ s(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('PLANT.DENSITY.pl.ha')])))
   
-#  plot(get(paste0("fitGAM", i)),select = 1,shade = TRUE, bty = "l", xlab = "Plant density", ylab = "Effect on Yield", shade.col = "palegreen", rug = FALSE, xlim=c(8000,13000), ylim=c(-5,5)) ;
+  plot(get(paste0("fitGAM", i)),select = 1,shade = TRUE, bty = "l", xlab = "Plant density", ylab = "Effect on Yield", shade.col = "palegreen", rug = FALSE, xlim=c(8000,13000), ylim=c(-5,5)) ;
 
   rug(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('PLANT.DENSITY.pl.ha')], col="dodgerblue", ticksize = 0.1) ;
 
   text(11000,4.5, i,cex=1.0)
 
-  text(11000,4.0,expression(paste("R"^2, "= 0.58")),cex=1.0)
-
-  print(summary(fitGAM))
-  #print(anova(fitGAM))
-
+  text(11000,4.0,bquote("R"^2 == .(format(summary(get(paste0("fitGAM", i)))$r.sq, digits=2))),cex=1.0)
   
-}
+  text(11000,3.0,bquote("Deviance explained" == .(format(summary(get(paste0("fitGAM", i)))$dev.expl, digits=2)) %),cex=1.0)
+  
+  R2=summary(get(paste0("fitGAM", i)))$r.sq 
+expression(paste("Mg ","ha"^-1, "year"^-1)
+
+  print(summary(get(paste0("fitGAM", i))))
+  
+  #  str(summary(get(paste0("fitGAM", i))))
+
+  # summary(get(paste0("fitGAM", i)))
+  
+  # get(paste0("fitGAM", i))$coefficients[c('(Intercept)')]
+
 
 
 plot(get(paste0("fitGAM", i)),select = 1,shade = TRUE, bty = "l", xlab = "Plant density", ylab = "Effect on Yield", shade.col = "palegreen", rug = FALSE, ylim=c(-5,5)) 
@@ -1347,9 +1354,9 @@ text(median(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, 
 
 # View(Paper.data.NoEff.Last2Avg) ; str(Paper.data.NoEff.Last2Avg)
 
-points(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('PLANT.DENSITY.pl.ha')],(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('DRY.Mg.Ha.Year')]-5.483))
+points(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('PLANT.DENSITY.pl.ha')],(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('DRY.Mg.Ha.Year')]-get(paste0("fitGAM", i))$coefficients[c('(Intercept)')]))
 
-
+}
 
 #points(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('DRY.Mg.Ha.Year')], (Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('PLANT.DENSITY.pl.ha')]-5.4835))
 
