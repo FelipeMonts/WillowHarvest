@@ -1361,4 +1361,7 @@ invisible(dev.off())
 
 ###############################################################################################################
 
+plot(get(paste0("fitGAM", i)),select = 1,shade = T, bty = "l", shade.col = "palegreen", rug = FALSE, scheme=1,xlab = "Plant density", ylab = "Effect on Yield" , scale= 0, ylim=c(-5,5)) ;
+
+
 
