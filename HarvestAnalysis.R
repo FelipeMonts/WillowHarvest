@@ -1313,10 +1313,6 @@ i=as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY))[1]
 
 #### Performing the analysis and plotting the results 
 
-postscript(file="..\\Agronomy Journal\\Figure6PlantDensityEff.eps" , onefile=F, width=8, height=6, paper= "letter");
-
-par(mfrow=c(2,3),cex.main = 1.0, col.main = "BLACK",cex.lab=1.0 ,mar=c(5,4,1,1), cex.axis=1.0) ;
-
 
 for (i in as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY)) ) {
 #  i=as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY))[1]  
@@ -1361,7 +1357,167 @@ invisible(dev.off())
 
 ###############################################################################################################
 
-plot(get(paste0("fitGAM", i)),select = 1,shade = T, bty = "l", shade.col = "palegreen", rug = FALSE, scheme=1,xlab = "Plant density", ylab = "Effect on Yield" , scale= 0, ylim=c(-5,5)) ;
+##### Working on improving the plots. Only plotting vriety data range and prediction on the graph, not the whole experimental data range
+
+
+#postscript(file="..\\Agronomy Journal\\Figure6PlantDensityEff.eps" , onefile=F, width=8, height=6, paper= "letter");
+
+par(mfrow=c(2,3),cex.main = 1.5, col.main = "BLACK", cex.lab=1.5 ,mar=c(2,4,1,1), cex.axis=1.5) ;
+
+# create the transparent blue color for the shade between the error limits
+
+rgb.val.lightblue <- col2rgb("lightblue") ;
+
+lightblue.transp<-rgb(rgb.val.lightblue[1],rgb.val.lightblue[2],rgb.val.lightblue[3],max=255, alpha=(100-75) * 255 / 100)  ;
 
 
 
+#### Creating the data for the graphics in each variety
+
+### Renaming  'FISH-CREEK' to 'FISHCREEK'
+
+levels(Paper.data.NoEff.Last2Avg$F.VARIETY)[2]<-'FISHCREEK'
+
+for (i in as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY)) ) {
+  #  i=as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY))[1]  
+  print(i)
+  
+  
+  assign(paste0("fitGAM", i),gam(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('DRY.Mg.Ha.Year')] ~ s(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('PLANT.DENSITY.pl.ha')]))) ;
+  
+  
+ assign(paste0("PLOTGAMS.",i),plot(get(paste0("fitGAM", i)),select = 1,shade = T, residuals=T, pages=0)) ;
+  
+  print(summary(get(paste0("fitGAM", i))))
+  
+  
+  # text(8000,5.1, i,cex=1.0)
+  # 
+  # text(11000,-4.0,bquote("R"^2 == .(format(summary(get(paste0("fitGAM", i)))$r.sq, digits=2))),cex=0.9)
+  # 
+  # text(11000,-4.5,bquote("D. E." == .(format(summary(get(paste0("fitGAM", i)))$dev.expl*100, digits=3))~"%"),cex=0.9)
+  # 
+  
+}
+
+
+
+
+
+##### Putting together the plot, one variety at the time
+
+postscript(file="..\\Agronomy Journal\\Figure6PlantDensityEff.eps" , onefile=F, width=8, height=6, paper= "letter");
+
+par(mfrow=c(2,3),cex.main = 1.5, col.main = "BLACK", cex.lab=1.5 ,mar=c(5,5,1,1), cex.axis=1.5,bty="n") ;
+
+### FABIUS
+
+plot(PLOTGAMS.FABIUS[[1]]$x,PLOTGAMS.FABIUS[[1]]$fit,xlim=c(4000,16000),type='l', col= 'RED' , ylim=c(-5,5), ylab=expression(paste("Yield effect Mg  ","ha"^-1, "year"^-1)), xlab=NA,)
+
+points(PLOTGAMS.FABIUS[[1]]$x,PLOTGAMS.FABIUS[[1]]$fit + (PLOTGAMS.FABIUS[[1]]$se*PLOTGAMS.FABIUS[[1]]$se.mult), type='l', col='BLUE')
+  
+points(PLOTGAMS.FABIUS[[1]]$raw,PLOTGAMS.FABIUS[[1]]$p.resid, col='BLUE')
+  
+points(PLOTGAMS.FABIUS[[1]]$x,PLOTGAMS.FABIUS[[1]]$fit-(PLOTGAMS.FABIUS[[1]]$se*PLOTGAMS.FABIUS[[1]]$se.mult), type='l', col='BLUE')
+  
+polygon(c(PLOTGAMS.FABIUS[[1]]$x, rev(PLOTGAMS.FABIUS[[1]]$x)),c(PLOTGAMS.FABIUS[[1]]$fit+(PLOTGAMS.FABIUS[[1]]$se*PLOTGAMS.FABIUS[[1]]$se.mult), rev(PLOTGAMS.FABIUS[[1]]$fit-(PLOTGAMS.FABIUS[[1]]$se*PLOTGAMS.FABIUS[[1]]$se.mult))),col=lightblue.transp ,border=NA)
+
+text(10000,4.1, "FABIUS",cex=1.5)
+
+
+text(14000,-2.5,bquote("R"^2 == .(format(summary(fitGAMFABIUS)$r.sq, digits=2))),cex=1.5)
+
+text(14000,-3.5,bquote("D. E." == .(format(summary(fitGAMFABIUS)$dev.expl*100, digits=3))~"%"),cex=1.5)
+ 
+  
+### FISHCREEK
+
+par(mar=c(5,2,1,1))
+  
+plot(PLOTGAMS.FISHCREEK[[1]]$x,PLOTGAMS.FISHCREEK[[1]]$fit,xlim=c(4000,16000),type='l', col= 'RED' , ylim=c(-5,5),yaxt='n', xlab=NA)
+
+  
+points(PLOTGAMS.FISHCREEK[[1]]$x,PLOTGAMS.FISHCREEK[[1]]$fit + (PLOTGAMS.FISHCREEK[[1]]$se*PLOTGAMS.FISHCREEK[[1]]$se.mult), type='l', col='BLUE')
+  
+points(PLOTGAMS.FISHCREEK[[1]]$raw,PLOTGAMS.FISHCREEK[[1]]$p.resid, col='BLUE')
+  
+points(PLOTGAMS.FISHCREEK[[1]]$x,PLOTGAMS.FISHCREEK[[1]]$fit-(PLOTGAMS.FISHCREEK[[1]]$se*PLOTGAMS.FISHCREEK[[1]]$se.mult), type='l', col='BLUE')
+  
+polygon(c(PLOTGAMS.FISHCREEK[[1]]$x, rev(PLOTGAMS.FISHCREEK[[1]]$x)),c(PLOTGAMS.FISHCREEK[[1]]$fit+(PLOTGAMS.FISHCREEK[[1]]$se*PLOTGAMS.FISHCREEK[[1]]$se.mult), rev(PLOTGAMS.FISHCREEK[[1]]$fit-(PLOTGAMS.FISHCREEK[[1]]$se*PLOTGAMS.FISHCREEK[[1]]$se.mult))),col=lightblue.transp ,border=NA) 
+  
+  
+
+### MILBROOK 
+
+par(mar=c(5,2,1,5))
+
+
+
+plot(PLOTGAMS.MILBROOK[[1]]$x,PLOTGAMS.MILBROOK[[1]]$fit,xlim=c(4000,16000),type='l', col= 'RED' , ylim=c(-5,5),yaxt='n', xlab=NA)
+Axis(side=1, labels=T)
+Axis(side=4, labels=T)
+
+mtext(text="Effect on Yield Mg ha yr", side=4, line=3)
+
+points(PLOTGAMS.MILBROOK[[1]]$x,PLOTGAMS.MILBROOK[[1]]$fit + (PLOTGAMS.MILBROOK[[1]]$se*PLOTGAMS.MILBROOK[[1]]$se.mult), type='l', col='BLUE')
+
+points(PLOTGAMS.MILBROOK[[1]]$raw,PLOTGAMS.MILBROOK[[1]]$p.resid, col='BLUE')
+
+points(PLOTGAMS.MILBROOK[[1]]$x,PLOTGAMS.MILBROOK[[1]]$fit-(PLOTGAMS.MILBROOK[[1]]$se*PLOTGAMS.MILBROOK[[1]]$se.mult), type='l', col='BLUE')
+
+polygon(c(PLOTGAMS.MILBROOK[[1]]$x, rev(PLOTGAMS.MILBROOK[[1]]$x)),c(PLOTGAMS.MILBROOK[[1]]$fit+(PLOTGAMS.MILBROOK[[1]]$se*PLOTGAMS.MILBROOK[[1]]$se.mult), rev(PLOTGAMS.MILBROOK[[1]]$fit-(PLOTGAMS.MILBROOK[[1]]$se*PLOTGAMS.MILBROOK[[1]]$se.mult))),col=lightblue.transp ,border=NA) 
+
+
+### "OTISCO"  
+
+par(mar=c(5,5,1,1))
+
+plot(PLOTGAMS.OTISCO[[1]]$x,PLOTGAMS.OTISCO[[1]]$fit,xlim=c(4000,16000),type='l', col= 'RED' , ylim=c(-5,5), ylab="Effect on Yield Mg ha yr", xlab=NA,)
+
+points(PLOTGAMS.OTISCO[[1]]$x,PLOTGAMS.OTISCO[[1]]$fit + (PLOTGAMS.OTISCO[[1]]$se*PLOTGAMS.OTISCO[[1]]$se.mult), type='l', col='BLUE')
+
+points(PLOTGAMS.OTISCO[[1]]$raw,PLOTGAMS.OTISCO[[1]]$p.resid, col='BLUE')
+
+points(PLOTGAMS.OTISCO[[1]]$x,PLOTGAMS.OTISCO[[1]]$fit-(PLOTGAMS.OTISCO[[1]]$se*PLOTGAMS.OTISCO[[1]]$se.mult), type='l', col='BLUE')
+
+polygon(c(PLOTGAMS.OTISCO[[1]]$x, rev(PLOTGAMS.OTISCO[[1]]$x)),c(PLOTGAMS.OTISCO[[1]]$fit+(PLOTGAMS.OTISCO[[1]]$se*PLOTGAMS.OTISCO[[1]]$se.mult), rev(PLOTGAMS.OTISCO[[1]]$fit-(PLOTGAMS.OTISCO[[1]]$se*PLOTGAMS.OTISCO[[1]]$se.mult))),col=lightblue.transp ,border=NA)
+
+
+### "PREBLE"    
+
+par(mar=c(5,2,1,1))
+
+plot(PLOTGAMS.PREBLE[[1]]$x,PLOTGAMS.PREBLE[[1]]$fit,xlim=c(4000,16000),type='l', col= 'RED' , ylim=c(-5,5),yaxt='n', xlab=NA)
+
+
+points(PLOTGAMS.PREBLE[[1]]$x,PLOTGAMS.PREBLE[[1]]$fit + (PLOTGAMS.PREBLE[[1]]$se*PLOTGAMS.PREBLE[[1]]$se.mult), type='l', col='BLUE')
+
+points(PLOTGAMS.PREBLE[[1]]$raw,PLOTGAMS.PREBLE[[1]]$p.resid, col='BLUE')
+
+points(PLOTGAMS.PREBLE[[1]]$x,PLOTGAMS.PREBLE[[1]]$fit-(PLOTGAMS.PREBLE[[1]]$se*PLOTGAMS.PREBLE[[1]]$se.mult), type='l', col='BLUE')
+
+polygon(c(PLOTGAMS.PREBLE[[1]]$x, rev(PLOTGAMS.PREBLE[[1]]$x)),c(PLOTGAMS.PREBLE[[1]]$fit+(PLOTGAMS.PREBLE[[1]]$se*PLOTGAMS.PREBLE[[1]]$se.mult), rev(PLOTGAMS.PREBLE[[1]]$fit-(PLOTGAMS.PREBLE[[1]]$se*PLOTGAMS.PREBLE[[1]]$se.mult))),col=lightblue.transp ,border=NA) 
+
+
+### "SX61" 
+
+par(mar=c(5,2,1,5))
+
+
+
+plot(PLOTGAMS.SX61[[1]]$x,PLOTGAMS.SX61[[1]]$fit,xlim=c(4000,16000),type='l', col= 'RED' , ylim=c(-5,5),yaxt='n', xlab=NA)
+Axis(side=1, labels=T)
+Axis(side=4, labels=T)
+
+mtext(text="Effect on Yield Mg ha yr", side=4, line=3)
+
+points(PLOTGAMS.SX61[[1]]$x,PLOTGAMS.SX61[[1]]$fit + (PLOTGAMS.SX61[[1]]$se*PLOTGAMS.SX61[[1]]$se.mult), type='l', col='BLUE')
+
+points(PLOTGAMS.SX61[[1]]$raw,PLOTGAMS.SX61[[1]]$p.resid, col='BLUE')
+
+points(PLOTGAMS.SX61[[1]]$x,PLOTGAMS.SX61[[1]]$fit-(PLOTGAMS.SX61[[1]]$se*PLOTGAMS.SX61[[1]]$se.mult), type='l', col='BLUE')
+
+polygon(c(PLOTGAMS.SX61[[1]]$x, rev(PLOTGAMS.SX61[[1]]$x)),c(PLOTGAMS.SX61[[1]]$fit+(PLOTGAMS.SX61[[1]]$se*PLOTGAMS.SX61[[1]]$se.mult), rev(PLOTGAMS.SX61[[1]]$fit-(PLOTGAMS.SX61[[1]]$se*PLOTGAMS.SX61[[1]]$se.mult))),col=lightblue.transp ,border=NA) 
+
+
+invisible(dev.off())
