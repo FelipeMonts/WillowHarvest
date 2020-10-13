@@ -1353,7 +1353,7 @@ for (i in as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY)) ) {
 
 #points(Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('DRY.Mg.Ha.Year')], (Paper.data.NoEff.Last2Avg[Paper.data.NoEff.Last2Avg$F.VARIETY == i, c('PLANT.DENSITY.pl.ha')]-5.4835))
 
-invisible(dev.off())
+
 
 ###############################################################################################################
 
@@ -1408,26 +1408,30 @@ for (i in as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY)) ) {
 
 postscript(file="..\\Agronomy Journal\\Figure6PlantDensityEff.eps" , onefile=F, width=8, height=6, paper= "letter");
 
-par(mfrow=c(2,3),cex.main = 1.5, col.main = "BLACK", cex.lab=1.5 ,mar=c(5,5,1,1), cex.axis=1.5,bty="n") ;
+par(mfrow=c(2,3),cex.main = 1.2, col.main = "BLACK" ,mar=c(5,5,1,1) ,bty="n") ;
 
 ### FABIUS
 
-plot(PLOTGAMS.FABIUS[[1]]$x,PLOTGAMS.FABIUS[[1]]$fit,xlim=c(4000,16000),type='l', col= 'RED' , ylim=c(-5,5), ylab=expression(paste("Yield effect Mg  ","ha"^-1, "year"^-1)), xlab=NA,)
+plot(PLOTGAMS.FABIUS[[1]]$x,PLOTGAMS.FABIUS[[1]]$fit,xlim=c(4000,16000),type='l', col= 'RED' , ylim=c(-5,5), ylab=expression(paste("Yield effect, Mg ","ha"^-1, "year"^-1)), xlab=NA,cex.lab=1.3)
 
-points(PLOTGAMS.FABIUS[[1]]$x,PLOTGAMS.FABIUS[[1]]$fit + (PLOTGAMS.FABIUS[[1]]$se*PLOTGAMS.FABIUS[[1]]$se.mult), type='l', col='BLUE')
+polygon(c(PLOTGAMS.FABIUS[[1]]$x, rev(PLOTGAMS.FABIUS[[1]]$x)),c(PLOTGAMS.FABIUS[[1]]$fit+(PLOTGAMS.FABIUS[[1]]$se*PLOTGAMS.FABIUS[[1]]$se.mult), rev(PLOTGAMS.FABIUS[[1]]$fit-(PLOTGAMS.FABIUS[[1]]$se*PLOTGAMS.FABIUS[[1]]$se.mult))),col="lightgray",border=NA)
+
+points(PLOTGAMS.FABIUS[[1]]$x,PLOTGAMS.FABIUS[[1]]$fit,xlim=c(4000,16000),type='l', col= 'RED')
+
+points(PLOTGAMS.FABIUS[[1]]$x,PLOTGAMS.FABIUS[[1]]$fit + (PLOTGAMS.FABIUS[[1]]$se*PLOTGAMS.FABIUS[[1]]$se.mult), type='l', col='BLACK')
   
-points(PLOTGAMS.FABIUS[[1]]$raw,PLOTGAMS.FABIUS[[1]]$p.resid, col='BLUE')
+points(PLOTGAMS.FABIUS[[1]]$raw,PLOTGAMS.FABIUS[[1]]$p.resid, col='BLACK')
   
-points(PLOTGAMS.FABIUS[[1]]$x,PLOTGAMS.FABIUS[[1]]$fit-(PLOTGAMS.FABIUS[[1]]$se*PLOTGAMS.FABIUS[[1]]$se.mult), type='l', col='BLUE')
+points(PLOTGAMS.FABIUS[[1]]$x,PLOTGAMS.FABIUS[[1]]$fit-(PLOTGAMS.FABIUS[[1]]$se*PLOTGAMS.FABIUS[[1]]$se.mult), type='l', col='BLACK')
   
-polygon(c(PLOTGAMS.FABIUS[[1]]$x, rev(PLOTGAMS.FABIUS[[1]]$x)),c(PLOTGAMS.FABIUS[[1]]$fit+(PLOTGAMS.FABIUS[[1]]$se*PLOTGAMS.FABIUS[[1]]$se.mult), rev(PLOTGAMS.FABIUS[[1]]$fit-(PLOTGAMS.FABIUS[[1]]$se*PLOTGAMS.FABIUS[[1]]$se.mult))),col=lightblue.transp ,border=NA)
-
-text(10000,4.1, "FABIUS",cex=1.5)
 
 
-text(14000,-2.5,bquote("R"^2 == .(format(summary(fitGAMFABIUS)$r.sq, digits=2))),cex=1.5)
+text(10000, 4.1, "FABIUS",cex=1.5)
 
-text(14000,-3.5,bquote("D. E." == .(format(summary(fitGAMFABIUS)$dev.expl*100, digits=3))~"%"),cex=1.5)
+
+text(10000,-3.8,bquote("R"^2 == .(format(summary(fitGAMFABIUS)$r.sq, digits=2))),cex=1.0)
+
+text(10000,-4.5,bquote("D. E." == .(format(summary(fitGAMFABIUS)$dev.expl*100, digits=3))~"%"),cex=1.0)
  
   
 ### FISHCREEK
@@ -1436,16 +1440,26 @@ par(mar=c(5,2,1,1))
   
 plot(PLOTGAMS.FISHCREEK[[1]]$x,PLOTGAMS.FISHCREEK[[1]]$fit,xlim=c(4000,16000),type='l', col= 'RED' , ylim=c(-5,5),yaxt='n', xlab=NA)
 
+polygon(c(PLOTGAMS.FISHCREEK[[1]]$x, rev(PLOTGAMS.FISHCREEK[[1]]$x)),c(PLOTGAMS.FISHCREEK[[1]]$fit+(PLOTGAMS.FISHCREEK[[1]]$se*PLOTGAMS.FISHCREEK[[1]]$se.mult), rev(PLOTGAMS.FISHCREEK[[1]]$fit-(PLOTGAMS.FISHCREEK[[1]]$se*PLOTGAMS.FISHCREEK[[1]]$se.mult))),col='lightgray' ,border=NA)
+
+points(PLOTGAMS.FISHCREEK[[1]]$x,PLOTGAMS.FISHCREEK[[1]]$fit,type='l', col= 'RED' )
   
-points(PLOTGAMS.FISHCREEK[[1]]$x,PLOTGAMS.FISHCREEK[[1]]$fit + (PLOTGAMS.FISHCREEK[[1]]$se*PLOTGAMS.FISHCREEK[[1]]$se.mult), type='l', col='BLUE')
+points(PLOTGAMS.FISHCREEK[[1]]$x,PLOTGAMS.FISHCREEK[[1]]$fit + (PLOTGAMS.FISHCREEK[[1]]$se*PLOTGAMS.FISHCREEK[[1]]$se.mult), type='l', col='BLACK')
   
-points(PLOTGAMS.FISHCREEK[[1]]$raw,PLOTGAMS.FISHCREEK[[1]]$p.resid, col='BLUE')
+points(PLOTGAMS.FISHCREEK[[1]]$raw,PLOTGAMS.FISHCREEK[[1]]$p.resid, col='BLACK')
   
-points(PLOTGAMS.FISHCREEK[[1]]$x,PLOTGAMS.FISHCREEK[[1]]$fit-(PLOTGAMS.FISHCREEK[[1]]$se*PLOTGAMS.FISHCREEK[[1]]$se.mult), type='l', col='BLUE')
+points(PLOTGAMS.FISHCREEK[[1]]$x,PLOTGAMS.FISHCREEK[[1]]$fit-(PLOTGAMS.FISHCREEK[[1]]$se*PLOTGAMS.FISHCREEK[[1]]$se.mult), type='l', col='BLACK')
   
-polygon(c(PLOTGAMS.FISHCREEK[[1]]$x, rev(PLOTGAMS.FISHCREEK[[1]]$x)),c(PLOTGAMS.FISHCREEK[[1]]$fit+(PLOTGAMS.FISHCREEK[[1]]$se*PLOTGAMS.FISHCREEK[[1]]$se.mult), rev(PLOTGAMS.FISHCREEK[[1]]$fit-(PLOTGAMS.FISHCREEK[[1]]$se*PLOTGAMS.FISHCREEK[[1]]$se.mult))),col=lightblue.transp ,border=NA) 
+
   
-  
+
+text(10000,4.1, "FISHCREEK",cex=1.5)
+
+text(10000,-3.8,bquote("R"^2 == .(format(summary(fitGAMFISHCREEK)$r.sq, digits=2))),cex=1.0)
+
+text(10000,-4.5,bquote("D. E." == .(format(summary(fitGAMFISHCREEK)$dev.expl*100, digits=3))~"%"),cex=1.0)  
+
+
 
 ### MILBROOK 
 
@@ -1457,46 +1471,75 @@ plot(PLOTGAMS.MILBROOK[[1]]$x,PLOTGAMS.MILBROOK[[1]]$fit,xlim=c(4000,16000),type
 Axis(side=1, labels=T)
 Axis(side=4, labels=T)
 
-mtext(text="Effect on Yield Mg ha yr", side=4, line=3)
+polygon(c(PLOTGAMS.MILBROOK[[1]]$x, rev(PLOTGAMS.MILBROOK[[1]]$x)),c(PLOTGAMS.MILBROOK[[1]]$fit+(PLOTGAMS.MILBROOK[[1]]$se*PLOTGAMS.MILBROOK[[1]]$se.mult), rev(PLOTGAMS.MILBROOK[[1]]$fit-(PLOTGAMS.MILBROOK[[1]]$se*PLOTGAMS.MILBROOK[[1]]$se.mult))),col="lightgray" ,border=NA) 
 
-points(PLOTGAMS.MILBROOK[[1]]$x,PLOTGAMS.MILBROOK[[1]]$fit + (PLOTGAMS.MILBROOK[[1]]$se*PLOTGAMS.MILBROOK[[1]]$se.mult), type='l', col='BLUE')
+points(PLOTGAMS.MILBROOK[[1]]$x,PLOTGAMS.MILBROOK[[1]]$fit,type='l', col= 'RED' )
 
-points(PLOTGAMS.MILBROOK[[1]]$raw,PLOTGAMS.MILBROOK[[1]]$p.resid, col='BLUE')
+mtext(text=expression(paste("Yield effect, Mg ","ha"^-1, "year"^-1)), side=4, line=3, cex=0.8)
 
-points(PLOTGAMS.MILBROOK[[1]]$x,PLOTGAMS.MILBROOK[[1]]$fit-(PLOTGAMS.MILBROOK[[1]]$se*PLOTGAMS.MILBROOK[[1]]$se.mult), type='l', col='BLUE')
+points(PLOTGAMS.MILBROOK[[1]]$x,PLOTGAMS.MILBROOK[[1]]$fit + (PLOTGAMS.MILBROOK[[1]]$se*PLOTGAMS.MILBROOK[[1]]$se.mult), type='l', col='BLACK')
 
-polygon(c(PLOTGAMS.MILBROOK[[1]]$x, rev(PLOTGAMS.MILBROOK[[1]]$x)),c(PLOTGAMS.MILBROOK[[1]]$fit+(PLOTGAMS.MILBROOK[[1]]$se*PLOTGAMS.MILBROOK[[1]]$se.mult), rev(PLOTGAMS.MILBROOK[[1]]$fit-(PLOTGAMS.MILBROOK[[1]]$se*PLOTGAMS.MILBROOK[[1]]$se.mult))),col=lightblue.transp ,border=NA) 
+points(PLOTGAMS.MILBROOK[[1]]$raw,PLOTGAMS.MILBROOK[[1]]$p.resid, col='BLACK')
+
+points(PLOTGAMS.MILBROOK[[1]]$x,PLOTGAMS.MILBROOK[[1]]$fit-(PLOTGAMS.MILBROOK[[1]]$se*PLOTGAMS.MILBROOK[[1]]$se.mult), type='l', col='BLACK')
+
+
+text(7500,4.1, "MILBROOK",cex=1.5)
+
+text(10000,-3.8, bquote("R"^2 == .(format(summary(fitGAMMILBROOK)$r.sq, digits=2))), cex=1.0)
+
+text(10000,-4.5,bquote("D. E." == .(format(summary(fitGAMMILBROOK)$dev.expl*100, digits=3))~"%"),cex=1.0)
+
 
 
 ### "OTISCO"  
 
-par(mar=c(5,5,1,1))
+par(mar=c(5,5,1,2))
 
-plot(PLOTGAMS.OTISCO[[1]]$x,PLOTGAMS.OTISCO[[1]]$fit,xlim=c(4000,16000),type='l', col= 'RED' , ylim=c(-5,5), ylab="Effect on Yield Mg ha yr", xlab=NA,)
+plot(PLOTGAMS.OTISCO[[1]]$x,PLOTGAMS.OTISCO[[1]]$fit,xlim=c(4000,16000),type='l', col= 'RED' , ylim=c(-5,5), ylab=expression(paste("Yield effect, Mg ","ha"^-1, "year"^-1)), xlab=NA, cex.lab=1.3)
 
-points(PLOTGAMS.OTISCO[[1]]$x,PLOTGAMS.OTISCO[[1]]$fit + (PLOTGAMS.OTISCO[[1]]$se*PLOTGAMS.OTISCO[[1]]$se.mult), type='l', col='BLUE')
+polygon(c(PLOTGAMS.OTISCO[[1]]$x, rev(PLOTGAMS.OTISCO[[1]]$x)),c(PLOTGAMS.OTISCO[[1]]$fit+(PLOTGAMS.OTISCO[[1]]$se*PLOTGAMS.OTISCO[[1]]$se.mult), rev(PLOTGAMS.OTISCO[[1]]$fit-(PLOTGAMS.OTISCO[[1]]$se*PLOTGAMS.OTISCO[[1]]$se.mult))),col='lightgray' ,border=NA)
 
-points(PLOTGAMS.OTISCO[[1]]$raw,PLOTGAMS.OTISCO[[1]]$p.resid, col='BLUE')
+points(PLOTGAMS.OTISCO[[1]]$x,PLOTGAMS.OTISCO[[1]]$fit,type='l', col= 'RED')
 
-points(PLOTGAMS.OTISCO[[1]]$x,PLOTGAMS.OTISCO[[1]]$fit-(PLOTGAMS.OTISCO[[1]]$se*PLOTGAMS.OTISCO[[1]]$se.mult), type='l', col='BLUE')
+points(PLOTGAMS.OTISCO[[1]]$x,PLOTGAMS.OTISCO[[1]]$fit + (PLOTGAMS.OTISCO[[1]]$se*PLOTGAMS.OTISCO[[1]]$se.mult), type='l', col='BLACK')
 
-polygon(c(PLOTGAMS.OTISCO[[1]]$x, rev(PLOTGAMS.OTISCO[[1]]$x)),c(PLOTGAMS.OTISCO[[1]]$fit+(PLOTGAMS.OTISCO[[1]]$se*PLOTGAMS.OTISCO[[1]]$se.mult), rev(PLOTGAMS.OTISCO[[1]]$fit-(PLOTGAMS.OTISCO[[1]]$se*PLOTGAMS.OTISCO[[1]]$se.mult))),col=lightblue.transp ,border=NA)
+points(PLOTGAMS.OTISCO[[1]]$raw,PLOTGAMS.OTISCO[[1]]$p.resid, col='BLACK')
+
+points(PLOTGAMS.OTISCO[[1]]$x,PLOTGAMS.OTISCO[[1]]$fit-(PLOTGAMS.OTISCO[[1]]$se*PLOTGAMS.OTISCO[[1]]$se.mult), type='l', col='BLACK')
+
+
+text(10000,4.1, "OTISCO",cex=1.5)
+
+text(10000,-3.8,bquote("R"^2 == .(format(summary(fitGAMOTISCO)$r.sq, digits=2))),cex=1.0)
+
+text(10000,-4.5,bquote("D. E." == .(format(summary(fitGAMOTISCO)$dev.expl*100, digits=3))~"%"),cex=1.0)
 
 
 ### "PREBLE"    
 
-par(mar=c(5,2,1,1))
+par(mar=c(5,2,1,5))
 
 plot(PLOTGAMS.PREBLE[[1]]$x,PLOTGAMS.PREBLE[[1]]$fit,xlim=c(4000,16000),type='l', col= 'RED' , ylim=c(-5,5),yaxt='n', xlab=NA)
 
+polygon(c(PLOTGAMS.PREBLE[[1]]$x, rev(PLOTGAMS.PREBLE[[1]]$x)),c(PLOTGAMS.PREBLE[[1]]$fit+(PLOTGAMS.PREBLE[[1]]$se*PLOTGAMS.PREBLE[[1]]$se.mult), rev(PLOTGAMS.PREBLE[[1]]$fit-(PLOTGAMS.PREBLE[[1]]$se*PLOTGAMS.PREBLE[[1]]$se.mult))),col='lightgray' ,border=NA) 
 
-points(PLOTGAMS.PREBLE[[1]]$x,PLOTGAMS.PREBLE[[1]]$fit + (PLOTGAMS.PREBLE[[1]]$se*PLOTGAMS.PREBLE[[1]]$se.mult), type='l', col='BLUE')
+points(PLOTGAMS.PREBLE[[1]]$x,PLOTGAMS.PREBLE[[1]]$fit,type='l', col= 'RED')
 
-points(PLOTGAMS.PREBLE[[1]]$raw,PLOTGAMS.PREBLE[[1]]$p.resid, col='BLUE')
+points(PLOTGAMS.PREBLE[[1]]$x,PLOTGAMS.PREBLE[[1]]$fit + (PLOTGAMS.PREBLE[[1]]$se*PLOTGAMS.PREBLE[[1]]$se.mult), type='l', col='BLACK')
 
-points(PLOTGAMS.PREBLE[[1]]$x,PLOTGAMS.PREBLE[[1]]$fit-(PLOTGAMS.PREBLE[[1]]$se*PLOTGAMS.PREBLE[[1]]$se.mult), type='l', col='BLUE')
+points(PLOTGAMS.PREBLE[[1]]$raw,PLOTGAMS.PREBLE[[1]]$p.resid, col='BLACK')
 
-polygon(c(PLOTGAMS.PREBLE[[1]]$x, rev(PLOTGAMS.PREBLE[[1]]$x)),c(PLOTGAMS.PREBLE[[1]]$fit+(PLOTGAMS.PREBLE[[1]]$se*PLOTGAMS.PREBLE[[1]]$se.mult), rev(PLOTGAMS.PREBLE[[1]]$fit-(PLOTGAMS.PREBLE[[1]]$se*PLOTGAMS.PREBLE[[1]]$se.mult))),col=lightblue.transp ,border=NA) 
+points(PLOTGAMS.PREBLE[[1]]$x,PLOTGAMS.PREBLE[[1]]$fit-(PLOTGAMS.PREBLE[[1]]$se*PLOTGAMS.PREBLE[[1]]$se.mult), type='l', col='BLACK')
+
+mtext(text=expression(paste("Plant density, pl  ","ha"^-1)), side=1, line=3, cex=0.8)
+
+text(10000,4.1, "PREBLE",cex=1.5)
+
+text(6000,-3.8,bquote("R"^2 == .(format(summary(fitGAMPREBLE)$r.sq, digits=2))),cex=1.0)
+
+text(6000,-4.5,bquote("D. E." == .(format(summary(fitGAMPREBLE)$dev.expl*100, digits=3))~"%"),cex=1.0)
+
 
 
 ### "SX61" 
@@ -1509,15 +1552,25 @@ plot(PLOTGAMS.SX61[[1]]$x,PLOTGAMS.SX61[[1]]$fit,xlim=c(4000,16000),type='l', co
 Axis(side=1, labels=T)
 Axis(side=4, labels=T)
 
-mtext(text="Effect on Yield Mg ha yr", side=4, line=3)
+polygon(c(PLOTGAMS.SX61[[1]]$x, rev(PLOTGAMS.SX61[[1]]$x)),c(PLOTGAMS.SX61[[1]]$fit+(PLOTGAMS.SX61[[1]]$se*PLOTGAMS.SX61[[1]]$se.mult), rev(PLOTGAMS.SX61[[1]]$fit-(PLOTGAMS.SX61[[1]]$se*PLOTGAMS.SX61[[1]]$se.mult))),col='lightgray' ,border=NA) 
 
-points(PLOTGAMS.SX61[[1]]$x,PLOTGAMS.SX61[[1]]$fit + (PLOTGAMS.SX61[[1]]$se*PLOTGAMS.SX61[[1]]$se.mult), type='l', col='BLUE')
+points(PLOTGAMS.SX61[[1]]$x,PLOTGAMS.SX61[[1]]$fit,type='l', col= 'RED')
 
-points(PLOTGAMS.SX61[[1]]$raw,PLOTGAMS.SX61[[1]]$p.resid, col='BLUE')
 
-points(PLOTGAMS.SX61[[1]]$x,PLOTGAMS.SX61[[1]]$fit-(PLOTGAMS.SX61[[1]]$se*PLOTGAMS.SX61[[1]]$se.mult), type='l', col='BLUE')
+mtext(text=expression(paste("Yield effect, Mg ","ha"^-1, "year"^-1)), side=4, line=3, cex=0.8)
 
-polygon(c(PLOTGAMS.SX61[[1]]$x, rev(PLOTGAMS.SX61[[1]]$x)),c(PLOTGAMS.SX61[[1]]$fit+(PLOTGAMS.SX61[[1]]$se*PLOTGAMS.SX61[[1]]$se.mult), rev(PLOTGAMS.SX61[[1]]$fit-(PLOTGAMS.SX61[[1]]$se*PLOTGAMS.SX61[[1]]$se.mult))),col=lightblue.transp ,border=NA) 
+points(PLOTGAMS.SX61[[1]]$x,PLOTGAMS.SX61[[1]]$fit + (PLOTGAMS.SX61[[1]]$se*PLOTGAMS.SX61[[1]]$se.mult), type='l', col='BLACK')
+
+points(PLOTGAMS.SX61[[1]]$raw,PLOTGAMS.SX61[[1]]$p.resid, col='BLACK')
+
+points(PLOTGAMS.SX61[[1]]$x,PLOTGAMS.SX61[[1]]$fit-(PLOTGAMS.SX61[[1]]$se*PLOTGAMS.SX61[[1]]$se.mult), type='l', col='BLACK')
+
+
+text(10000,4.1, "SX61",cex=1.5)
+
+text(10000,-3.8,bquote("R"^2 == .(format(summary(fitGAMSX61)$r.sq, digits=2))),cex=1.0)
+
+text(10000,-4.5,bquote("D. E." == .(format(summary(fitGAMSX61)$dev.expl*100, digits=3))~"%"),cex=1.0)
 
 
 invisible(dev.off())
