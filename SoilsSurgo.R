@@ -341,9 +341,16 @@ print(Plot.2, position=c(0.125,0,1,1),more=T)
 
 invisible(dev.off())
 
+######################################################################################################################################################################
+#
+#
+#          Add the data from the soil samplesa and the laboratory analysis taken from the field and available in the file
+#         C:\Felipe\Willow_Project\Willow_Experiments\Willow_Rockview\WillowHarvestPaper\Agronomy Journal\JournalResponse20201117\RockViewSoilSamples24396 Report_FM.xlsx
+# 
+# 
+######################################################################################################################################################################
 
 
-#### Add the data from the soil samplesa and the laboratory analysis taken from the field and available in the file C:\Felipe\Willow_Project\Willow_Experiments\Willow_Rockview\WillowHarvestPaper\Agronomy Journal\JournalResponse20201117\RockViewSoilSamples24396 Report_FM.xlsx
 
 #  readClipboard()
 
@@ -420,4 +427,15 @@ abline(h=median(Soil.NO3.data), col='RED')
 
 Pedon.04N0805.2.Soil.Update[which(Pedon.04N0805.2.Soil.Update$time == 'T. Nitrogen %'),c('Values')]
 
-Plot.2.Updated<-xyplot(hzn_top ~ Values | time, data=Pedon.04N0805.2, index.cond=list(c(2,5,4,1,6,7,3)), ylim=c(130,-2), ylab=NULL,ylab.right="Depth cm", strip=strip.custom(bg=grey(0.8),par.strip.text=list(cex=0.8)), par.strip.text=list(cex=0.8),layout=c(7,1), type="b", grid=T, col.line="BLACK", col.symbol="BLACK", bg="BLACK" ,lwd=2,scales=list(x=list(tick.number=4, alternating=3, relation="free", cex=0.8), y=list(draw=T,relation="same", alternating=2)))
+######################################################################################################################################################################
+#
+#
+#     Adding the soil analysis data to the figure does not change the figure, as Organic matter between 2-4% when transformed to Soil carbon ranges in the values that are already ploted. 
+#     
+#
+#     Adding the nitrate nitrogen data does not increas the % nitrogen by any significant amount. 
+#
+#     In conclusion, the soil sampling data is already represented in the figure
+# 
+# 
+######################################################################################################################################################################
