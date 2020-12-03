@@ -305,6 +305,7 @@ Pedon.04N0805@horizons$hzname<-Pedon.04N0805@horizons$hzn_desgn ;
 
 Pedon.04N0805@site$pedon_key<-c("HAGERSTOWN  ")
 
+
 postscript(file="..\\Agronomy Journal\\Figure2Soil.eps" , onefile=F, width=8, height=2, paper= "letter")
 
 par(mar=c(4.1,5,2,1),xpd=NA)
@@ -340,8 +341,83 @@ print(Plot.2, position=c(0.125,0,1,1),more=T)
 
 invisible(dev.off())
 
-### Creating the map of north america with the location of the plot using the package maps  https://cran.r-project.org/web/packages/maps/
-
-tm_shape(world) + tm_polygons() 
 
 
+#### Add the data from the soil samplesa and the laboratory analysis taken from the field and available in the file C:\Felipe\Willow_Project\Willow_Experiments\Willow_Rockview\WillowHarvestPaper\Agronomy Journal\JournalResponse20201117\RockViewSoilSamples24396 Report_FM.xlsx
+
+#  readClipboard()
+
+RockView.Soildata.2012_1<-read.xlsx("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowRockViewData\\Soil Data\\Soil Sampling 20121016\\FN 24396 Report_FM.xlsx", sheet=1, startRow = 16, colNames = T ); 
+
+#    str(RockView.Soildata.2012) ; View(RockView.Soildata.2012)
+
+
+RockView.Soildata.2012<-RockView.Soildata.2012_1[3:10,] ;
+
+#  str(RockView.Soildata.2012)
+
+RockView.Soildata.2012<-lapply(RockView.Soildata.2012[,2:15], as.numeric) ;
+
+names(RockView.Soildata.2012)<-paste(names(RockView.Soildata.2012_1), RockView.Soildata.2012_1[1,],RockView.Soildata.2012_1[2,],sep = "_")[2:15]
+
+#  str(RockView.Soildata.2012)
+
+RockView.Soildata.2012.avg<-lapply(RockView.Soildata.2012, mean) ;
+RockView.Soildata.2012.rng<-lapply(RockView.Soildata.2012, range) ;
+
+RockView.Soildata.2013<-read.xlsx("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowRockViewData\\Soil Data\\NO3 Sampling 20131115\\RockViewNO3SoilSampling20131112.xlsx", sheet=2, startRow = 1, colNames = T ) ;
+
+
+#   str(RockView.Soildata.2013) ; View(RockView.Soildata.2013)
+
+RockView.Soildata.2013.avg<-mean(RockView.Soildata.2013$`Nitrate-N.ppm`) ;
+RockView.Soildata.2013.rng<-range(RockView.Soildata.2013$`Nitrate-N.ppm`) ;
+
+RockView.Soildata.2014<-read.xlsx("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowRockViewData\\Soil Data\\NO3 Sampling 20140501\\RockViewNO3SoilSampling20140501.xlsx", sheet=2, startRow = 1, colNames = T ) ;
+
+
+#   str(RockView.Soildata.2014) ; View(RockView.Soildata.2014)
+
+RockView.Soildata.2014.avg<-mean(RockView.Soildata.2014$`Nitrate-N.ppm`) ;
+RockView.Soildata.2014.rng<-range(RockView.Soildata.2014$`Nitrate-N.ppm`) ;
+
+RockView.Soildata.2015<-read.xlsx("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowRockViewData\\Soil Data\\NO3 Sampling 20151010\\RockViewNO3SoilSampling201510.xlsx", sheet=2, startRow = 1, colNames = T ) ;
+
+
+#   str(RockView.Soildata.2015) ; View(RockView.Soildata.2015)
+
+RockView.Soildata.2015.avg<-mean(RockView.Soildata.2015$`Nitrate-N.ppm`) ;
+RockView.Soildata.2015.rng<-range(RockView.Soildata.2015$`Nitrate-N.ppm`) ;
+
+
+barplot(c(unlist(RockView.Soildata.2015.avg),unlist(RockView.Soildata.2015.rng), unlist(RockView.Soildata.2014.avg), unlist(RockView.Soildata.2014.rng), unlist(RockView.Soildata.2013.avg), unlist(RockView.Soildata.2013.rng),unlist(RockView.Soildata.2012.avg$`NO3_NA_mg/Kg`), unlist(RockView.Soildata.2012.rng$`NO3_NA_mg/Kg`)),names.arg= c(rep(2015,3),rep(2014,3), rep(2013,3), rep(2012,3)))
+
+barplot(c(unlist(RockView.Soildata.2012.avg$`Organic_matter_%`), unlist(RockView.Soildata.2012.rng$`Organic_matter_%`)),names.arg= rep(2012,3))
+
+#### Update Pedon.04N0805 with the soil sampling data 
+
+
+#  str(Pedon.04N0805.2); View(Pedon.04N0805.2);
+
+Pedon.04N0805.2.Soil.Update<-Pedon.04N0805.2;
+
+# The total carbon data for the 0-40 cm layers is updated with the range of Loss of Ignition range from the 2012 soil analysis 
+
+
+Pedon.04N0805.2.Soil.Update[which(Pedon.04N0805.2.Soil.Update$time == 'T. Carbon %'),c('Values')][c(1,2)]<-unlist(RockView.Soildata.2012.rng$`Organic_matter_%`)[c(2,1)] ;
+
+
+
+# The Total nitrogen for the 0-40 cm layers is updated with the median of all the Nitrate measurements taken troughout the experiment in Between 2012 and 2015 
+
+Soil.NO3.data<-c(unlist(RockView.Soildata.2012$`NO3_NA_mg/Kg`), unlist(RockView.Soildata.2013$`Nitrate-N.ppm`), unlist(RockView.Soildata.2014$`Nitrate-N.ppm`),unlist(RockView.Soildata.2015$`Nitrate-N.ppm`))
+
+plot(Soil.NO3.data)
+
+median(Soil.NO3.data)
+abline(h=median(Soil.NO3.data), col='RED')
+
+
+Pedon.04N0805.2.Soil.Update[which(Pedon.04N0805.2.Soil.Update$time == 'T. Nitrogen %'),c('Values')]
+
+Plot.2.Updated<-xyplot(hzn_top ~ Values | time, data=Pedon.04N0805.2, index.cond=list(c(2,5,4,1,6,7,3)), ylim=c(130,-2), ylab=NULL,ylab.right="Depth cm", strip=strip.custom(bg=grey(0.8),par.strip.text=list(cex=0.8)), par.strip.text=list(cex=0.8),layout=c(7,1), type="b", grid=T, col.line="BLACK", col.symbol="BLACK", bg="BLACK" ,lwd=2,scales=list(x=list(tick.number=4, alternating=3, relation="free", cex=0.8), y=list(draw=T,relation="same", alternating=2)))
