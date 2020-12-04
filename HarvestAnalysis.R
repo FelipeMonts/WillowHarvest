@@ -884,6 +884,11 @@ par(mar=c(5.1, 4.1, 4.1 ,4.1))
 
 Paper.data.Plots.bar.chart.2<-aggregate(formula= MEAN_DRY.Mg.Ha ~  F.HARVEST.YEAR + F.VARIETY  , FUN=mean , data=Paper.data.Plots) ;
 
+#  str(Paper.data.Plots.bar.chart.2) ;
+# Correct harvest year factor name from 2015 to 2016 
+
+levels(Paper.data.Plots.bar.chart.2$F.HARVEST.YEAR)<-c("2016" , "2019") ;
+
 barplot(MEAN_DRY.Mg.Ha ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.2, ylim=c(0,30), beside=T, legend.text=T,args.legend = list(x = 16 , y = 30, bty="n"), col=c("RED", "BLUE"),mgp=c(2,1,0), ylab=expression(paste("Mg ","ha"^-1)), xlab="", cex.names=0.8);
 
 
@@ -919,7 +924,7 @@ mtext('Cultivar', side=1, line=3)
 
 T1[T1$term == 'Residuals',  c('meansq') ]
 
-arrows(x0=Harvest.Barchart, y0=Paper.data.Plots.bar.chart.1$MEAN_DRY.Mg.Ha.Year - unlist(T1[T1$term == 'Residuals',  c('meansq') ]), x1=Harvest.Barchart, y1=Paper.data.Plots.bar.chart.1$MEAN_DRY.Mg.Ha.Year + unlist(T1[T1$term == 'Residuals',  c('meansq') ]) , code=3, angle=90, length=0.1)
+arrows(x0=Harvest.Barchart, y0=Paper.data.Plots.bar.chart.1$MEAN_DRY.Mg.Ha.Year - sqrt(unlist(T1[T1$term == 'Residuals',  c('meansq') ])), x1=Harvest.Barchart, y1=Paper.data.Plots.bar.chart.1$MEAN_DRY.Mg.Ha.Year + sqrt(unlist(T1[T1$term == 'Residuals',  c('meansq') ])), code=3, angle=90, length=0.1)
 
 
 
@@ -933,7 +938,7 @@ invisible(dev.off())
 ###############################################################################################################
 
 
-postscript(file="..\\Agronomy Journal\\Figure4PlantDensity.eps" , onefile=F, width=8, height=6, paper= "letter")
+postscript(file="..\\Agronomy Journal\\Figure4PlantDensityAnderrorBars.eps" , onefile=F, width=8, height=6, paper= "letter")
 
 # par("mar")  default (5.1 4.1 4.1 2.1)
 
@@ -945,9 +950,27 @@ par(mar=c(5.1, 4.1, 2.1 ,2.1))
 Paper.data.Plots.bar.chart.3<-aggregate(formula= MEAN_PLANT.DENSITY.pl.ha ~  F.SURVEY.YEAR + F.VARIETY  , FUN=mean , data=Paper.data.Plots) ;
 
 
-barplot(MEAN_PLANT.DENSITY.pl.ha  ~ F.SURVEY.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.3, beside=T, legend.text=T,args.legend = list(x = 23 , y = 15000, bty="n"), col=c("YELLOW", "GREEN", "BROWN"),mgp=c(2,1,0), ylab=expression(paste(" Plants  ","ha"^-1)), xlab="", cex.names=0.8, ylim=c(0,15000));
+Density.Bar.Chart<-barplot(MEAN_PLANT.DENSITY.pl.ha  ~ F.SURVEY.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.3, beside=T, legend.text=T,args.legend = list(x = 23 , y = 15000, bty="n"), col=c("YELLOW", "GREEN", "BROWN"),mgp=c(2,1,0), ylab=expression(paste(" Plants  ","ha"^-1)), xlab="", cex.names=0.8, ylim=c(0,15000));
 
 mtext('Cultivar', side=1, line=3)
+
+
+#### Add the error bars based on the manual count estimates
+
+# ################################################################################################################################
+# 
+# Counting tests performed during the census gave the following counting errors:
+# Test 1: Average = 1210, Variance = 4825, Standard deviation = 69, CV = 0.057 , n=6
+# Test 2: Average = 899, Variance = 471, Standard deviation = 22, CV = 0.024 , n=3
+# Test 3: Average = 646, Variance = 1684, Standard deviation = 41, CV = 0.064 , n=8
+# 
+# Weighted average of the variance = (((1210-1)*4825)+((899-1)*471)+((646-1)*1684)) / ((1210-1)+(899-1)+(646-1)) = 2668.082
+# Standard deviation = 51.65348 ~ 52
+# CV=52/((1210+899+646)/3)= 0.05662432  ~ 5.7%
+#################################################################################################################################
+
+arrows(x0=Density.Bar.Chart, y0=Paper.data.Plots.bar.chart.3$MEAN_PLANT.DENSITY.pl.ha - Paper.data.Plots.bar.chart.3$MEAN_PLANT.DENSITY.pl.ha*0.057, x1=Density.Bar.Chart, y1=Paper.data.Plots.bar.chart.3$MEAN_PLANT.DENSITY.pl.ha + Paper.data.Plots.bar.chart.3$MEAN_PLANT.DENSITY.pl.ha*0.057 , code=3, angle=90, length=0.1)
+
 
 
 invisible(dev.off())
@@ -1493,7 +1516,7 @@ for (i in as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY)) ) {
 
 ##### Putting together the plot, one variety at the time
 
-postscript(file="..\\Agronomy Journal\\Figure6PlantDensityEff.eps" , onefile=F, width=8, height=6, paper= "letter");
+postscript(file="..\\Agronomy Journal\\Figure8PlantDensityEff.eps" , onefile=F, width=8, height=6, paper= "letter");
 
 par(mfrow=c(2,3),cex.main = 1.2, col.main = "BLACK" ,mar=c(5,5,1,1) ,bty="n") ;
 
@@ -1523,7 +1546,7 @@ text(10000,-4.5,bquote("D. E." == .(format(summary(fitGAMFABIUS)$dev.expl*100, d
   
 ### FISHCREEK
 
-par(mar=c(5,2,1,1))
+par(mar=c(5,2,1,2))
   
 plot(PLOTGAMS.FISHCREEK[[1]]$x,PLOTGAMS.FISHCREEK[[1]]$fit,xlim=c(4000,16000),type='l', col= 'RED' , ylim=c(-5,5),yaxt='n', xlab=NA)
 
@@ -1581,7 +1604,7 @@ text(10000,-4.5,bquote("D. E." == .(format(summary(fitGAMMILBROOK)$dev.expl*100,
 
 ### "OTISCO"  
 
-par(mar=c(5,5,1,2))
+par(mar=c(5,5,1,1))
 
 plot(PLOTGAMS.OTISCO[[1]]$x,PLOTGAMS.OTISCO[[1]]$fit,xlim=c(4000,16000),type='l', col= 'RED' , ylim=c(-5,5), ylab=expression(paste("Yield effect, Mg ","ha"^-1, "year"^-1)), xlab=NA, cex.lab=1.3)
 
@@ -1605,7 +1628,7 @@ text(10000,-4.5,bquote("D. E." == .(format(summary(fitGAMOTISCO)$dev.expl*100, d
 
 ### "PREBLE"    
 
-par(mar=c(5,2,1,5))
+par(mar=c(5,2,1,2))
 
 plot(PLOTGAMS.PREBLE[[1]]$x,PLOTGAMS.PREBLE[[1]]$fit,xlim=c(4000,16000),type='l', col= 'RED' , ylim=c(-5,5),yaxt='n', xlab=NA)
 
