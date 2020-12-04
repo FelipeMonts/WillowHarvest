@@ -868,6 +868,93 @@ writeData(Willow.Harvest.Tables.wb, sheet='Table_2',x= T2.coeff, startRow= dim(T
 saveWorkbook(Willow.Harvest.Tables.wb, file=paste0('../Agronomy Journal/Tables', format(Sys.time(),"%Y_%m_%d_%H_%M"), '.xlsx'), overwrite = F ) ;
 
 
+
+###############################################################################################################
+#                           Figure 5 Harvest yields Updated with error bars and intervals
+###############################################################################################################
+
+
+postscript(file="..\\Agronomy Journal\\Figure5HarvestAndError.eps" , onefile=F, width=8, height=6, paper= "letter")
+
+# par("mar")  default (5.1 4.1 4.1 2.1)
+
+par(mar=c(5.1, 4.1, 4.1 ,4.1))
+
+### Bar Chart MEAN_DRY.Mg.Ha
+
+Paper.data.Plots.bar.chart.2<-aggregate(formula= MEAN_DRY.Mg.Ha ~  F.HARVEST.YEAR + F.VARIETY  , FUN=mean , data=Paper.data.Plots) ;
+
+barplot(MEAN_DRY.Mg.Ha ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.2, ylim=c(0,30), beside=T, legend.text=T,args.legend = list(x = 16 , y = 30, bty="n"), col=c("RED", "BLUE"),mgp=c(2,1,0), ylab=expression(paste("Mg ","ha"^-1)), xlab="", cex.names=0.8);
+
+
+
+#add Temp  plot
+par(new=T);
+
+
+### Bar Chart MEAN_DRY.Mg.Ha.Year
+
+Paper.data.Plots.bar.chart.1<-aggregate(formula= MEAN_DRY.Mg.Ha.Year ~  F.HARVEST.YEAR + F.VARIETY  , FUN=mean , data=Paper.data.Plots) ;
+
+
+#  str(Paper.data.Plots.bar.chart) ; View(Paper.data.Plots.bar.chart)
+
+Harvest.Barchart<-barplot(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.1, beside=T, ylim=c(0,10),  col=c("RED", "BLUE"), axes=F, ylab="", names=c(rep("",6)),xlab="") ;
+
+axis(side=4, mgp=c(4,1,0)) ;
+
+mtext(expression(paste("Mg ","ha"^-1, "year"^-1)), side=4, line=2) 
+
+mtext('Cultivar', side=1, line=3)
+
+
+#### Prepare data to add error bars with the funcion arrows
+
+#  View(Paper.data.Plots.bar.chart.2)
+
+#  str(T1)  ;  T1$meansq  ;   T1$term;
+
+
+# get the mean square of the error from the ANOVA table 
+
+T1[T1$term == 'Residuals',  c('meansq') ]
+
+arrows(x0=Harvest.Barchart, y0=Paper.data.Plots.bar.chart.1$MEAN_DRY.Mg.Ha.Year - unlist(T1[T1$term == 'Residuals',  c('meansq') ]), x1=Harvest.Barchart, y1=Paper.data.Plots.bar.chart.1$MEAN_DRY.Mg.Ha.Year + unlist(T1[T1$term == 'Residuals',  c('meansq') ]) , code=3, angle=90, length=0.1)
+
+
+
+
+invisible(dev.off())
+
+
+
+###############################################################################################################
+#                           Figure 4  Plant density updated with error bars
+###############################################################################################################
+
+
+postscript(file="..\\Agronomy Journal\\Figure4PlantDensity.eps" , onefile=F, width=8, height=6, paper= "letter")
+
+# par("mar")  default (5.1 4.1 4.1 2.1)
+
+par(mar=c(5.1, 4.1, 2.1 ,2.1))
+
+
+### Bar Chart MEAN_PLANT.DENSITY.pl.ha
+
+Paper.data.Plots.bar.chart.3<-aggregate(formula= MEAN_PLANT.DENSITY.pl.ha ~  F.SURVEY.YEAR + F.VARIETY  , FUN=mean , data=Paper.data.Plots) ;
+
+
+barplot(MEAN_PLANT.DENSITY.pl.ha  ~ F.SURVEY.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.3, beside=T, legend.text=T,args.legend = list(x = 23 , y = 15000, bty="n"), col=c("YELLOW", "GREEN", "BROWN"),mgp=c(2,1,0), ylab=expression(paste(" Plants  ","ha"^-1)), xlab="", cex.names=0.8, ylim=c(0,15000));
+
+mtext('Cultivar', side=1, line=3)
+
+
+invisible(dev.off())
+
+
+
+
 #########################################################################################################
 #
 #
