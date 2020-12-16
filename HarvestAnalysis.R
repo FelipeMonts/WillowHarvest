@@ -1133,11 +1133,14 @@ bwplot(Length.m ~ VARIETY, data=Paper.data )
 
 # Combine factors F.BLOCK and F.VARIETY into one to plot the distribution of row length as a function
 
-Paper.data$BLOCKXVARIETY<-paste0(as.character(Paper.data$F.BLOCK), ":" , as.character(Paper.data$F.VARIETY ))
+Paper.data$BLOCKXVARIETY<-paste0("B",as.character(Paper.data$F.BLOCK), "-" , as.character(Paper.data$F.VARIETY ))
 
-Paper.data$F.BLOCKXVARIETY<-as.factor(Paper.data$BLOCKXVARIETY)
+#Paper.data$F.BLOCKXVARIETY<-as.factor(Paper.data$BLOCKXVARIETY);
 
-Paper.data$F.BLOCKXVARIETY<-factor(Paper.data$BLOCKXVARIETY, levels=c("1:PREBLE" , "1:FABIUS" , "1:MILLBROOK" , "1:SX61" , "1:OTISCO" , "1:FISH-CREEK" , "2:PREBLE" , "2:OTISCO" , "2:FISH-CREEK" , "2:SX61" , "2:FABIUS" ))
+
+levels(Paper.data$F.BLOCKXVARIETY)
+
+Paper.data$F.BLOCKXVARIETY<-factor(Paper.data$BLOCKXVARIETY, levels=c("B1-PREBLE" , "B1-FABIUS" , "B1-MILLBROOK" , "B1-SX61" , "B1-OTISCO" , "B1-FISH-CREEK" , "B2-PREBLE" , "B2-OTISCO" , "B2-MILLBROOK" , "B2-FISH-CREEK" , "B2-SX61" , "B2-FABIUS" )) ;
 
 
 levels(Paper.data$F.BLOCKXVARIETY)
@@ -1147,15 +1150,28 @@ levels(Paper.data$F.BLOCKXVARIETY)
 display.brewer.pal(n = 6, name = 'Set1')
 
 
+# Calculate number of rows in each  Plot (block x variety)
+
+RowCount.table.Raw<-data.frame(table(Paper.data$F.BLOCKXVARIETY));
+
+
+
+plot(Freq ~ Var1, data=RowCount.table.Raw, ylab="Number of Rows", xlab="VARIETY")
+
+
+
+#  View(Paper.data) ;
 
 #######  Boxand wiskers plot in order on how they are distributed in the field
 
-postscript(file="..\\Agronomy Journal\\FigureS1Rowlength.eps" , onefile=F, width=8, height=10, paper= "letter");
+postscript(file="..\\Agronomy Journal\\JournalResponse20201117\\Figure3.eps" , onefile=F, width=8, height=10, paper= "letter");
 
-bwplot(Length.m ~ F.BLOCKXVARIETY, data=Paper.data, horizontal=FALSE, ylab=list(label="Row length (m)", cex= 1.5), scales=list(x=list(rot=90,cex=1.5),y=list(cex=1.5)), ylim=c(100,600), 
-       par.settings = list(box.rectangle= list(fill= rep(brewer.pal(n = 6, name = 'Set1'),2))))
-                        
+bwplot(Length.m ~ F.BLOCKXVARIETY, data=Paper.data, horizontal=FALSE, ylab=list(label="Row length (m)", cex= 1.5), scales=list(x=list(rot=90,cex=1.5),y=list(cex=1.5)), par.settings = list(box.rectangle= list(fill=c("RED", "BLUE" ,"GREEN" , "PURPLE" , "ORANGE" , "YELLOW","RED", "ORANGE" ,"GREEN" , "YELLOW" , "PURPLE" , "BLUE"))),panel=function(...){
+  panel.bwplot(...)
+  panel.text(c(1:12),rep(110,12),labels=paste0("n=",RowCount.table.Raw$Freq),cex=1.2)
+})
 
+#str(RowLenghtBoxWiskers)
 
 
 invisible(dev.off())
@@ -1169,7 +1185,7 @@ bwplot(DRY.Mg.Ha.Year.2015 ~ VARIETY , data=Paper.data )
 bwplot(DRY.Mg.Ha.Year.2019 ~ VARIETY | F.BLOCK  , data=Paper.data ) 
 
 
-plot(Freq ~ Var1, data=data.frame(table(Paper.data$F.VARIETY,Paper.data$F.BLOCK)), ylab="Number of Rows", xlab="VARIETY")
+
  
 #View(Paper.data); str(Paper.data) ;
 
@@ -1674,6 +1690,181 @@ points(PLOTGAMS.SX61[[1]]$x,PLOTGAMS.SX61[[1]]$fit + (PLOTGAMS.SX61[[1]]$se*PLOT
 points(PLOTGAMS.SX61[[1]]$raw,PLOTGAMS.SX61[[1]]$p.resid, col='BLACK')
 
 points(PLOTGAMS.SX61[[1]]$x,PLOTGAMS.SX61[[1]]$fit-(PLOTGAMS.SX61[[1]]$se*PLOTGAMS.SX61[[1]]$se.mult), type='l', col='BLACK')
+
+
+text(10000,4.1, "SX61",cex=1.5)
+
+text(10000,-3.8,bquote("R"^2 == .(format(summary(fitGAMSX61)$r.sq, digits=2))),cex=1.0)
+
+text(10000,-4.5,bquote("D. E." == .(format(summary(fitGAMSX61)$dev.expl*100, digits=3))~"%"),cex=1.0)
+
+
+invisible(dev.off())
+
+
+
+###############################################################################################################
+
+#####  Only plotting variety data range and prediction on the graph, not the whole experimental data range but without line or shade for all but Fabius
+
+postscript(file="..\\Agronomy Journal\\Figure8PlantDensityEffNoline.eps" , onefile=F, width=8, height=6, paper= "letter");
+
+par(mfrow=c(2,3),cex.main = 1.2, col.main = "BLACK" ,mar=c(5,5,1,1) ,bty="n") ;
+
+### FABIUS
+
+plot(PLOTGAMS.FABIUS[[1]]$x,PLOTGAMS.FABIUS[[1]]$fit,xlim=c(4000,16000),type='l', col= 'RED' , ylim=c(-5,5), ylab=expression(paste("Yield effect, Mg ","ha"^-1, "year"^-1)), xlab=NA,cex.lab=1.3)
+
+polygon(c(PLOTGAMS.FABIUS[[1]]$x, rev(PLOTGAMS.FABIUS[[1]]$x)),c(PLOTGAMS.FABIUS[[1]]$fit+(PLOTGAMS.FABIUS[[1]]$se*PLOTGAMS.FABIUS[[1]]$se.mult), rev(PLOTGAMS.FABIUS[[1]]$fit-(PLOTGAMS.FABIUS[[1]]$se*PLOTGAMS.FABIUS[[1]]$se.mult))),col="lightgray",border=NA)
+
+points(PLOTGAMS.FABIUS[[1]]$x,PLOTGAMS.FABIUS[[1]]$fit,xlim=c(4000,16000),type='l', col= 'RED')
+
+points(PLOTGAMS.FABIUS[[1]]$x,PLOTGAMS.FABIUS[[1]]$fit + (PLOTGAMS.FABIUS[[1]]$se*PLOTGAMS.FABIUS[[1]]$se.mult), type='l', col='BLACK')
+
+points(PLOTGAMS.FABIUS[[1]]$raw,PLOTGAMS.FABIUS[[1]]$p.resid, col='BLACK')
+
+points(PLOTGAMS.FABIUS[[1]]$x,PLOTGAMS.FABIUS[[1]]$fit-(PLOTGAMS.FABIUS[[1]]$se*PLOTGAMS.FABIUS[[1]]$se.mult), type='l', col='BLACK')
+
+
+
+text(10000, 4.1, "FABIUS",cex=1.5)
+
+
+text(10000,-3.8,bquote("R"^2 == .(format(summary(fitGAMFABIUS)$r.sq, digits=2))),cex=1.0)
+
+text(10000,-4.5,bquote("D. E." == .(format(summary(fitGAMFABIUS)$dev.expl*100, digits=3))~"%"),cex=1.0)
+
+
+### FISHCREEK
+
+par(mar=c(5,2,1,2))
+
+plot(PLOTGAMS.FISHCREEK[[1]]$x,PLOTGAMS.FISHCREEK[[1]]$fit,xlim=c(4000,16000),type='l', col= NA , ylim=c(-5,5),yaxt='n', xlab=NA)
+
+polygon(c(PLOTGAMS.FISHCREEK[[1]]$x, rev(PLOTGAMS.FISHCREEK[[1]]$x)),c(PLOTGAMS.FISHCREEK[[1]]$fit+(PLOTGAMS.FISHCREEK[[1]]$se*PLOTGAMS.FISHCREEK[[1]]$se.mult), rev(PLOTGAMS.FISHCREEK[[1]]$fit-(PLOTGAMS.FISHCREEK[[1]]$se*PLOTGAMS.FISHCREEK[[1]]$se.mult))),col=NA ,border=NA)
+
+points(PLOTGAMS.FISHCREEK[[1]]$x,PLOTGAMS.FISHCREEK[[1]]$fit,type='l', col= NA )
+
+points(PLOTGAMS.FISHCREEK[[1]]$x,PLOTGAMS.FISHCREEK[[1]]$fit + (PLOTGAMS.FISHCREEK[[1]]$se*PLOTGAMS.FISHCREEK[[1]]$se.mult), type='l', col=NA)
+
+points(PLOTGAMS.FISHCREEK[[1]]$raw,PLOTGAMS.FISHCREEK[[1]]$p.resid, col='BLACK')
+
+points(PLOTGAMS.FISHCREEK[[1]]$x,PLOTGAMS.FISHCREEK[[1]]$fit-(PLOTGAMS.FISHCREEK[[1]]$se*PLOTGAMS.FISHCREEK[[1]]$se.mult), type='l', col=NA)
+
+
+
+
+text(10000,4.1, "FISHCREEK",cex=1.5)
+
+text(10000,-3.8,bquote("R"^2 == .(format(summary(fitGAMFISHCREEK)$r.sq, digits=2))),cex=1.0)
+
+text(10000,-4.5,bquote("D. E." == .(format(summary(fitGAMFISHCREEK)$dev.expl*100, digits=3))~"%"),cex=1.0)  
+
+
+
+### MILBROOK 
+
+par(mar=c(5,2,1,5))
+
+
+
+plot(PLOTGAMS.MILBROOK[[1]]$x,PLOTGAMS.MILBROOK[[1]]$fit,xlim=c(4000,16000),type='l', col= NA , ylim=c(-5,5),yaxt='n', xlab=NA)
+Axis(side=1, labels=T)
+Axis(side=4, labels=T)
+
+polygon(c(PLOTGAMS.MILBROOK[[1]]$x, rev(PLOTGAMS.MILBROOK[[1]]$x)),c(PLOTGAMS.MILBROOK[[1]]$fit+(PLOTGAMS.MILBROOK[[1]]$se*PLOTGAMS.MILBROOK[[1]]$se.mult), rev(PLOTGAMS.MILBROOK[[1]]$fit-(PLOTGAMS.MILBROOK[[1]]$se*PLOTGAMS.MILBROOK[[1]]$se.mult))),col=NA ,border=NA) 
+
+points(PLOTGAMS.MILBROOK[[1]]$x,PLOTGAMS.MILBROOK[[1]]$fit,type='l', col= NA )
+
+mtext(text=expression(paste("Yield effect, Mg ","ha"^-1, "year"^-1)), side=4, line=3, cex=0.8)
+
+points(PLOTGAMS.MILBROOK[[1]]$x,PLOTGAMS.MILBROOK[[1]]$fit + (PLOTGAMS.MILBROOK[[1]]$se*PLOTGAMS.MILBROOK[[1]]$se.mult), type='l', col=NA)
+
+points(PLOTGAMS.MILBROOK[[1]]$raw,PLOTGAMS.MILBROOK[[1]]$p.resid, col='BLACK')
+
+points(PLOTGAMS.MILBROOK[[1]]$x,PLOTGAMS.MILBROOK[[1]]$fit-(PLOTGAMS.MILBROOK[[1]]$se*PLOTGAMS.MILBROOK[[1]]$se.mult), type='l', col=NA)
+
+
+text(7500,4.1, "MILBROOK",cex=1.5)
+
+text(10000,-3.8, bquote("R"^2 == .(format(summary(fitGAMMILBROOK)$r.sq, digits=2))), cex=1.0)
+
+text(10000,-4.5,bquote("D. E." == .(format(summary(fitGAMMILBROOK)$dev.expl*100, digits=3))~"%"),cex=1.0)
+
+
+
+### "OTISCO"  
+
+par(mar=c(5,5,1,1))
+
+plot(PLOTGAMS.OTISCO[[1]]$x,PLOTGAMS.OTISCO[[1]]$fit,xlim=c(4000,16000),type='l', col=NA , ylim=c(-5,5), ylab=expression(paste("Yield effect, Mg ","ha"^-1, "year"^-1)), xlab=NA, cex.lab=1.3)
+
+polygon(c(PLOTGAMS.OTISCO[[1]]$x, rev(PLOTGAMS.OTISCO[[1]]$x)),c(PLOTGAMS.OTISCO[[1]]$fit+(PLOTGAMS.OTISCO[[1]]$se*PLOTGAMS.OTISCO[[1]]$se.mult), rev(PLOTGAMS.OTISCO[[1]]$fit-(PLOTGAMS.OTISCO[[1]]$se*PLOTGAMS.OTISCO[[1]]$se.mult))),col=NA ,border=NA)
+
+points(PLOTGAMS.OTISCO[[1]]$x,PLOTGAMS.OTISCO[[1]]$fit,type='l', col= NA)
+
+points(PLOTGAMS.OTISCO[[1]]$x,PLOTGAMS.OTISCO[[1]]$fit + (PLOTGAMS.OTISCO[[1]]$se*PLOTGAMS.OTISCO[[1]]$se.mult), type='l', col=NA)
+
+points(PLOTGAMS.OTISCO[[1]]$raw,PLOTGAMS.OTISCO[[1]]$p.resid, col='BLACK')
+
+points(PLOTGAMS.OTISCO[[1]]$x,PLOTGAMS.OTISCO[[1]]$fit-(PLOTGAMS.OTISCO[[1]]$se*PLOTGAMS.OTISCO[[1]]$se.mult), type='l', col=NA)
+
+
+text(10000,4.1, "OTISCO",cex=1.5)
+
+text(10000,-3.8,bquote("R"^2 == .(format(summary(fitGAMOTISCO)$r.sq, digits=2))),cex=1.0)
+
+text(10000,-4.5,bquote("D. E." == .(format(summary(fitGAMOTISCO)$dev.expl*100, digits=3))~"%"),cex=1.0)
+
+
+### "PREBLE"    
+
+par(mar=c(5,2,1,2))
+
+plot(PLOTGAMS.PREBLE[[1]]$x,PLOTGAMS.PREBLE[[1]]$fit,xlim=c(4000,16000),type='l', col= NA, ylim=c(-5,5),yaxt='n', xlab=NA)
+
+polygon(c(PLOTGAMS.PREBLE[[1]]$x, rev(PLOTGAMS.PREBLE[[1]]$x)),c(PLOTGAMS.PREBLE[[1]]$fit+(PLOTGAMS.PREBLE[[1]]$se*PLOTGAMS.PREBLE[[1]]$se.mult), rev(PLOTGAMS.PREBLE[[1]]$fit-(PLOTGAMS.PREBLE[[1]]$se*PLOTGAMS.PREBLE[[1]]$se.mult))),col=NA ,border=NA) 
+
+points(PLOTGAMS.PREBLE[[1]]$x,PLOTGAMS.PREBLE[[1]]$fit,type='l', col= NA)
+
+points(PLOTGAMS.PREBLE[[1]]$x,PLOTGAMS.PREBLE[[1]]$fit + (PLOTGAMS.PREBLE[[1]]$se*PLOTGAMS.PREBLE[[1]]$se.mult), type='l', col=NA)
+
+points(PLOTGAMS.PREBLE[[1]]$raw,PLOTGAMS.PREBLE[[1]]$p.resid, col='BLACK')
+
+points(PLOTGAMS.PREBLE[[1]]$x,PLOTGAMS.PREBLE[[1]]$fit-(PLOTGAMS.PREBLE[[1]]$se*PLOTGAMS.PREBLE[[1]]$se.mult), type='l', col=NA)
+
+mtext(text=expression(paste("Plant density, pl  ","ha"^-1)), side=1, line=3, cex=0.8)
+
+text(10000,4.1, "PREBLE",cex=1.5)
+
+text(6000,-3.8,bquote("R"^2 == .(format(summary(fitGAMPREBLE)$r.sq, digits=2))),cex=1.0)
+
+text(6000,-4.5,bquote("D. E." == .(format(summary(fitGAMPREBLE)$dev.expl*100, digits=3))~"%"),cex=1.0)
+
+
+
+### "SX61" 
+
+par(mar=c(5,2,1,5))
+
+
+
+plot(PLOTGAMS.SX61[[1]]$x,PLOTGAMS.SX61[[1]]$fit,xlim=c(4000,16000),type='l', col= NA , ylim=c(-5,5),yaxt='n', xlab=NA)
+Axis(side=1, labels=T)
+Axis(side=4, labels=T)
+
+polygon(c(PLOTGAMS.SX61[[1]]$x, rev(PLOTGAMS.SX61[[1]]$x)),c(PLOTGAMS.SX61[[1]]$fit+(PLOTGAMS.SX61[[1]]$se*PLOTGAMS.SX61[[1]]$se.mult), rev(PLOTGAMS.SX61[[1]]$fit-(PLOTGAMS.SX61[[1]]$se*PLOTGAMS.SX61[[1]]$se.mult))),col=NA ,border=NA) 
+
+points(PLOTGAMS.SX61[[1]]$x,PLOTGAMS.SX61[[1]]$fit,type='l', col= NA)
+
+
+mtext(text=expression(paste("Yield effect, Mg ","ha"^-1, "year"^-1)), side=4, line=3, cex=0.8)
+
+points(PLOTGAMS.SX61[[1]]$x,PLOTGAMS.SX61[[1]]$fit + (PLOTGAMS.SX61[[1]]$se*PLOTGAMS.SX61[[1]]$se.mult), type='l', col=NA)
+
+points(PLOTGAMS.SX61[[1]]$raw,PLOTGAMS.SX61[[1]]$p.resid, col='BLACK')
+
+points(PLOTGAMS.SX61[[1]]$x,PLOTGAMS.SX61[[1]]$fit-(PLOTGAMS.SX61[[1]]$se*PLOTGAMS.SX61[[1]]$se.mult), type='l', col=NA)
 
 
 text(10000,4.1, "SX61",cex=1.5)
