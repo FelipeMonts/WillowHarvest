@@ -200,26 +200,27 @@ DateTime.range.2[2]<-as.Date(DateTime.range[2])+365
 
 ##### Create the graphics in EPS Postscript format ######
 
-postscript(file="..\\Agronomy Journal\\Figure1Weather.eps" , onefile=F, width=8, height=4, paper= "letter")
+postscript(file="..\\Agronomy Journal\\JournalResponse20201117\\AceptedVersion20210105\\Figure1Weather.eps" , onefile=F, width=8, height=4, paper= "letter", family='Times')
 
 
 par(mar=c(3,5,1,4)+0.1);
 
+
 #  plot the pcp
-plot(University.Park.Temp.Pcp$Date.Year.Month, University.Park.Temp.Pcp$PCP_MM, type="h",yaxt="n",xaxt="n", ylim=rev(c(0,4*Pcp.range[2])), bty="n", main="University Park Airport",col="light blue",ylab=NA,xlab=NA, lwd=3);
+plot(University.Park.Temp.Pcp$Date.Year.Month, University.Park.Temp.Pcp$PCP_MM, type="h",yaxt="n",xaxt="n", ylim=rev(c(0,4*Pcp.range[2])), bty="n", main="University Park Airport",col="light blue",ylab=NA,xlab=NA, lwd=3, font.main=2,cex.main=1.5);
 
 # add axis with proper labeling
 
 axis(side = 3, pos = 0, tck = 0,xaxt = "n") ;
-axis(side = 4, at = pretty(seq(0, floor(Pcp.range[2] + 1),length=c(5))),labels=pretty(seq(0, floor(Pcp.range[2] + 1),length=c(5)))) ;
-mtext(side=4,"Precipitation mm",line = 2, cex = 0.9, adj = 0.95) ;
+axis(side = 4, at = pretty(seq(0, floor(Pcp.range[2] + 1),length=c(5))),labels=pretty(seq(0, floor(Pcp.range[2] + 1),length=c(5))), font=2, cex.axis=1.1) ;
+mtext(side=4,"Precipitation mm",line = 2, cex = 1.3, adj = 0.95, font=2) ;
 
 #add Temp  plot
 par(new=T);
 
 par(mar=c(5.1, 4.1, 4.1 ,2.1))
 
-plot(University.Park.Temp.Pcp$Date.Year.Month,University.Park.Temp.Pcp$TEMP_C, type='l',col="BLACK",axes=F,yaxt="n", ylab="Temperature °C",xlab="Date", ylim =c(-25,40));
+plot(University.Park.Temp.Pcp$Date.Year.Month,University.Park.Temp.Pcp$TEMP_C, type='l',col="BLACK",axes=F, yaxt='n', ylab="Temperature °C",xlab="Date", ylim =c(-25,40),font.lab=2,cex.lab=1.3,cex.axis=1.1);
 
 #coordinates for the Temp max min polygon
 
@@ -233,10 +234,10 @@ polygon(x=c(Polygon.coords$Date.Year.Month, rev(Polygon.coords$Date.Year.Month))
 
 
 #add axis with appropriate labels
-axis.Date(side=1, at=seq(DateTime.range[1],DateTime.range.2[2],by='year')) 
+axis.Date(side=1, at=seq(DateTime.range[1],DateTime.range.2[2],by='year'), font=2, cex.axis=1.2) 
 
 #axis.POSIXct(side=1,University.Park.Temp.Pcp$Date.Year.Month, at=seq(DateTime.range[1],DateTime.range[2],length.out=5),labels=format(seq(DateTime.range[1],DateTime.range[2],length.out=5),"%Y")) ;
-axis(side=2,at=pretty(seq(-25,40,length=15))) ;
+axis(side=2,at=pretty(seq(-25,40,length=15)), font=2, cex.axis=1.2) ;
 
 
 #add aditional flow data 

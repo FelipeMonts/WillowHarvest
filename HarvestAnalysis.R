@@ -45,43 +45,43 @@ setwd("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowHa
 
 # Install the packages that are needed #
 
-# install.packages('fields', dep=T)
+ install.packages('fields', dep=T)
 
-# install.packages('LatticeKrig', dep=T)
+ install.packages('LatticeKrig', dep=T)
 
-# install.packages('rgeos', dep=T)
+ install.packages('rgeos', dep=T)
 
-# install.packages('RColorBrewer', dep=T)
+ install.packages('RColorBrewer', dep=T)
 
-# install.packages('rgdal', dep=T)
+ install.packages('rgdal', dep=T)
 
-# install.packages('sp', dep=T)
+ install.packages('sp', dep=T)
 
-# install.packages('raster', dep=T)
+ install.packages('raster', dep=T)
 
-# install.packages('openxlsx', dep=T)
+ install.packages('openxlsx', dep=T)
 
-# install.packages('openxlsx', dep=T)
+ install.packages('randomForest', dep=T)
 
-# install.packages('randomForest', dep=T)
+ install.packages('lattice', dep=T)
 
-# install.packages('lattice', dep=T)
+ install.packages('latticeExtra', dep=T)
 
-# install.packages('latticeExtra', dep=T)
+ install.packages('stringi', dep=T)
 
-# install.packages('stringi', dep=T)
+ install.packages('rgl', dep=T)
 
-# install.packages('rgl', dep=T)
+ install_github('sorhawell/forestFloor')
 
-# install_github('sorhawell/forestFloor')
+ install.packages('nlme', dep=T)
 
-# install.packages('nlme', dep=T)
+ install.packages('broom', dep=T)
 
-# install.packages('nlme', dep=T)
-
-# install.packages('broom', dep=T)
-
-# install.packages('HRW')
+ install.packages('HRW')
+ 
+ remove.packages('raster', "C:/Felipe/SotwareANDCoding/R_Library/library")
+ 
+ remove.packages('rgdal', "C:/Felipe/SotwareANDCoding/R_Library/library")
 
 ###############################################################################################################
 #                           load the libraries that are neded   
@@ -101,7 +101,7 @@ library(devtools)
 
 # library(forestFloor)
 
-# library(rgl)
+ library(rgdal)
 
 library(raster)
 
@@ -283,14 +283,20 @@ Paper.data[59,c('VARIETY')]<-'FISH-CREEK' ;
 #                           Figure 1
 ###############################################################################################################
 
-# create standard colors and break points for the figures of the spatila plant distribution according to the surveys
+# create standard colors and break points for the figures of the spatial plant distribution according to the surveys
 
 Survey.Raster.Levels<-seq(0,120,10) ;
 
 Survey.Raster.Colors<-terrain.colors(13, rev=T)
 
 
-postscript(file="..\\Agronomy Journal\\Figure2Surveys.eps" , onefile=F, width=8, height=4, paper= "letter") ;
+postscript(file="..\\Agronomy Journal\\JournalResponse20201117\\AceptedVersion20210105\\Figure2Surveys.eps" , onefile=F, width=8, height=4, paper= "letter") ;
+
+par(mar=c(5, 4, 4, 2) + 0.1)
+
+par(font.main=c("serif", "bold"))
+
+par(font.main=c("serif", "bold"))
 
 par(mfcol=c(1,3))
 
@@ -298,9 +304,9 @@ par(mfcol=c(1,3))
 Plant.Survey.2013<-mask(raster(Plants.2013.Tps.sp.V1)*50,Boundary.Polygon);
 
 
-plot(Plant.Survey.2013, breaks=Survey.Raster.Levels, col=Survey.Raster.Colors, axes=F, box=F, legend=F, main="2013");
+plot(Plant.Survey.2013, breaks=Survey.Raster.Levels, col=Survey.Raster.Colors, axes=F, box=F, legend=F, main="2013", cex.main=1.5);
 
-contour(Plant.Survey.2013, add=T) ;
+contour(Plant.Survey.2013, vfont=c("serif", "bold"), labcex=0.7, add=T) ;
 
 #plot(Plant.Survey.2013, legend.only=T, breaks=Survey.Raster.Levels, col=Survey.Raster.Colors, horizontal =T); 
 
@@ -308,11 +314,11 @@ contour(Plant.Survey.2013, add=T) ;
 
 Plant.Survey.2014<-mask(raster(Plants.2014.Tps.sp.V1)*50,Boundary.Polygon);
 
-plot(Plant.Survey.2014, breaks=Survey.Raster.Levels, col=Survey.Raster.Colors, axes=F, box=F, legend=F, main="2014") ;
+plot(Plant.Survey.2014, breaks=Survey.Raster.Levels, col=Survey.Raster.Colors, axes=F, box=F, legend=F, main="2014", cex.main=1.5) ;
 
-contour(Plant.Survey.2014, add=T) ;
+contour(Plant.Survey.2014, vfont=c("serif", "bold"), labcex=0.7, add=T) ;
 
-plot(Plant.Survey.2014, breaks=Survey.Raster.Levels, col=Survey.Raster.Colors, legend.only=T, horizontal =T, legend.shrink=1.1)
+plot(Plant.Survey.2014, breaks=Survey.Raster.Levels, col=Survey.Raster.Colors, legend.only=T, horizontal =T, legend.shrink=1.2, family='serif', font='bold')
 
 
 
@@ -325,9 +331,9 @@ maxValue(Plant.Survey.2016)
 
 Plant.Survey.2016@data@values[which(Plant.Survey.2016@data@values>120)]<-120
 
-plot(Plant.Survey.2016, breaks=Survey.Raster.Levels, col=Survey.Raster.Colors, axes=F, box=F, legend=F, main="2016", interpolate=T) ;
+plot(Plant.Survey.2016, breaks=Survey.Raster.Levels, col=Survey.Raster.Colors, axes=F, box=F, legend=F, main="2016", interpolate=T,cex.main=1.5) ;
 
-contour(Plant.Survey.2016, levels=c(0,20,40,60,80,100,120), add=T) ;
+contour(Plant.Survey.2016, levels=c(0,20,40,60,80,100,120),vfont=c("serif", "bold"), labcex=0.7, add=T) ;
 max(Plant.Survey.2016)
 
 #plot(Plant.Survey.2016, breaks=Survey.Raster.Levels, col=Survey.Raster.Colors,legend.only=T, horizontal =T, legend.shrink=1.1)
@@ -610,7 +616,7 @@ saveWorkbook(Willow.Harvest.wb, file=paste0('../WillowHarvestDataAnalysis', form
 ###############################################################################################################
 
 
-postscript(file="..\\Agronomy Journal\\Figure5Harvest.eps" , onefile=F, width=8, height=6, paper= "letter")
+postscript(file="..\\Agronomy Journal\\JournalResponse20201117\\AceptedVersion20210105\\Figure6Harvest.eps" , onefile=F, width=8, height=6, paper= "letter", family='Times')
 
 # par("mar")  default (5.1 4.1 4.1 2.1)
 
@@ -620,7 +626,7 @@ par(mar=c(5.1, 4.1, 4.1 ,4.1))
 
 Paper.data.Plots.bar.chart.2<-aggregate(formula= MEAN_DRY.Mg.Ha ~  F.HARVEST.YEAR + F.VARIETY  , FUN=mean , data=Paper.data.Plots) ;
 
-barplot(MEAN_DRY.Mg.Ha ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.2, ylim=c(0,30), beside=T, legend.text=T,args.legend = list(x = 16 , y = 30, bty="n"), col=c("RED", "BLUE"),mgp=c(2,1,0), ylab=expression(paste("Mg ","ha"^-1)), xlab="", cex.names=0.8);
+barplot(MEAN_DRY.Mg.Ha ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.2, ylim=c(0,30), beside=T, legend.text=T,args.legend = list(x = 16 , y = 30, bty="n", cex=1.2), col=c("RED", "BLUE"),mgp=c(2,1,0), ylab=expression(paste("Mg ","ha"^-1)), xlab="", cex.names=0.87 , cex.lab=1.5, font=2, cex.axis=1.2);
 
 
 
@@ -637,11 +643,11 @@ Paper.data.Plots.bar.chart.1<-aggregate(formula= MEAN_DRY.Mg.Ha.Year ~  F.HARVES
 
 Harvest.Barchart<-barplot(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.1, beside=T, ylim=c(0,10),  col=c("RED", "BLUE"), axes=F, ylab="", names=c(rep("",6)),xlab="") ;
         
-axis(side=4, mgp=c(4,1,0)) ;
+axis(side=4, mgp=c(4,1,0),cex.axis=1.2, font=2) ;
 
-mtext(expression(paste("Mg ","ha"^-1, "year"^-1)), side=4, line=2) 
+mtext(expression(paste("Mg ","ha"^-1, "year"^-1)), side=4, line=3, font=2, cex=1.3) 
 
-mtext('Cultivar', side=1, line=3)
+mtext('Cultivar', side=1, line=3, font=2, cex=1.5)
 
 
 #### Prepare data to add error bars with the funcion arrows
@@ -662,7 +668,7 @@ invisible(dev.off())
 ###############################################################################################################
 
 
-postscript(file="..\\Agronomy Journal\\Figure4PlantDensity.eps" , onefile=F, width=8, height=6, paper= "letter")
+postscript(file="..\\Agronomy Journal\\Figure5PlantDensity.eps" , onefile=F, width=8, height=6, paper= "letter", family='Times')
 
 # par("mar")  default (5.1 4.1 4.1 2.1)
 
@@ -674,7 +680,7 @@ par(mar=c(5.1, 4.1, 2.1 ,2.1))
 Paper.data.Plots.bar.chart.3<-aggregate(formula= MEAN_PLANT.DENSITY.pl.ha ~  F.SURVEY.YEAR + F.VARIETY  , FUN=mean , data=Paper.data.Plots) ;
 
 
-barplot(MEAN_PLANT.DENSITY.pl.ha  ~ F.SURVEY.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.3, beside=T, legend.text=T,args.legend = list(x = 23 , y = 15000, bty="n"), col=c("YELLOW", "GREEN", "BROWN"),mgp=c(2,1,0), ylab=expression(paste(" Plants  ","ha"^-1)), xlab="", cex.names=0.8, ylim=c(0,15000));
+barplot(MEAN_PLANT.DENSITY.pl.ha  ~ F.SURVEY.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.3, beside=T, legend.text=T,args.legend = list(x = 23 , y = 15000, bty="n"), col=c("YELLOW", "GREEN", "BROWN"),mgp=c(2,1,0), ylab=expression(paste(" Plants  ","ha"^-1)), xlab="", cex.names=0.87, ylim=c(0,15000), font=2, cex.lab=1.5);
 
 mtext('Cultivar', side=1, line=3)
 
@@ -938,7 +944,7 @@ invisible(dev.off())
 ###############################################################################################################
 
 
-postscript(file="..\\Agronomy Journal\\Figure4PlantDensityAnderrorBars.eps" , onefile=F, width=8, height=6, paper= "letter")
+postscript(file="..\\Agronomy Journal\\JournalResponse20201117\\AceptedVersion20210105\\Figure4PlantDensityAnderrorBars.eps" , onefile=F, width=8, height=6, paper= "letter", family='Times')
 
 # par("mar")  default (5.1 4.1 4.1 2.1)
 
@@ -950,9 +956,9 @@ par(mar=c(5.1, 4.1, 2.1 ,2.1))
 Paper.data.Plots.bar.chart.3<-aggregate(formula= MEAN_PLANT.DENSITY.pl.ha ~  F.SURVEY.YEAR + F.VARIETY  , FUN=mean , data=Paper.data.Plots) ;
 
 
-Density.Bar.Chart<-barplot(MEAN_PLANT.DENSITY.pl.ha  ~ F.SURVEY.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.3, beside=T, legend.text=T,args.legend = list(x = 23 , y = 15000, bty="n"), col=c("YELLOW", "GREEN", "BROWN"),mgp=c(2,1,0), ylab=expression(paste(" Plants  ","ha"^-1)), xlab="", cex.names=0.8, ylim=c(0,15000));
+Density.Bar.Chart<-barplot(MEAN_PLANT.DENSITY.pl.ha  ~ F.SURVEY.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.3, beside=T, legend.text=T,args.legend = list(x = 23 , y = 15000, bty="n"), col=c("YELLOW", "GREEN", "BROWN"),mgp=c(2,1,0), ylab=expression(paste(" Plants  ","ha"^-1)), xlab="", cex.names=0.87, ylim=c(0,15000),font=2, cex.lab=1.3);
 
-mtext('Cultivar', side=1, line=3)
+mtext('Cultivar', side=1, line=3, font=2, cex=1.3)
 
 
 #### Add the error bars based on the manual count estimates
