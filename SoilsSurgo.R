@@ -26,7 +26,7 @@
 
 #      set the working directory
 
-readClipboard()
+# readClipboard()
 
 setwd("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowHarvestPaper\\WillowHarvest") ;   # 
 
@@ -39,33 +39,7 @@ setwd("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowHa
 
 # Install the packages that are needed #
 
-# install.packages('remotes', dep=TRUE)
-
-# install.packages('ggplot2', dep=TRUE)
-# install.packages('base64enc' , dep=TRUE)
-# install.packages("raster", dep = TRUE)
-# install.packages('plyr', dep=TRUE)
-# install.packages('Hmisc', dep=TRUE)
-# install.packages('soilDB', dep=TRUE) # stable version from CRAN + dependencies
-# install.packages("soilDB", repos="http://R-Forge.R-project.org") # most recent copy from r-forge
-# install.packages("SSOAP", repos = "http://www.omegahat.org/R", type="source") # SSOAP and XMLSchema
-
-
-
-
-# install.packages("foreign")
-# install.packages("httr", dep=TRUE)
-# install.packages("rgdal", dep = TRUE)
-
-# install.packages("rgeos", dep = TRUE)
-# install.packages("RColorBrewer")
-# install.packages("latticeExtra")
-# install.packages("reshape")
-# install.packages("dplyr", dep=TRUE)
-# install.packages("aqp", dep=TRUE)
-# install.packages("maps", dep=TRUE)
-# install.packages("png", dep=TRUE)
-# install.packages("tmap", dep=TRUE)
+# install.packages('agp', dep=TRUE)
 
 # remotes::install_github('ncss-tech/aqp', dependencies = FALSE, force=T)
 # remotes::install_github('ncss-tech/soilDB', dependencies = FALSE, force=T)

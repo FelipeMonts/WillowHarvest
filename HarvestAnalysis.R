@@ -45,46 +45,12 @@ setwd("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowHa
 
 # Install the packages that are needed #
 
- install.packages('fields', dep=T)
-
- install.packages('LatticeKrig', dep=T)
-
- install.packages('rgeos', dep=T)
-
- install.packages('RColorBrewer', dep=T)
-
- install.packages('rgdal', dep=T)
-
- install.packages('sp', dep=T)
-
- install.packages('raster', dep=T)
-
- install.packages('openxlsx', dep=T)
-
- install.packages('randomForest', dep=T)
-
- install.packages('lattice', dep=T)
-
- install.packages('latticeExtra', dep=T)
-
- install.packages('stringi', dep=T)
-
- install.packages('rgl', dep=T)
-
- install_github('sorhawell/forestFloor')
-
- install.packages('nlme', dep=T)
-
- install.packages('broom', dep=T)
-
- install.packages('HRW')
- 
- remove.packages('raster', "C:/Felipe/SotwareANDCoding/R_Library/library")
- 
- remove.packages('rgdal', "C:/Felipe/SotwareANDCoding/R_Library/library")
+# install.packages('backports', dep=T)
+# 
+# remove.packages('Matrix')
 
 ###############################################################################################################
-#                           load the libraries that are neded   
+#                           load the libraries that are needed   
 ###############################################################################################################
 
 library(randomForest)
@@ -616,7 +582,7 @@ saveWorkbook(Willow.Harvest.wb, file=paste0('../WillowHarvestDataAnalysis', form
 ###############################################################################################################
 
 
-postscript(file="..\\Agronomy Journal\\JournalResponse20201117\\AceptedVersion20210105\\Figure6Harvest.eps" , onefile=F, width=8, height=6, paper= "letter", family='Times')
+postscript(file="..\\Agronomy Journal\\Figure6Harvest.eps" , onefile=F, width=8, height=6, paper= "letter", family='Times')
 
 # par("mar")  default (5.1 4.1 4.1 2.1)
 
@@ -753,11 +719,14 @@ summary(AnalysisHArvest.Plot.T1)
 
 anova(AnalysisHArvest.Plot.T1, test="F")
 
-T1<-tidy(anova(AnalysisHArvest.Plot.T1, test="F"))
+# T1<-tidy(anova(AnalysisHArvest.Plot.T1, test="F"))  # probelms with the tidy function in package broom
 
-T1.coeff<-tidy(AnalysisHArvest.Plot.T1)
+T1<-anova(AnalysisHArvest.Plot.T1, test="F")
 
 
+# T1.coeff<-tidy(AnalysisHArvest.Plot.T1)
+
+T1.coeff<-AnalysisHArvest.Plot.T1
 
 # ###############################################################################################################
 # #                           Analysis using lm  and adding a dummy variable to include the survey year
@@ -880,7 +849,7 @@ saveWorkbook(Willow.Harvest.Tables.wb, file=paste0('../Agronomy Journal/Tables',
 ###############################################################################################################
 
 
-postscript(file="..\\Agronomy Journal\\Figure5HarvestAndError.eps" , onefile=F, width=8, height=6, paper= "letter")
+postscript(file="..\\Agronomy Journal\\JournalResponse20201117\\AceptedVersion20210105\\Figure6HarvestAndError.eps" , onefile=F, width=8, height=6, paper= "letter", family='Times')
 
 # par("mar")  default (5.1 4.1 4.1 2.1)
 
@@ -895,7 +864,7 @@ Paper.data.Plots.bar.chart.2<-aggregate(formula= MEAN_DRY.Mg.Ha ~  F.HARVEST.YEA
 
 levels(Paper.data.Plots.bar.chart.2$F.HARVEST.YEAR)<-c("2016" , "2019") ;
 
-barplot(MEAN_DRY.Mg.Ha ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.2, ylim=c(0,30), beside=T, legend.text=T,args.legend = list(x = 16 , y = 30, bty="n"), col=c("RED", "BLUE"),mgp=c(2,1,0), ylab=expression(paste("Mg ","ha"^-1)), xlab="", cex.names=0.8);
+barplot(MEAN_DRY.Mg.Ha ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.2, ylim=c(0,30), beside=T, legend.text=T,args.legend = list(x = 16 , y = 30, bty="n"), col=c("RED", "BLUE"),mgp=c(2,1,0), ylab=expression(paste("Mg ","ha"^-1)), xlab="", cex.names=0.87 , cex.lab=1.5, font=2, cex.axis=1.2);
 
 
 
@@ -912,11 +881,11 @@ Paper.data.Plots.bar.chart.1<-aggregate(formula= MEAN_DRY.Mg.Ha.Year ~  F.HARVES
 
 Harvest.Barchart<-barplot(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.1, beside=T, ylim=c(0,10),  col=c("RED", "BLUE"), axes=F, ylab="", names=c(rep("",6)),xlab="") ;
 
-axis(side=4, mgp=c(4,1,0)) ;
+axis(side=4, mgp=c(4,1,0),font=2, cex=1.2) ;
 
-mtext(expression(paste("Mg ","ha"^-1, "year"^-1)), side=4, line=2) 
+mtext(expression(paste("Mg ","ha"^-1, "year"^-1)), side=4, line=2, cex=1.3, font=2) 
 
-mtext('Cultivar', side=1, line=3)
+mtext('Cultivar', side=1, line=3, cex=1.3, font=2)
 
 
 #### Prepare data to add error bars with the funcion arrows
@@ -928,12 +897,13 @@ mtext('Cultivar', side=1, line=3)
 
 # get the mean square of the error from the ANOVA table 
 
-T1[T1$term == 'Residuals',  c('meansq') ]
+# T1[T1$term == 'Residuals',  c('meansq') ]
+# T1$`Mean Sq`[5]
 
-arrows(x0=Harvest.Barchart, y0=Paper.data.Plots.bar.chart.1$MEAN_DRY.Mg.Ha.Year - sqrt(unlist(T1[T1$term == 'Residuals',  c('meansq') ])), x1=Harvest.Barchart, y1=Paper.data.Plots.bar.chart.1$MEAN_DRY.Mg.Ha.Year + sqrt(unlist(T1[T1$term == 'Residuals',  c('meansq') ])), code=3, angle=90, length=0.1)
+# arrows(x0=Harvest.Barchart, y0=Paper.data.Plots.bar.chart.1$MEAN_DRY.Mg.Ha.Year - sqrt(unlist(T1[T1$term == 'Residuals',  c('meansq') ])), x1=Harvest.Barchart, y1=Paper.data.Plots.bar.chart.1$MEAN_DRY.Mg.Ha.Year + sqrt(unlist(T1[T1$term == 'Residuals',  c('meansq') ])), code=3, angle=90, length=0.1)
 
 
-
+arrows(x0=Harvest.Barchart, y0=Paper.data.Plots.bar.chart.1$MEAN_DRY.Mg.Ha.Year - sqrt(T1$`Mean Sq`[5]), x1=Harvest.Barchart, y1=Paper.data.Plots.bar.chart.1$MEAN_DRY.Mg.Ha.Year + sqrt(T1$`Mean Sq`[5]), code=3, angle=90, length=0.1)
 
 invisible(dev.off())
 
@@ -944,7 +914,7 @@ invisible(dev.off())
 ###############################################################################################################
 
 
-postscript(file="..\\Agronomy Journal\\JournalResponse20201117\\AceptedVersion20210105\\Figure4PlantDensityAnderrorBars.eps" , onefile=F, width=8, height=6, paper= "letter", family='Times')
+postscript(file="..\\Agronomy Journal\\JournalResponse20201117\\AceptedVersion20210105\\Figure5PlantDensityAnderrorBars.eps" , onefile=F, width=8, height=6, paper= "letter", family='Times')
 
 # par("mar")  default (5.1 4.1 4.1 2.1)
 
@@ -956,7 +926,7 @@ par(mar=c(5.1, 4.1, 2.1 ,2.1))
 Paper.data.Plots.bar.chart.3<-aggregate(formula= MEAN_PLANT.DENSITY.pl.ha ~  F.SURVEY.YEAR + F.VARIETY  , FUN=mean , data=Paper.data.Plots) ;
 
 
-Density.Bar.Chart<-barplot(MEAN_PLANT.DENSITY.pl.ha  ~ F.SURVEY.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.3, beside=T, legend.text=T,args.legend = list(x = 23 , y = 15000, bty="n"), col=c("YELLOW", "GREEN", "BROWN"),mgp=c(2,1,0), ylab=expression(paste(" Plants  ","ha"^-1)), xlab="", cex.names=0.87, ylim=c(0,15000),font=2, cex.lab=1.3);
+Density.Bar.Chart<-barplot(MEAN_PLANT.DENSITY.pl.ha  ~ F.SURVEY.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.3, beside=T, legend.text=T,args.legend = list(x = 23 , y = 15000, bty="n"), col=c("YELLOW", "GREEN", "BROWN"), mgp=c(2,1,0), ylab=expression(paste(" Plants   ","ha"^-1)), xlab="", cex.names=0.87, ylim=c(0,15000),font=2, cex=1.3, cex.lab=1.3);
 
 mtext('Cultivar', side=1, line=3, font=2, cex=1.3)
 
@@ -1170,11 +1140,11 @@ plot(Freq ~ Var1, data=RowCount.table.Raw, ylab="Number of Rows", xlab="VARIETY"
 
 #######  Boxand wiskers plot in order on how they are distributed in the field
 
-postscript(file="..\\Agronomy Journal\\JournalResponse20201117\\Figure3.eps" , onefile=F, width=8, height=10, paper= "letter");
+postscript(file="..\\Agronomy Journal\\JournalResponse20201117\\\\AceptedVersion20210105\\Figure3.eps" , onefile=F, width=8, height=10, paper= "letter", family='Times');
 
-bwplot(Length.m ~ F.BLOCKXVARIETY, data=Paper.data, horizontal=FALSE, ylab=list(label="Row length (m)", cex= 1.5), scales=list(x=list(rot=90,cex=1.5),y=list(cex=1.5)), par.settings = list(box.rectangle= list(fill=c("RED", "BLUE" ,"GREEN" , "PURPLE" , "ORANGE" , "YELLOW","RED", "ORANGE" ,"GREEN" , "YELLOW" , "PURPLE" , "BLUE"))),panel=function(...){
+bwplot(Length.m ~ F.BLOCKXVARIETY, data=Paper.data, horizontal=FALSE, ylab=list(label="Row length (m)", cex= 1.5, font=2), scales=list(x=list(rot=90,cex=1.5,font=2),y=list(cex=1.5, font=2)), par.settings = list(box.rectangle= list(fill=c("RED", "BLUE" ,"GREEN" , "PURPLE" , "ORANGE" , "YELLOW","RED", "ORANGE" ,"GREEN" , "YELLOW" , "PURPLE" , "BLUE"))),panel=function(...){
   panel.bwplot(...)
-  panel.text(c(1:12),rep(110,12),labels=paste0("n=",RowCount.table.Raw$Freq),cex=1.2)
+  panel.text(c(1:12),rep(110,12),labels=paste0("n=",RowCount.table.Raw$Freq),cex=1.2, font=2)
 })
 
 #str(RowLenghtBoxWiskers)
@@ -1222,9 +1192,12 @@ xyplot( DRY.Mg.Ha.Year ~ PLANT.DENSITY.pl.ha, groups= F.VARIETY, data=Paper.data
 
 ######### Remove signifficant effects from the data Based on the linear model plot based analysis
 
-T1.coeff[T1.coeff$p.value<=0.1,1]
+# T1.coeff[T1.coeff$p.value<=0.1,1]
+# 
+# T1.coeff[T1.coeff$p.value<=0.1,]  # Probelm with the package broom
 
-T1.coeff[T1.coeff$p.value<=0.1,]
+
+T1.coeff$coefficients['(Intercept)']
 
 ###Initialize the effect corrected dataframe
 
@@ -1232,41 +1205,41 @@ Paper.data.NoEff<-Paper.data.ROWS  ;
 
 # Effect: F.HARVEST.YEAR2019   1.66
 
-Paper.data.NoEff[Paper.data.NoEff$F.HARVEST.YEAR == "2019", c("DRY.Mg.Ha.Year") ] <- Paper.data.ROWS[Paper.data.ROWS$F.HARVEST.YEAR == "2019", c("DRY.Mg.Ha.Year") ] - as.numeric(T1.coeff[T1.coeff$term == "F.HARVEST.YEAR2019",c('estimate')])
+Paper.data.NoEff[Paper.data.NoEff$F.HARVEST.YEAR == "2019", c("DRY.Mg.Ha.Year") ] <- Paper.data.ROWS[Paper.data.ROWS$F.HARVEST.YEAR == "2019", c("DRY.Mg.Ha.Year") ] - as.numeric(T1.coeff$coefficients["F.HARVEST.YEAR2019"])
 
 # Effect: F.VARIETYFISH-CREEK    2.63 
 
-Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == "FISH-CREEK", c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.VARIETY == "FISH-CREEK", c("DRY.Mg.Ha.Year")] - as.numeric(T1.coeff[T1.coeff$term == "F.VARIETYFISH-CREEK",c('estimate')])
+Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == "FISH-CREEK", c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.VARIETY == "FISH-CREEK", c("DRY.Mg.Ha.Year")] - as.numeric(T1.coeff$coefficients["F.VARIETYFISH-CREEK"])
 
 
 # Effect: F.VARIETYMILLBROOK     1.94
 
-Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == "MILLBROOK", c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.VARIETY == "MILLBROOK", c("DRY.Mg.Ha.Year")] - as.numeric(T1.coeff[T1.coeff$term == "F.VARIETYMILLBROOK",c('estimate')])
+Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == "MILLBROOK", c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.VARIETY == "MILLBROOK", c("DRY.Mg.Ha.Year")] - as.numeric(T1.coeff$coefficients["F.VARIETYMILLBROOK"])
 
 
 # Effect:  F.VARIETYPREBLE    1.38 
 
-Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == "PREBLE", c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.VARIETY == "PREBLE", c("DRY.Mg.Ha.Year")] - as.numeric(T1.coeff[T1.coeff$term == "F.VARIETYPREBLE",c('estimate')])
+Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == "PREBLE", c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.VARIETY == "PREBLE", c("DRY.Mg.Ha.Year")] - as.numeric(T1.coeff$coefficients["F.VARIETYPREBLE"])
 
 # Effect:  F.VARIETYSX61      1.44
 
-Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == "SX61", c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.VARIETY == "SX61", c("DRY.Mg.Ha.Year")] - as.numeric(TS1.coeff[TS1.coeff$term == "F.VARIETYSX61",c('estimate')])
+Paper.data.NoEff[Paper.data.NoEff$F.VARIETY == "SX61", c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.VARIETY == "SX61", c("DRY.Mg.Ha.Year")] - as.numeric(T1.coeff$coefficients["F.VARIETYSX61"])
 
 # Effect: F.HARVEST.YEAR2019:F.VARIETYFISH-CREEK    -2.73 
 
-Paper.data.NoEff[Paper.data.NoEff$F.HARVEST.YEAR == "2019" & Paper.data.NoEff$F.VARIETY == "FISH-CREEK" , c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.HARVEST.YEAR == "2019" & Paper.data.ROWS$F.VARIETY == "FISH-CREEK" , c("DRY.Mg.Ha.Year") ] - as.numeric(TS1.coeff[TS1.coeff$term == "F.HARVEST.YEAR2019:F.VARIETYFISH-CREEK",c('estimate')])
+Paper.data.NoEff[Paper.data.NoEff$F.HARVEST.YEAR == "2019" & Paper.data.NoEff$F.VARIETY == "FISH-CREEK" , c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.HARVEST.YEAR == "2019" & Paper.data.ROWS$F.VARIETY == "FISH-CREEK" , c("DRY.Mg.Ha.Year") ] - as.numeric(T1.coeff$coefficients["F.HARVEST.YEAR2019:F.VARIETYFISH-CREEK"])
 
 # Effect: F.HARVEST.YEAR2019:F.VARIETYMILLBROOK    -1.76 
 
-Paper.data.NoEff[Paper.data.NoEff$F.HARVEST.YEAR == "2019" & Paper.data.NoEff$F.VARIETY == "MILLBROOK" , c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.HARVEST.YEAR == "2019" & Paper.data.ROWS$F.VARIETY == "MILLBROOK" , c("DRY.Mg.Ha.Year") ] - as.numeric(T1.coeff[T1.coeff$term == "F.HARVEST.YEAR2019:F.VARIETYMILLBROOK",c('estimate')])
+Paper.data.NoEff[Paper.data.NoEff$F.HARVEST.YEAR == "2019" & Paper.data.NoEff$F.VARIETY == "MILLBROOK" , c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.HARVEST.YEAR == "2019" & Paper.data.ROWS$F.VARIETY == "MILLBROOK" , c("DRY.Mg.Ha.Year") ] - as.numeric(T1.coeff$coefficients["F.HARVEST.YEAR2019:F.VARIETYMILLBROOK"])
 
 # Effect: F.HARVEST.YEAR2019:F.VARIETYOTISCO        -2.87 
 
-Paper.data.NoEff[Paper.data.NoEff$F.HARVEST.YEAR == "2019" & Paper.data.NoEff$F.VARIETY == "OTISCO" , c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.HARVEST.YEAR == "2019" & Paper.data.ROWS$F.VARIETY == "OTISCO" , c("DRY.Mg.Ha.Year") ] - as.numeric(TS1.coeff[TS1.coeff$term == "F.HARVEST.YEAR2019:F.VARIETYOTISCO",c('estimate')])
+Paper.data.NoEff[Paper.data.NoEff$F.HARVEST.YEAR == "2019" & Paper.data.NoEff$F.VARIETY == "OTISCO" , c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.HARVEST.YEAR == "2019" & Paper.data.ROWS$F.VARIETY == "OTISCO" , c("DRY.Mg.Ha.Year") ] - as.numeric(T1.coeff$coefficients["F.HARVEST.YEAR2019:F.VARIETYOTISCO"])
 
 # Effect: F.HARVEST.YEAR2019:F.VARIETYPREBLE        -2.56
 
-Paper.data.NoEff[Paper.data.NoEff$F.HARVEST.YEAR == "2019" & Paper.data.NoEff$F.VARIETY == "PREBLE" , c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.HARVEST.YEAR == "2019" & Paper.data.ROWS$F.VARIETY == "PREBLE" , c("DRY.Mg.Ha.Year") ] - as.numeric(TS1.coeff[TS1.coeff$term == "F.HARVEST.YEAR2019:F.VARIETYPREBLE",c('estimate')])
+Paper.data.NoEff[Paper.data.NoEff$F.HARVEST.YEAR == "2019" & Paper.data.NoEff$F.VARIETY == "PREBLE" , c("DRY.Mg.Ha.Year") ] <-Paper.data.ROWS[Paper.data.ROWS$F.HARVEST.YEAR == "2019" & Paper.data.ROWS$F.VARIETY == "PREBLE" , c("DRY.Mg.Ha.Year") ] - as.numeric(T1.coeff$coefficients["F.HARVEST.YEAR2019:F.VARIETYPREBLE"])
 
 
 # Check results 
@@ -1538,7 +1511,7 @@ for (i in as.character(levels(Paper.data.NoEff.Last2Avg$F.VARIETY)) ) {
 
 ##### Putting together the plot, one variety at the time
 
-postscript(file="..\\Agronomy Journal\\Figure8PlantDensityEff.eps" , onefile=F, width=8, height=6, paper= "letter");
+postscript(file="..\\Agronomy Journal\\Figure8PlantDensityEff.eps" , onefile=F, width=8, height=6, paper= "letter", family='Times');
 
 par(mfrow=c(2,3),cex.main = 1.2, col.main = "BLACK" ,mar=c(5,5,1,1) ,bty="n") ;
 
@@ -1713,13 +1686,13 @@ invisible(dev.off())
 
 #####  Only plotting variety data range and prediction on the graph, not the whole experimental data range but without line or shade for all but Fabius
 
-postscript(file="..\\Agronomy Journal\\Figure8PlantDensityEffNoline.eps" , onefile=F, width=8, height=6, paper= "letter");
+postscript(file="..\\Agronomy Journal\\JournalResponse20201117\\AceptedVersion20210105\\Figure8PlantDensityEffNoline.eps" , onefile=F, width=8, height=6, paper= "letter", family="Times");
 
 par(mfrow=c(2,3),cex.main = 1.2, col.main = "BLACK" ,mar=c(5,5,1,1) ,bty="n") ;
 
 ### FABIUS
 
-plot(PLOTGAMS.FABIUS[[1]]$x,PLOTGAMS.FABIUS[[1]]$fit,xlim=c(4000,16000),type='l', col= 'RED' , ylim=c(-5,5), ylab=expression(paste("Yield effect, Mg ","ha"^-1, "year"^-1)), xlab=NA,cex.lab=1.3)
+plot(PLOTGAMS.FABIUS[[1]]$x,PLOTGAMS.FABIUS[[1]]$fit,xlim=c(4000,16000),type='l', col= 'RED' , ylim=c(-5,5), ylab=expression(paste("Yield effect, Mg ","ha"^-1, "y"^-1)), xlab=NA, cex.lab=1.8, font=2, cex.axis=1.2)
 
 polygon(c(PLOTGAMS.FABIUS[[1]]$x, rev(PLOTGAMS.FABIUS[[1]]$x)),c(PLOTGAMS.FABIUS[[1]]$fit+(PLOTGAMS.FABIUS[[1]]$se*PLOTGAMS.FABIUS[[1]]$se.mult), rev(PLOTGAMS.FABIUS[[1]]$fit-(PLOTGAMS.FABIUS[[1]]$se*PLOTGAMS.FABIUS[[1]]$se.mult))),col="lightgray",border=NA)
 
@@ -1733,19 +1706,19 @@ points(PLOTGAMS.FABIUS[[1]]$x,PLOTGAMS.FABIUS[[1]]$fit-(PLOTGAMS.FABIUS[[1]]$se*
 
 
 
-text(10000, 4.1, "FABIUS",cex=1.5)
+text(10000, 4.1, "FABIUS",cex=1.5, font=2)
 
 
-text(10000,-3.8,bquote("R"^2 == .(format(summary(fitGAMFABIUS)$r.sq, digits=2))),cex=1.0)
+text(10000,-3.8,bquote("R"^2 == .(format(summary(fitGAMFABIUS)$r.sq, digits=2))),cex=1.2, font=2)
 
-text(10000,-4.5,bquote("D. E." == .(format(summary(fitGAMFABIUS)$dev.expl*100, digits=3))~"%"),cex=1.0)
+text(10000,-4.5,bquote("D. E." == .(format(summary(fitGAMFABIUS)$dev.expl*100, digits=3))~"%"),cex=1.2,font=2)
 
 
 ### FISHCREEK
 
 par(mar=c(5,2,1,2))
 
-plot(PLOTGAMS.FISHCREEK[[1]]$x,PLOTGAMS.FISHCREEK[[1]]$fit,xlim=c(4000,16000),type='l', col= NA , ylim=c(-5,5),yaxt='n', xlab=NA)
+plot(PLOTGAMS.FISHCREEK[[1]]$x,PLOTGAMS.FISHCREEK[[1]]$fit,xlim=c(4000,16000),type='l', col= NA , ylim=c(-5,5),yaxt='n', xlab=NA, font=2, cex.axis=1.2)
 
 polygon(c(PLOTGAMS.FISHCREEK[[1]]$x, rev(PLOTGAMS.FISHCREEK[[1]]$x)),c(PLOTGAMS.FISHCREEK[[1]]$fit+(PLOTGAMS.FISHCREEK[[1]]$se*PLOTGAMS.FISHCREEK[[1]]$se.mult), rev(PLOTGAMS.FISHCREEK[[1]]$fit-(PLOTGAMS.FISHCREEK[[1]]$se*PLOTGAMS.FISHCREEK[[1]]$se.mult))),col=NA ,border=NA)
 
@@ -1760,11 +1733,11 @@ points(PLOTGAMS.FISHCREEK[[1]]$x,PLOTGAMS.FISHCREEK[[1]]$fit-(PLOTGAMS.FISHCREEK
 
 
 
-text(10000,4.1, "FISHCREEK",cex=1.5)
+text(10000,4.1, "FISHCREEK",cex=1.5, font=2)
 
-text(10000,-3.8,bquote("R"^2 == .(format(summary(fitGAMFISHCREEK)$r.sq, digits=2))),cex=1.0)
+text(10000,-3.8,bquote("R"^2 == .(format(summary(fitGAMFISHCREEK)$r.sq, digits=2))),cex=1.2, font=2)
 
-text(10000,-4.5,bquote("D. E." == .(format(summary(fitGAMFISHCREEK)$dev.expl*100, digits=3))~"%"),cex=1.0)  
+text(10000,-4.5,bquote("D. E." == .(format(summary(fitGAMFISHCREEK)$dev.expl*100, digits=2))~"%"),cex=1.2, font=2)  
 
 
 
@@ -1774,15 +1747,15 @@ par(mar=c(5,2,1,5))
 
 
 
-plot(PLOTGAMS.MILBROOK[[1]]$x,PLOTGAMS.MILBROOK[[1]]$fit,xlim=c(4000,16000),type='l', col= NA , ylim=c(-5,5),yaxt='n', xlab=NA)
-Axis(side=1, labels=T)
-Axis(side=4, labels=T)
+plot(PLOTGAMS.MILBROOK[[1]]$x,PLOTGAMS.MILBROOK[[1]]$fit,xlim=c(4000,16000),type='l', col= NA , ylim=c(-5,5), yaxt='n',  xaxt='n', xlab=NA)
+Axis(side=1, labels=T, cex.axis=1.2, font=2)
+Axis(side=4, labels=T, font=2, cex.axis=1.2)
 
 polygon(c(PLOTGAMS.MILBROOK[[1]]$x, rev(PLOTGAMS.MILBROOK[[1]]$x)),c(PLOTGAMS.MILBROOK[[1]]$fit+(PLOTGAMS.MILBROOK[[1]]$se*PLOTGAMS.MILBROOK[[1]]$se.mult), rev(PLOTGAMS.MILBROOK[[1]]$fit-(PLOTGAMS.MILBROOK[[1]]$se*PLOTGAMS.MILBROOK[[1]]$se.mult))),col=NA ,border=NA) 
 
 points(PLOTGAMS.MILBROOK[[1]]$x,PLOTGAMS.MILBROOK[[1]]$fit,type='l', col= NA )
 
-mtext(text=expression(paste("Yield effect, Mg ","ha"^-1, "year"^-1)), side=4, line=3, cex=0.8)
+mtext(text=expression(paste("Yield effect, Mg ","ha"^-1, "y"^-1)), side=4, line=3, cex=1.2)
 
 points(PLOTGAMS.MILBROOK[[1]]$x,PLOTGAMS.MILBROOK[[1]]$fit + (PLOTGAMS.MILBROOK[[1]]$se*PLOTGAMS.MILBROOK[[1]]$se.mult), type='l', col=NA)
 
@@ -1791,11 +1764,11 @@ points(PLOTGAMS.MILBROOK[[1]]$raw,PLOTGAMS.MILBROOK[[1]]$p.resid, col='BLACK')
 points(PLOTGAMS.MILBROOK[[1]]$x,PLOTGAMS.MILBROOK[[1]]$fit-(PLOTGAMS.MILBROOK[[1]]$se*PLOTGAMS.MILBROOK[[1]]$se.mult), type='l', col=NA)
 
 
-text(7500,4.1, "MILBROOK",cex=1.5)
+text(7500,4.1, "MILBROOK",cex=1.5, font=2)
 
-text(10000,-3.8, bquote("R"^2 == .(format(summary(fitGAMMILBROOK)$r.sq, digits=2))), cex=1.0)
+text(10000,-3.8, bquote("R"^2 == .(format(summary(fitGAMMILBROOK)$r.sq, digits=1))), cex=1.2, font=2)
 
-text(10000,-4.5,bquote("D. E." == .(format(summary(fitGAMMILBROOK)$dev.expl*100, digits=3))~"%"),cex=1.0)
+text(10000,-4.5,bquote("D. E." == .(format(summary(fitGAMMILBROOK)$dev.expl*100, digits=2))~"%"),cex=1.2, font=2)
 
 
 
@@ -1803,7 +1776,7 @@ text(10000,-4.5,bquote("D. E." == .(format(summary(fitGAMMILBROOK)$dev.expl*100,
 
 par(mar=c(5,5,1,1))
 
-plot(PLOTGAMS.OTISCO[[1]]$x,PLOTGAMS.OTISCO[[1]]$fit,xlim=c(4000,16000),type='l', col=NA , ylim=c(-5,5), ylab=expression(paste("Yield effect, Mg ","ha"^-1, "year"^-1)), xlab=NA, cex.lab=1.3)
+plot(PLOTGAMS.OTISCO[[1]]$x,PLOTGAMS.OTISCO[[1]]$fit,xlim=c(4000,16000),type='l', col=NA , ylim=c(-5,5), ylab=expression(paste("Yield effect, Mg ","ha"^-1, "y"^-1)), xlab=NA, cex.lab=1.8, font=2, cex.axis=1.2)
 
 polygon(c(PLOTGAMS.OTISCO[[1]]$x, rev(PLOTGAMS.OTISCO[[1]]$x)),c(PLOTGAMS.OTISCO[[1]]$fit+(PLOTGAMS.OTISCO[[1]]$se*PLOTGAMS.OTISCO[[1]]$se.mult), rev(PLOTGAMS.OTISCO[[1]]$fit-(PLOTGAMS.OTISCO[[1]]$se*PLOTGAMS.OTISCO[[1]]$se.mult))),col=NA ,border=NA)
 
@@ -1816,18 +1789,18 @@ points(PLOTGAMS.OTISCO[[1]]$raw,PLOTGAMS.OTISCO[[1]]$p.resid, col='BLACK')
 points(PLOTGAMS.OTISCO[[1]]$x,PLOTGAMS.OTISCO[[1]]$fit-(PLOTGAMS.OTISCO[[1]]$se*PLOTGAMS.OTISCO[[1]]$se.mult), type='l', col=NA)
 
 
-text(10000,4.1, "OTISCO",cex=1.5)
+text(10000,4.1, "OTISCO",cex=1.5, font=2)
 
-text(10000,-3.8,bquote("R"^2 == .(format(summary(fitGAMOTISCO)$r.sq, digits=2))),cex=1.0)
+text(10000,-3.8,bquote("R"^2 == .(format(summary(fitGAMOTISCO)$r.sq, digits=2))),cex=1.2, font=2)
 
-text(10000,-4.5,bquote("D. E." == .(format(summary(fitGAMOTISCO)$dev.expl*100, digits=3))~"%"),cex=1.0)
+text(10000,-4.5,bquote("D. E." == .(format(summary(fitGAMOTISCO)$dev.expl*100, digits=3))~"%"),cex=1.2, font=2)
 
 
 ### "PREBLE"    
 
 par(mar=c(5,2,1,2))
 
-plot(PLOTGAMS.PREBLE[[1]]$x,PLOTGAMS.PREBLE[[1]]$fit,xlim=c(4000,16000),type='l', col= NA, ylim=c(-5,5),yaxt='n', xlab=NA)
+plot(PLOTGAMS.PREBLE[[1]]$x,PLOTGAMS.PREBLE[[1]]$fit,xlim=c(4000,16000),type='l', col= NA, ylim=c(-5,5),yaxt='n', xlab=NA, font=2, cex.axis=1.2)
 
 polygon(c(PLOTGAMS.PREBLE[[1]]$x, rev(PLOTGAMS.PREBLE[[1]]$x)),c(PLOTGAMS.PREBLE[[1]]$fit+(PLOTGAMS.PREBLE[[1]]$se*PLOTGAMS.PREBLE[[1]]$se.mult), rev(PLOTGAMS.PREBLE[[1]]$fit-(PLOTGAMS.PREBLE[[1]]$se*PLOTGAMS.PREBLE[[1]]$se.mult))),col=NA ,border=NA) 
 
@@ -1839,13 +1812,13 @@ points(PLOTGAMS.PREBLE[[1]]$raw,PLOTGAMS.PREBLE[[1]]$p.resid, col='BLACK')
 
 points(PLOTGAMS.PREBLE[[1]]$x,PLOTGAMS.PREBLE[[1]]$fit-(PLOTGAMS.PREBLE[[1]]$se*PLOTGAMS.PREBLE[[1]]$se.mult), type='l', col=NA)
 
-mtext(text=expression(paste("Plant density, pl  ","ha"^-1)), side=1, line=3, cex=0.8)
+mtext(text=expression(paste("Plant density, pl  ","ha"^-1)), side=1, line=4, cex=1.4, font=2 )
 
-text(10000,4.1, "PREBLE",cex=1.5)
+text(10000,4.1, "PREBLE",cex=1.5, font=2)
 
-text(6000,-3.8,bquote("R"^2 == .(format(summary(fitGAMPREBLE)$r.sq, digits=2))),cex=1.0)
+text(6000,-3.8,bquote("R"^2 == .(format(summary(fitGAMPREBLE)$r.sq, digits=2))),cex=1.2)
 
-text(6000,-4.5,bquote("D. E." == .(format(summary(fitGAMPREBLE)$dev.expl*100, digits=3))~"%"),cex=1.0)
+text(6000,-4.5,bquote("D. E." == .(format(summary(fitGAMPREBLE)$dev.expl*100, digits=3))~"%"),cex=1.2)
 
 
 
@@ -1855,16 +1828,16 @@ par(mar=c(5,2,1,5))
 
 
 
-plot(PLOTGAMS.SX61[[1]]$x,PLOTGAMS.SX61[[1]]$fit,xlim=c(4000,16000),type='l', col= NA , ylim=c(-5,5),yaxt='n', xlab=NA)
-Axis(side=1, labels=T)
-Axis(side=4, labels=T)
+plot(PLOTGAMS.SX61[[1]]$x,PLOTGAMS.SX61[[1]]$fit,xlim=c(4000,16000),type='l', col= NA , ylim=c(-5,5),yaxt='n',xaxt='n', xlab=NA)
+Axis(side=1, labels=T, cex.axis=1.2, font=2)
+Axis(side=4, labels=T, cex.axis=1.2, font=2)
 
 polygon(c(PLOTGAMS.SX61[[1]]$x, rev(PLOTGAMS.SX61[[1]]$x)),c(PLOTGAMS.SX61[[1]]$fit+(PLOTGAMS.SX61[[1]]$se*PLOTGAMS.SX61[[1]]$se.mult), rev(PLOTGAMS.SX61[[1]]$fit-(PLOTGAMS.SX61[[1]]$se*PLOTGAMS.SX61[[1]]$se.mult))),col=NA ,border=NA) 
 
 points(PLOTGAMS.SX61[[1]]$x,PLOTGAMS.SX61[[1]]$fit,type='l', col= NA)
 
 
-mtext(text=expression(paste("Yield effect, Mg ","ha"^-1, "year"^-1)), side=4, line=3, cex=0.8)
+mtext(text=expression(paste("Yield effect, Mg ","ha"^-1, "y"^-1)), side=4, line=3, cex=1.2, font=2 )
 
 points(PLOTGAMS.SX61[[1]]$x,PLOTGAMS.SX61[[1]]$fit + (PLOTGAMS.SX61[[1]]$se*PLOTGAMS.SX61[[1]]$se.mult), type='l', col=NA)
 
@@ -1873,11 +1846,11 @@ points(PLOTGAMS.SX61[[1]]$raw,PLOTGAMS.SX61[[1]]$p.resid, col='BLACK')
 points(PLOTGAMS.SX61[[1]]$x,PLOTGAMS.SX61[[1]]$fit-(PLOTGAMS.SX61[[1]]$se*PLOTGAMS.SX61[[1]]$se.mult), type='l', col=NA)
 
 
-text(10000,4.1, "SX61",cex=1.5)
+text(10000,4.1, "SX61",cex=1.5, font=2)
 
-text(10000,-3.8,bquote("R"^2 == .(format(summary(fitGAMSX61)$r.sq, digits=2))),cex=1.0)
+text(10000,-3.8,bquote("R"^2 == .(format(summary(fitGAMSX61)$r.sq, digits=1))),cex=1.2, font=2)
 
-text(10000,-4.5,bquote("D. E." == .(format(summary(fitGAMSX61)$dev.expl*100, digits=3))~"%"),cex=1.0)
+text(10000,-4.5,bquote("D. E." == .(format(summary(fitGAMSX61)$dev.expl*100, digits=2))~"%"),cex=1.2, font=2)
 
 
 invisible(dev.off())
