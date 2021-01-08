@@ -39,13 +39,13 @@ setwd("C:\\Felipe\\Willow_Project\\Willow_Experiments\\Willow_Rockview\\WillowHa
 
 # Install the packages that are needed #
 
-# install.packages('agp', dep=TRUE)
+# install.packages('munsell', dep=TRUE)
 
-# remotes::install_github('ncss-tech/aqp', dependencies = FALSE, force=T)
-# remotes::install_github('ncss-tech/soilDB', dependencies = FALSE, force=T)
+# remotes::install_github('ncss-tech/aqp', dependencies = F, force=T)
+# remotes::install_github('ncss-tech/soilDB', dependencies = F, force=T)
 
 ###############################################################################################################
-#                           load the libraries that are neded   
+#                           load the libraries that are needed   
 ###############################################################################################################
 
 
@@ -71,6 +71,9 @@ library(stats)
 library(DescTools);
 library(openxlsx)
 library(tmap)
+library(reshape)
+library(stringr)
+library(scales);
 
 # ########################## import the Shape file with the GSSURGO Data for RockView ####################
 # 
@@ -280,14 +283,14 @@ Pedon.04N0805@horizons$hzname<-Pedon.04N0805@horizons$hzn_desgn ;
 Pedon.04N0805@site$pedon_key<-c("HAGERSTOWN  ")
 
 
-postscript(file="..\\Agronomy Journal\\Figure2Soil.eps" , onefile=F, width=8, height=2, paper= "letter")
+postscript(file="..\\Agronomy Journal\\Figure2Soil.eps" , onefile=F, width=8, height=2, paper= "letter", family='Times')
 
 par(mar=c(4.1,5,2,1),xpd=NA)
 
 layout(matrix(c(1, rep(0,7)), 1,8, byrow=T))
 
 
- plotSPC(Pedon.04N0805, name='hzn_desgn', name.style = 'left-center', color='RGBColor', width=0.4, print.id = F, plot.depth.axis=F,y.offset=0, cex.names= 1.0 ,relative.pos = c(1.75), id.style = "top")
+ plotSPC(Pedon.04N0805, name='hzn_desgn', name.style = 'left-center', color='RGBColor', width=0.4, print.id = F, plot.depth.axis=F,y.offset=0, cex.names= 1.2 ,relative.pos = c(1.75), id.style = "top")
  
  depth_axis_intervals <- c(0,20,40,60,80,100,120) #pretty(seq(from=0, to=max(Pedon.04N0805@horizons$hzn_bot), by=1), n=5)
  
@@ -300,14 +303,14 @@ layout(matrix(c(1, rep(0,7)), 1,8, byrow=T))
       cex.axis=1.2,
       
       col.axis=par('fg'))
- mtext("Depth cm", side = 2, line = 3.5)
+ mtext("Depth cm", side = 2, line = 3.5, cex=1.0)
  
  
  # addVolumeFraction(Pedon.04N0805, colname='wp25_d.1_S', cex.min = 0.1, cex.max=0.1)
  # addVolumeFraction(Pedon.04N0805, colname='wp0175_d.1_S', cex.min = 0.2, cex.max=0.5)
  # addVolumeFraction(Pedon.04N0805, colname='wpG2_d.1_S', cex.min = 1, cex.max=2)
 
- Plot.2<-xyplot(hzn_top ~ Values | time, data=Pedon.04N0805.2, index.cond=list(c(2,5,4,1,6,7,3)), ylim=c(130,-2), ylab=NULL,ylab.right="Depth cm", strip=strip.custom(bg=grey(0.8),par.strip.text=list(cex=0.8)), par.strip.text=list(cex=0.8),layout=c(7,1), type="b", grid=T, col.line="BLACK", col.symbol="BLACK", bg="BLACK" ,lwd=2,scales=list(x=list(tick.number=4, alternating=3, relation="free", cex=0.8), y=list(draw=T,relation="same", alternating=2)))
+ Plot.2<-xyplot(hzn_top ~ Values | time, data=Pedon.04N0805.2, index.cond=list(c(2,5,4,1,6,7,3)), ylim=c(130,-2), ylab=NULL,ylab.right="Depth cm", cex.lab=1.2,strip=strip.custom(bg=grey(0.8),par.strip.text=list(cex=0.8)), par.strip.text=list(cex=0.8),layout=c(7,1), type="b", grid=T, col.line="BLACK", col.symbol="BLACK", bg="BLACK" ,lwd=2,scales=list(x=list(tick.number=4, alternating=3, relation="free", cex=0.8), y=list(draw=T,relation="same", alternating=2)))
 
 
 print(Plot.2, position=c(0.125,0,1,1),more=T)
