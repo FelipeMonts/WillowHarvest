@@ -864,7 +864,7 @@ Paper.data.Plots.bar.chart.2<-aggregate(formula= MEAN_DRY.Mg.Ha ~  F.HARVEST.YEA
 
 levels(Paper.data.Plots.bar.chart.2$F.HARVEST.YEAR)<-c("2016" , "2019") ;
 
-barplot(MEAN_DRY.Mg.Ha ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.2, ylim=c(0,30), beside=T, legend.text=T,args.legend = list(x = 16 , y = 30, bty="n"), col=c("RED", "BLUE"),mgp=c(2,1,0), ylab=expression(paste("Mg ","ha"^-1)), xlab="", cex.names=0.87 , cex.lab=1.5, font=2, cex.axis=1.2);
+barplot(MEAN_DRY.Mg.Ha ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.2, ylim=c(0,30), beside=T, legend.text=T,args.legend = list(x = 16 , y = 30, bty="n", cex=1.2), col=c("RED", "BLUE"),mgp=c(2,1,0), ylab=expression(paste("Yield Mg ","ha"^-1)), xlab="", cex.names=0.87 , cex.lab=1.5, font=2, cex.axis=1.2);
 
 
 
@@ -881,11 +881,11 @@ Paper.data.Plots.bar.chart.1<-aggregate(formula= MEAN_DRY.Mg.Ha.Year ~  F.HARVES
 
 Harvest.Barchart<-barplot(MEAN_DRY.Mg.Ha.Year ~ F.HARVEST.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.1, beside=T, ylim=c(0,10),  col=c("RED", "BLUE"), axes=F, ylab="", names=c(rep("",6)),xlab="") ;
 
-axis(side=4, mgp=c(4,1,0),font=2, cex=1.2) ;
+axis(side=4, mgp=c(4,1,0), cex.axis=1.2, font=2) ;
 
-mtext(expression(paste("Mg ","ha"^-1, "year"^-1)), side=4, line=2, cex=1.3, font=2) 
+mtext(expression(paste("Yield Mg ","ha"^-1, "year"^-1)), side=4, line=3, cex=1.5, font=2) 
 
-mtext('Cultivar', side=1, line=3, cex=1.3, font=2)
+mtext('Cultivar', side=1, line=3, cex=1.5, font=2)
 
 
 #### Prepare data to add error bars with the funcion arrows
