@@ -914,7 +914,7 @@ invisible(dev.off())
 ###############################################################################################################
 
 
-postscript(file="..\\Agronomy Journal\\JournalResponse20201117\\AceptedVersion20210105\\Figure5PlantDensityAnderrorBars.eps" , onefile=F, width=8, height=6, paper= "letter", family='Times')
+postscript(file="..\\Agronomy Journal\\JournalResponse20201117\\AceptedVersion20210105\\Figure5PlantDensityAnderrorBars2.eps" , onefile=F, width=8, height=6, paper= "letter", family='Times')
 
 # par("mar")  default (5.1 4.1 4.1 2.1)
 
@@ -926,9 +926,9 @@ par(mar=c(5.1, 4.1, 2.1 ,2.1))
 Paper.data.Plots.bar.chart.3<-aggregate(formula= MEAN_PLANT.DENSITY.pl.ha ~  F.SURVEY.YEAR + F.VARIETY  , FUN=mean , data=Paper.data.Plots) ;
 
 
-Density.Bar.Chart<-barplot(MEAN_PLANT.DENSITY.pl.ha  ~ F.SURVEY.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.3, beside=T, legend.text=T,args.legend = list(x = 23 , y = 15000, bty="n"), col=c("YELLOW", "GREEN", "BROWN"), mgp=c(2,1,0), ylab=expression(paste(" Plants   ","ha"^-1)), xlab="", cex.names=0.87, ylim=c(0,15000),font=2, cex=1.3, cex.lab=1.3);
+Density.Bar.Chart<-barplot(MEAN_PLANT.DENSITY.pl.ha  ~ F.SURVEY.YEAR + F.VARIETY , data=Paper.data.Plots.bar.chart.3, beside=T, legend.text=T,args.legend = list(x = 23 , y = 15000, bty="n", cex=1.2), col=c("YELLOW", "GREEN", "BROWN"), mgp=c(2,1,0), ylab=expression(paste(" Plants   ","ha"^-1)), xlab="", cex.names=0.87, ylim=c(0,15000),font=2, cex=1.3, cex.lab=1.5);
 
-mtext('Cultivar', side=1, line=3, font=2, cex=1.3)
+mtext('Cultivar', side=1, line=3, font=2, cex=1.5)
 
 
 #### Add the error bars based on the manual count estimates
